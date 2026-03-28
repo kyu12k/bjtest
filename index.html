@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신 43년 요한계시록 인 맞음 시뮬레이터 종합 플랫폼</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b5998">
+    <style>
+        :root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --hover-bg: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --hover-bg: #444649;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px var(--shadow-color);
+            word-break: keep-all;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        [data-theme="dark"] p.subtitle { color: #aaa; }
+
+        .btn-dark {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.1s;
+        }
+        .btn-dark:active { transform: scale(0.95); }
+        
+        /* 🎮 리스트형(1열 종대) 레이아웃 */
+        .stage-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 🚪 개별 스테이지 카드 */
+        .stage-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px 25px;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .stage-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: all 0.5s;
+        }
+        [data-theme="dark"] .stage-card::before {
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
+        }
+
+        .stage-card:hover {
+            transform: translateX(5px) translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+            border-color: var(--primary-color);
+            background-color: var(--hover-bg);
+        }
+
+        .stage-card:hover::before {
+            left: 100%;
+        }
+
+        .stage-icon {
+            font-size: 2.5rem;
+            margin-right: 25px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            box-shadow: inset 0 2px 5px var(--shadow-color);
+        }
+
+        .stage-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stage-number {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .stage-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1.5;
+            word-break: keep-all;
+        }
+        
+        .stage-title span {
+            display: block;
+        }
+
+        .stage-title .sub-title {
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed #ccc;
+        }
+        [data-theme="dark"] .stage-title .sub-title {
+            border-top: 1px dashed #555;
+        }
+
+        /* 🔥 시험 강조 CSS 추가 */
+        .exam-highlight {
+            border: 2px solid #ff4757 !important;
+            background-color: #fff0f1;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4) !important;
+            animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1) !important;
+            margin-bottom: 10px;
+        }
+        [data-theme="dark"] .exam-highlight {
+            background-color: #3a2022;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+
+        .exam-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #ff4757;
+            color: white;
+            padding: 6px 16px;
+            border-bottom-left-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stage-card {
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+        }
+        @keyframes slideIn {
+            0% { transform: translateX(-30px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 600px) {
+            .stage-card {
+                padding: 15px;
+            }
+            .stage-icon {
+                font-size: 2rem;
+                width: 50px;
+                height: 50px;
+                margin-right: 15px;
+            }
+            .stage-title {
+                font-size: 1.05rem;
+            }
+            .stage-number {
+                font-size: 0.95rem;
+            }
+            .exam-badge {
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
+        }
+
+        /* iOS 안내 팝업 및 모달 스타일 유지 */
+        #ios-install-guide { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background-color: var(--card-bg); color: var(--text-color); padding: 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; border: 2px solid var(--primary-color); animation: fadeInUp 0.5s ease-out; }
+        .guide-content { display: flex; align-items: center; gap: 12px; }
+        .guide-icon { font-size: 24px; }
+        .guide-text { flex: 1; font-size: 0.9rem; font-weight: 500; }
+        .guide-close { background: none; border: none; color: var(--text-color); font-size: 1.2rem; cursor: pointer; padding: 5px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        #manual-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; justify-content: center; align-items: center; }
+        .modal-content { background-color: var(--card-bg); color: var(--text-color); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-content h3 { margin-top: 0; color: var(--primary-color); }
+        .modal-content ul { padding-left: 20px; text-align: left; }
+        .modal-content li { margin-bottom: 10px; font-size: 0.95rem; }
+        .modal-close-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌟 요한계시록 인 맞음 훈련소</h1>
+        <p class="subtitle">신 43년 요한계시록 전장 완벽 마스터 플랫폼</p>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button id="installBtn" class="btn-dark" style="display:none; background-color: #28a745;">📲 앱 설치</button>
+            <button class="btn-dark" onclick="showManual()" style="background-color: #ffc107; color: #000;">💡 설치 안내</button>
+            
+            <button class="btn-dark" onclick="window.open('https://kingsload.pages.dev', '_blank')" style="background-color: #8e44ad; color: white;" title="게임으로 계시록을 암송해 보세요!">
+                ⚔️ 게임으로 계시록 전장 암송
+            </button>
+        </div>
+    </header>
+
+    <div class="stage-list" id="stageList">
+        </div>
+
+<script>
+    // 📖 계시록 장별 데이터 
+    // 맨 위에 특별 시험 대비판을 넣고, 1~22장은 원래 순서대로 배치했습니다.
+    const chapterData = [
+        // 🔥 맨 위에 추가되는 3/29 시험 대비 특별 페이지
+        { isSpecial: true, link: "bjtest13_exam/index.html", icon: "🚨", badge: "🔥 3/29 시험", title: "<span>계 13장 전체 (1~18절) 무작위 빈칸 훈련</span><span class='sub-title'>핵심 단어 무작위 출제 — 매번 새로운 문제!</span>" },
+
+        // 📖 기존 1~22장 목록 (원래 순서대로)
+        { num: 1, icon: "📜", title: "<span>계 1:1~8 계시록 전장의 요약과 결론</span><span class='sub-title'>계 1:9~20 계시록 사건의 시작과 일곱 별과 일곱 금 촛대의 비밀</span>" },
+        { num: 2, icon: "✉️", title: "일곱 교회 사자에게 보낸 편지" },
+        { num: 3, icon: "✉️", title: "일곱 교회 사자에게 보낸 편지" },
+        { num: 4, icon: "👑", title: "영계 하나님의 보좌와 계열" },
+        { num: 5, icon: "🐑", title: "일곱 인으로 봉한 책" },
+        { num: 6, icon: "🐎", title: "배도한 선천 해⋅달⋅별에 대한 심판" },
+        { num: 7, icon: "🛡️", title: "새 창조 된 영적 새 이스라엘 열두 지파" },
+        { num: 8, icon: "🎺", title: "마지막 인과 일곱 나팔" },
+        { num: 9, icon: "🦗", title: "무저갱의 황충과 범죄한 천사" },
+        { num: 10, icon: "📖", title: "하늘에서 온 계시 책과 약속의 목자" },
+        { num: 11, icon: "⚖️", title: "두 증인과 일곱째 나팔" },
+        { num: 12, icon: "🐉", title: "용과 하나님과의 전쟁" }, // 기존 12장 (1~17절 전체)
+        { num: 13, icon: "🐾", title: "짐승에게 표 받고 배도한 선민" },
+        { num: 14, icon: "🌾", title: "처음 익은 열매 시온산 십사만 사천" },
+        { num: 15, icon: "🥣", title: "만국이 와서 경배할 증거장막 성전" },
+        { num: 16, icon: "💥", title: "진노의 일곱 대접" },
+        { num: 17, icon: "🍷", title: "마귀의 양식 음행의 포도주" },
+        { num: 18, icon: "🔥", title: "만국을 무너뜨린 사단과의 결혼" },
+        { num: 19, icon: "👰", title: "영육 어린양의 혼인 잔치" },
+        { num: 20, icon: "⛓️", title: "순교의 영과 산 자의 첫째 부활" },
+        { num: 21, icon: "✨", title: "약속한 새 하늘 새 땅 신천지" },
+        { num: 22, icon: "🌳", title: "생명나무가 있는 거룩한 성" }
+    ];
+
+    const stageList = document.getElementById('stageList');
+
+    chapterData.forEach((chapter, index) => {
+        const card = document.createElement('a');
+        
+        // 특별판이면 link 속성을 쓰고, 아니면 num을 사용해 폴더 경로 매칭
+        card.href = chapter.isSpecial ? chapter.link : `bjtest${chapter.num}/index.html`; 
+        
+        // 특별판인 경우 애니메이션 효과 클래스 추가
+        if(chapter.isSpecial) {
+            card.className = 'stage-card exam-highlight';
+        } else {
+            card.className = 'stage-card';
+        }
+        
+        card.style.animationDelay = `${index * 0.05}s`;
+
+        // 뱃지 HTML 처리
+        const badgeHTML = chapter.badge ? `<div class="exam-badge">${chapter.badge}</div>` : '';
+
+        // 장 번호 또는 특별 훈련소 텍스트 처리
+        const numHTML = chapter.isSpecial
+            ? `<span class="stage-number" style="color: #ff4757;">🎯 3월 29일 특별 훈련소</span>`
+            : `<span class="stage-number">계시록 ${chapter.num}장</span>`;
+
+        card.innerHTML = `
+            ${badgeHTML}
+            <div class="stage-icon">${chapter.icon}</div>
+            <div class="stage-info">
+                ${numHTML}
+                <span class="stage-title">${chapter.title}</span>
+            </div>
+        `;
+        
+        stageList.appendChild(card);
+    });
+
+    // 🌙 다크 모드 로직
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.btn-dark');
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.setAttribute('data-theme', 'light'); 
+            btn.innerText = "🌙 다크 모드";
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.setAttribute('data-theme', 'dark'); 
+            btn.innerText = "☀️ 라이트 모드";
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+
+    if(localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        document.querySelector('.btn-dark').innerText = "☀️ 라이트 모드";
+    }
+
+    // 서비스 워커 등록
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('사용자가 설치를 승인했습니다.');
+            }
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        }
+    });
+
+    function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    function isStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    }
+
+    window.addEventListener('load', () => {
+        const guide = document.getElementById('ios-install-guide');
+        if (isIOS() && !isStandalone()) {
+            if(guide) guide.style.display = 'block';
+        }
+    });
+
+    function closeGuide() {
+        const guide = document.getElementById('ios-install-guide');
+        if(guide) guide.style.display = 'none';
+    }
+
+    function showManual() {
+        document.getElementById('manual-modal').style.display = 'flex';
+    }
+
+    function closeManual() {
+        document.getElementById('manual-modal').style.display = 'none';
+    }
+
+</script>
+
+<div id="manual-modal">
+    <div class="modal-content">
+        <h3>📲 앱 설치 및 이용 안내</h3>
+        <ul>
+            <li><strong>텔레그램/인앱 브라우저:</strong> 우측 상단 메뉴(⋮)를 눌러 <strong>'브라우저로 열기'</strong>를 먼저 선택해 주세요.</li>
+            <li><strong>안드로이드(Chrome):</strong> 상단에 나타나는 <strong>'앱 설치'</strong> 버튼을 클릭하세요.</li>
+            <li><strong>아이폰(Safari):</strong> 하단 <strong>'공유'</strong> 버튼 클릭 후 <strong>'홈 화면에 추가'</strong>를 눌러주세요.</li>
+        </ul>
+        <button class="modal-close-btn" onclick="closeManual()">확인했습니다</button>
+    </div>
+</div>
+
+</body>
+</html>

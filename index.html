@@ -274,8 +274,8 @@
     // 📖 계시록 장별 데이터 
     // 맨 위에 특별 시험 대비판을 넣고, 1~22장은 원래 순서대로 배치했습니다.
     const chapterData = [
-        // 🔥 맨 위에 추가되는 3/29 시험 대비 특별 페이지
-        { isSpecial: true, link: "bjtest13_exam/index.html", icon: "🚨", badge: "🔥 3/29 시험", title: "<span>계 13장 전체 (1~18절) 무작위 빈칸 훈련</span><span class='sub-title'>핵심 단어 무작위 출제 — 매번 새로운 문제!</span>" },
+        // 🔥 맨 위에 추가되는 시험 대비 특별 페이지
+        { isSpecial: true, link: "bjtest14_exam/index.html", icon: "🚨", badge: "🔥 시험 대비", title: "<span>계 14장 전체 (1~20절) 무작위 빈칸 훈련</span><span class='sub-title'>핵심 단어 무작위 출제 — 매번 새로운 문제!</span>" },
 
         // 📖 기존 1~22장 목록 (원래 순서대로)
         { num: 1, icon: "📜", title: "<span>계 1:1~8 계시록 전장의 요약과 결론</span><span class='sub-title'>계 1:9~20 계시록 사건의 시작과 일곱 별과 일곱 금 촛대의 비밀</span>" },
@@ -324,7 +324,7 @@
 
         // 장 번호 또는 특별 훈련소 텍스트 처리
         const numHTML = chapter.isSpecial
-            ? `<span class="stage-number" style="color: #ff4757;">🎯 3월 29일 특별 훈련소</span>`
+            ? `<span class="stage-number" style="color: #ff4757;">🎯 계 14장 특별 훈련소</span>`
             : `<span class="stage-number">계시록 ${chapter.num}장</span>`;
 
         card.innerHTML = `

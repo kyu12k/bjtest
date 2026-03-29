@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신 43년 계시록 14장 인 맞음 확인 시험 예상 문답</title>
+    <style>
+        :root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --blank-bg: #e9ecef;
+            --blank-text: transparent;
+            --hint-bg: #fff3cd;
+            --hint-color: #888;
+            --answer-bg: #d1e7dd;
+            --answer-color: #0f5132;
+            --marker-color: #e83e8c;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+            --exam-color: #e53e3e;
+            --hover-bg: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --blank-bg: #5f6368;
+            --hint-bg: #423805;
+            --hint-color: #e2b838;
+            --answer-bg: #0c3b28;
+            --answer-color: #8ab4f8;
+            --marker-color: #f783ac;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --exam-color: #fc8181;
+            --hover-bg: #3c4043;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 🚨 경고 모달 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); transition: opacity 0.3s; }
+        .modal-content { background-color: var(--card-bg); padding: 30px 25px; border-radius: 16px; text-align: center; max-width: 420px; width: 85%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #d9534f; margin-top: 0; font-size: 1.4rem; }
+        .modal-content p { font-size: 1.05rem; margin-bottom: 25px; word-break: keep-all; line-height: 1.5; }
+        .btn-amen { padding: 12px 30px; font-size: 1.2rem; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-amen:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .btn-amen:not(:disabled):hover { transform: scale(1.03); }
+
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); font-size: 1.6rem; margin-bottom: 10px; }
+
+        /* 🎮 대시보드 UI */
+        .dashboard { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stage-column { display: flex; flex-direction: column; gap: 8px; align-items: center; flex: 1; min-width: 140px; }
+        .btn-stage { padding: 10px 15px; width: 100%; font-size: 0.95rem; border: 2px solid var(--blank-bg); border-radius: 8px; background-color: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-stage:hover { background-color: var(--blank-bg); }
+        .btn-stage.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); transform: scale(1.05); z-index: 2; }
+
+        .btn-exam { padding: 8px 10px; width: 100%; font-size: 0.85rem; border: 2px dashed var(--exam-color); border-radius: 8px; background-color: transparent; color: var(--exam-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-exam:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .btn-exam.active { background-color: var(--exam-color); color: white; border-style: solid; transform: scale(1.05); z-index: 2; }
+
+        .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; padding: 15px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* 🎧 플레이어 */
+        .audio-player-box { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 25px; width: 100%; box-sizing: border-box; position: sticky; top: 15px; z-index: 100; flex-wrap: wrap; }
+        .player-btn, .loop-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .player-btn { background: var(--primary-color); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.4rem; transition: transform 0.2s; }
+        .loop-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; transition: 0.2s; white-space: nowrap; }
+        .loop-btn.active { background: var(--primary-color); color: white; }
+        .collapse-btn { background: transparent; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; flex-shrink: 0; border-radius: 6px; transition: 0.2s; line-height: 1; }
+        .collapse-btn:hover { background: var(--blank-bg); }
+        .audio-player-box.collapsed { padding: 8px 20px; margin-bottom: 10px; }
+        .audio-player-box.collapsed #playBtn,
+        .audio-player-box.collapsed .player-controls > div:not(.audio-title),
+        .audio-player-box.collapsed #loopBtn,
+        .audio-player-box.collapsed .audio-buttons-row { display: none; }
+        .audio-player-box.collapsed .audio-title { margin-bottom: 0; }
+
+        .player-controls { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; min-width: 200px; }
+        .audio-title { font-size: 0.95rem; font-weight: bold; color: var(--primary-color); margin-bottom: 5px; }
+        .progress-container { position: relative; width: 100%; margin: 5px 0; display: flex; align-items: center; height: 10px; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--primary-color); height: 5px; margin: 0; background: transparent; }
+        .time-display { font-size: 0.8rem; color: #888; text-align: right; }
+        .audio-buttons-row { display: flex; gap: 10px; width: 100%; justify-content: flex-end; }
+
+        /* 📝 퀴즈 카드 */
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .question-title { font-weight: bold; font-size: 1.15rem; margin-bottom: 15px; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 10px; }
+        .question-text { font-size: 1.05rem; margin-bottom: 20px; word-break: keep-all; line-height: 1.8; }
+
+        .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; }
+        .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
+        .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+        .blank.stage2-blank { min-width: 20px; color: var(--hint-color); background-color: var(--hint-bg); border-bottom: 2px solid var(--hint-color); }
+        .blank.stage2-blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+
+        .controls { display: flex; gap: 8px; justify-content: flex-end; }
+        button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-hint { background-color: #ffc107; color: #333; }
+        .btn-answer { background-color: #198754; color: white; }
+        .btn-toggle { background-color: #6c757d; color: white; }
+        .btn-dark { background-color: #343a40; color: white; }
+        .btn-shuffle { background-color: #6f42c1; color: white; }
+
+        [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
+        [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
+
+        /* 🔀 빈칸 안내 */
+        .shuffle-info { font-size: 0.85rem; color: #888; text-align: center; margin: 0 0 15px 0; }
+        [data-theme="dark"] .shuffle-info { color: #aaa; }
+
+        /* 🏆 모의고사 전용 UI */
+        #exam-arena { display: none; }
+        .exam-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: var(--blank-bg); padding: 15px; border-radius: 12px; }
+        .exam-progress-text { font-weight: bold; color: var(--exam-color); font-size: 1.3rem; margin-bottom: 5px; }
+        .exam-notice { font-size: 0.9rem; color: #666; text-align: center; }
+        [data-theme="dark"] .exam-notice { color: #aaa; }
+
+        .exam-input { border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--exam-color); font-size: 1.1rem; font-weight: bold; text-align: center; outline: none; transition: 0.2s; margin: 4px 2px; padding: 2px; font-family: inherit; }
+        .exam-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); }
+        .exam-input::placeholder { color: #ccc; font-weight: normal; }
+        [data-theme="dark"] .exam-input::placeholder { color: #666; }
+
+        .btn-next-exam { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 15px; margin-top: 25px; border-radius: 12px; }
+
+        .result-screen { text-align: center; padding: 30px 10px; }
+        .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .wrong-list { text-align: left; background: var(--blank-bg); padding: 20px; border-radius: 12px; margin-top: 20px; font-size: 1rem; }
+        .wrong-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; line-height: 1.7; }
+        .wrong-item:last-child { border-bottom: none; }
+        .correct-ans { color: #198754; font-weight: bold; background: rgba(25,135,84,0.1); padding: 0 4px; border-radius: 4px; }
+        .wrong-ans { color: #d9534f; text-decoration: line-through; font-size: 0.9em; margin-right: 4px; }
+
+        /* 🚀 TOP 버튼 */
+        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; outline: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        #topBtn:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+<div id="warningModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>⚠️ 모의고사 안내 (계 14장)</h2>
+        <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
+        각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
+        <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
+        <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
+        만점을 향해 도전하세요!</p>
+        <button id="amenBtn" class="btn-amen" disabled>아멘 (2초 후 활성화)</button>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>🌟 계 14장 인 맞음 시뮬레이터 (시험 대비)</h1>
+
+        <div class="dashboard">
+            <div class="stage-column">
+                <button class="btn-stage active" id="btnStage1" onclick="setMode('stage', 1)">🌱 1단계 (무작위 핵심)</button>
+                <button class="btn-exam" id="btnExam1" onclick="setMode('exam', 1)">🏆 1단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage2" onclick="setMode('stage', 2)">🔥 2단계 (초성)</button>
+                <button class="btn-exam" id="btnExam2" onclick="setMode('exam', 2)">🏆 2단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage3" onclick="setMode('stage', 3)">👑 3단계 (전체)</button>
+                <button class="btn-exam" id="btnExam3" onclick="setMode('exam', 3)">🏆 3단계 모의고사</button>
+            </div>
+        </div>
+
+        <div class="global-controls" id="globalControls">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-shuffle" id="shuffleBtn" onclick="reshuffleBlanks()">🔀 새 문제 만들기</button>
+        </div>
+        <p class="shuffle-info" id="shuffleInfo">💡 1단계: 핵심 단어 중 <strong>무작위</strong>로 빈칸이 출제됩니다. [새 문제 만들기]를 누르면 매번 새로운 조합이 생성됩니다.</p>
+    </header>
+
+    <div class="audio-player-box">
+        <button id="playBtn" class="player-btn" onclick="togglePlayPause()">▶</button>
+        <div class="player-controls">
+            <div class="audio-title">🎵 계 14장 듣기</div>
+            <div class="progress-container">
+                <input type="range" id="progressBar" value="0" step="0.1" min="0">
+            </div>
+            <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+        </div>
+        <div class="audio-buttons-row">
+            <button id="loopBtn" class="loop-btn" onclick="toggleLoop()" title="전체 반복 재생">🔁 전체 반복</button>
+        </div>
+        <button class="collapse-btn" id="collapseBtn" onclick="togglePlayer()" title="접기/펼치기">▲</button>
+    </div>
+
+    <div id="quiz-list"></div>
+
+    <div id="exam-arena" class="quiz-card">
+        <div id="exam-play-area">
+            <div class="exam-header">
+                <div class="exam-progress-text" id="examProgressText">1 / 20 절</div>
+                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+            </div>
+            <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
+            <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
+        </div>
+        <div id="exam-result-area" class="result-screen" style="display: none;">
+            <h2>🎉 모의고사 결과 🎉</h2>
+            <div class="score-display" id="finalScore">0 / 20</div>
+            <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
+            <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
+            <div id="wrongListContainer" class="wrong-list"></div>
+        </div>
+    </div>
+</div>
+
+<button id="topBtn" onclick="scrollToTop()" title="맨 위로 가기">⬆️</button>
+
+<script>
+    // 🚨 스크롤 및 모달 로직
+    window.onscroll = function() { scrollFunction() };
+    function scrollFunction() {
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) { document.getElementById("topBtn").style.display = "block"; }
+        else { document.getElementById("topBtn").style.display = "none"; }
+    }
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById('warningModal');
+        const amenBtn = document.getElementById('amenBtn');
+        let timeLeft = 2; document.body.style.overflow = 'hidden';
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) amenBtn.innerText = `아멘 (${timeLeft}초 후 활성화)`;
+            else { clearInterval(timer); amenBtn.disabled = false; amenBtn.innerText = "아멘 🙏"; }
+        }, 1000);
+        amenBtn.addEventListener('click', () => { modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }, 300); });
+
+        generateRandomBlanks();
+        setMode('stage', 1);
+    });
+
+    // 🎧 오디오 플레이어 로직
+    const audioPath = "../bjtest14/mp3/14.mp3";
+    const globalAudio = new Audio(audioPath);
+    const playBtn = document.getElementById('playBtn'), loopBtn = document.getElementById('loopBtn'), progressBar = document.getElementById('progressBar'), timeDisplay = document.getElementById('timeDisplay');
+    let isDragging = false, isLooping = false;
+
+    function toggleLoop() { isLooping = !isLooping; globalAudio.loop = isLooping; isLooping ? loopBtn.classList.add('active') : loopBtn.classList.remove('active'); }
+    globalAudio.addEventListener('loadedmetadata', () => { progressBar.max = globalAudio.duration; updateTimeText(); });
+    function togglePlayPause() { if (globalAudio.paused) { globalAudio.play(); playBtn.innerText = "⏸"; } else { globalAudio.pause(); playBtn.innerText = "▶"; } }
+    progressBar.addEventListener('input', () => { isDragging = true; updateTimeText(progressBar.value); });
+    progressBar.addEventListener('change', () => { globalAudio.currentTime = parseFloat(progressBar.value); isDragging = false; });
+    globalAudio.addEventListener('timeupdate', () => { if (!isDragging) { progressBar.value = globalAudio.currentTime; updateTimeText(); } });
+    function updateTimeText(val = null) { let current = val !== null ? val : globalAudio.currentTime; timeDisplay.innerText = `${formatTime(current)} / ${formatTime(globalAudio.duration || 0)}`; }
+    function formatTime(seconds) { if (isNaN(seconds) || !isFinite(seconds)) return "00:00"; const min = Math.floor(seconds / 60), sec = Math.floor(seconds % 60); return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`; }
+    globalAudio.addEventListener('ended', () => { if (!isLooping) { playBtn.innerText = "▶"; globalAudio.currentTime = 0; progressBar.value = 0; updateTimeText(); } });
+
+    // 📖 계시록 14장 핵심 단어 풀 — 시험 범위: 계 14:1~20 (총 20절)
+    // {} 안의 단어들이 무작위 빈칸 출제 대상입니다.
+    const verses14_pool = [
+        "1 또 내가 보니 보라 어린 양이 {시온산}에 섰고 그와 함께 {십 사만 사천}이 섰는데 그 이마에 {어린 양의 이름}과 그 {아버지의 이름}을 쓴 것이 있도다",
+        "2 내가 {하늘}에서 나는 소리를 들으니 많은 {물소리}도 같고 큰 {뇌성}도 같은데 내게 들리는 소리는 {거문고} 타는 자들의 그 거문고 타는 것 같더라",
+        "3 저희가 보좌와 네 생물과 장로들 앞에서 {새 노래}를 부르니 땅에서 {구속함을 얻은} 십 사만 사천인 밖에는 능히 이 노래를 배울 자가 {없더라}",
+        "4 이 사람들은 {여자}로 더불어 더럽히지 아니하고 {정절이 있는 자}라 {어린 양}이 어디로 인도하든지 따라가는 자며 사람 가운데서 구속을 받아 {처음 익은 열매}로 하나님과 어린 양에게 {속한 자들}이니",
+        "5 그 입에 {거짓말}이 없고 {흠이 없는 자들}이더라",
+        "6 또 보니 다른 천사가 공중에 날아가는데 땅에 거하는 자들 곧 여러 나라와 족속과 방언과 백성에게 전할 {영원한 복음}을 가졌더라",
+        "7 그가 큰 음성으로 가로되 하나님을 {두려워하며} 그에게 {영광}을 돌리라 이는 그의 {심판하실 시간}이 이르렀음이니 하늘과 땅과 바다와 물들의 근원을 만드신 이를 {경배하라} 하더라",
+        "8 또 {다른 천사} 곧 둘째가 그 뒤를 따라 말하되 무너졌도다 무너졌도다 큰 성 {바벨론}이여 모든 나라를 그 음행으로 인하여 {진노의 포도주}로 먹이던 자로다 하더라",
+        "9 또 다른 천사 곧 세째가 그 뒤를 따라 큰 음성으로 가로되 만일 누구든지 짐승과 그의 우상에게 경배하고 이마에나 손에 {표}를 받으면",
+        "10 그도 하나님의 {진노의 포도주}를 마시리니 그 진노의 잔에 섞인 것이 없이 부은 포도주라 거룩한 천사들 앞과 어린 양 앞에서 {불과 유황}으로 고난을 받으리니",
+        "11 그 {고난의 연기}가 세세토록 올라가리로다 짐승과 그의 우상에게 경배하고 그 이름의 표를 받는 자는 누구든지 밤낮 {쉼을 얻지 못하리라} 하더라",
+        "12 성도들의 {인내}가 여기 있나니 저희는 {하나님의 계명}과 {예수 믿음}을 지키는 자니라",
+        "13 또 내가 들으니 하늘에서 음성이 나서 가로되 기록하라 자금 이후로 {주 안에서 죽는 자들}은 {복}이 있도다 하시매 성령이 가라사대 그러하다 저희 수고를 그치고 쉬리니 이는 저희의 {행한 일}이 따름이라 하시더라",
+        "14 또 내가 보니 {흰구름}이 있고 구름 위에 {사람의 아들}과 같은 이가 앉았는데 그 머리에는 {금 면류관}이 있고 그 손에는 {이한 낫}을 가졌더라",
+        "15 또 다른 천사가 {성전}으로부터 나와 구름 위에 앉은이를 향하여 큰 음성으로 외쳐 가로되 네 낫을 휘둘러 거두라 거둘 때가 이르러 땅에 {곡식}이 다 {익었음이로다} 하니",
+        "16 구름 위에 앉으신 이가 {낫}을 땅에 휘두르매 {곡식}이 거두어지니라",
+        "17 또 다른 천사가 하늘에 있는 {성전}에서 나오는데 또한 {이한 낫}을 가졌더라",
+        "18 또 {불을 다스리는} 다른 천사가 {제단}으로부터 나와 이한 낫 가진 자를 향하여 큰 음성으로 불러 가로되 네 이한 낫을 휘둘러 땅의 {포도송이}를 거두라 그 포도가 익었느니라 하더라",
+        "19 천사가 낫을 땅에 휘둘러 땅의 {포도}를 거두어 하나님의 {진노의 큰 포도주 틀}에 던지매",
+        "20 {성 밖}에서 그 틀이 밟히니 틀에서 {피}가 나서 {말굴레}까지 닿았고 일천 육백 {스다디온}에 퍼졌더라"
+    ];
+    // 총 20절
+
+    // 정적 퀴즈 묶음 (Stage 2/3용 — pool 전체 단어 대상)
+    const quizData_pool = [
+        { title: "1. 시온산에 선 어린 양과 144,000 (계 14:1~2)", content: verses14_pool[0] + "<br>" + verses14_pool[1] },
+        { title: "2. 새 노래와 처음 익은 열매 (계 14:3~5)", content: verses14_pool[2] + "<br>" + verses14_pool[3] + "<br>" + verses14_pool[4] },
+        { title: "3. 영원한 복음과 바벨론의 무너짐 (계 14:6~8)", content: verses14_pool[5] + "<br>" + verses14_pool[6] + "<br>" + verses14_pool[7] },
+        { title: "4. 짐승의 표를 받는 자의 고난 (계 14:9~11)", content: verses14_pool[8] + "<br>" + verses14_pool[9] + "<br>" + verses14_pool[10] },
+        { title: "5. 성도의 인내와 복 있는 자 (계 14:12~13)", content: verses14_pool[11] + "<br>" + verses14_pool[12] },
+        { title: "6. 이한 낫으로 곡식을 거둠 (계 14:14~16)", content: verses14_pool[13] + "<br>" + verses14_pool[14] + "<br>" + verses14_pool[15] },
+        { title: "7. 성전에서 나온 천사와 포도송이 수확 (계 14:17~18)", content: verses14_pool[16] + "<br>" + verses14_pool[17] },
+        { title: "8. 진노의 큰 포도주 틀 (계 14:19~20)", content: verses14_pool[18] + "<br>" + verses14_pool[19] }
+    ];
+
+    // 무작위 빈칸 세트 (Stage 1용 — generateRandomBlanks()로 생성)
+    let verses14_active = [];
+    let quizData_active = [];
+
+    // 🔀 무작위 빈칸 생성 함수 (ratio: 핵심 단어 중 빈칸 비율)
+    function generateRandomBlanks(ratio = 0.6) {
+        verses14_active = verses14_pool.map(verse => {
+            const importantWords = [];
+            verse.replace(/\{([^}]+)\}/g, (match, word) => { importantWords.push(word); });
+            if (importantWords.length === 0) return verse;
+
+            const shuffled = [...importantWords].sort(() => Math.random() - 0.5);
+            const numToBlank = Math.max(1, Math.ceil(importantWords.length * ratio));
+            const blanksSet = new Set(shuffled.slice(0, numToBlank));
+
+            return verse.replace(/\{([^}]+)\}/g, (match, word) => {
+                return blanksSet.has(word) ? `{${word}}` : word;
+            });
+        });
+
+        // Stage 1용 퀴즈 묶음 재생성
+        quizData_active = [
+            { title: quizData_pool[0].title, content: verses14_active[0] + "<br>" + verses14_active[1] },
+            { title: quizData_pool[1].title, content: verses14_active[2] + "<br>" + verses14_active[3] + "<br>" + verses14_active[4] },
+            { title: quizData_pool[2].title, content: verses14_active[5] + "<br>" + verses14_active[6] + "<br>" + verses14_active[7] },
+            { title: quizData_pool[3].title, content: verses14_active[8] + "<br>" + verses14_active[9] + "<br>" + verses14_active[10] },
+            { title: quizData_pool[4].title, content: verses14_active[11] + "<br>" + verses14_active[12] },
+            { title: quizData_pool[5].title, content: verses14_active[13] + "<br>" + verses14_active[14] + "<br>" + verses14_active[15] },
+            { title: quizData_pool[6].title, content: verses14_active[16] + "<br>" + verses14_active[17] },
+            { title: quizData_pool[7].title, content: verses14_active[18] + "<br>" + verses14_active[19] }
+        ];
+    }
+
+    // 🔀 새 문제 만들기 버튼
+    function reshuffleBlanks() {
+        generateRandomBlanks();
+        if (currentMode === 'stage' && activeLevel === 1) renderQuizzes();
+        const btn = document.getElementById('shuffleBtn');
+        const orig = btn.innerText;
+        btn.innerText = "✅ 새 문제 생성 완료!";
+        btn.style.backgroundColor = "#28a745";
+        setTimeout(() => { btn.innerText = orig; btn.style.backgroundColor = ""; }, 1500);
+    }
+
+    function getChosung(str) {
+        const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i) - 44032;
+            if (code > -1 && code < 11172) result += chosung[Math.floor(code / 588)];
+            else result += str.charAt(i);
+        }
+        return result;
+    }
+
+    // 🎮 통합 모드 제어
+    let currentMode = 'stage';
+    let activeLevel = 1;
+
+    function setMode(mode, level) {
+        scrollToTop();
+        currentMode = mode; activeLevel = level;
+        document.querySelectorAll('.btn-stage, .btn-exam').forEach(btn => btn.classList.remove('active'));
+
+        if (mode === 'stage') {
+            document.getElementById('btnStage' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'block';
+            document.getElementById('exam-arena').style.display = 'none';
+            document.getElementById('globalControls').style.display = 'flex';
+            document.getElementById('shuffleInfo').style.display = (level === 1) ? 'block' : 'none';
+            renderQuizzes();
+        } else if (mode === 'exam') {
+            document.getElementById('btnExam' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'none';
+            document.getElementById('exam-arena').style.display = 'block';
+            document.getElementById('globalControls').style.display = 'none';
+            document.getElementById('shuffleInfo').style.display = 'none';
+            startExam();
+        }
+    }
+
+    // --- [학습 모드 렌더링] ---
+    function renderQuizzes() {
+        const quizList = document.getElementById('quiz-list');
+        quizList.innerHTML = ''; isAllAnswersShown = false;
+
+        const data = (activeLevel === 1) ? quizData_active : quizData_pool;
+        data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+    }
+
+    // 카드 생성 함수
+    function renderSingleCard(item, id, container, forceStage1) {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        let htmlContent = '', controlsHtml = '';
+        const level = forceStage1 ? 1 : activeLevel;
+
+        if (level === 1) {
+            htmlContent = item.content.replace(/\{([^}]+)\}/g, (match, ans) =>
+                `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`
+            );
+            controlsHtml = `<button class="btn-hint" onclick="toggleHint('${id}', this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer('${id}', this)">정답 보기</button>`;
+        } else {
+            let rawText = item.content.replace(/\{|\}/g, '');
+            let lines = rawText.split('<br>');
+            let parsedLines = lines.map(line => {
+                return line.split(' ').map((word, i) => {
+                    if (!word) return '';
+                    if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
+                    if (level === 2) return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                    return `<span class="blank stage3-blank" data-answer="${word}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                }).join(' ');
+            });
+            htmlContent = parsedLines.join('<br>');
+            controlsHtml = `<button class="btn-answer" onclick="toggleAnswer('${id}', this)">전체 정답 보기</button>`;
+        }
+
+        card.innerHTML = `<div class="question-title">${item.title}</div><div class="question-text" id="q-${id}">${htmlContent}</div><div class="controls">${controlsHtml}</div>`;
+        container.appendChild(card);
+    }
+
+    function toggleSingleBlank(el) {
+        if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
+        else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
+    }
+    function toggleStage2Word(el) {
+        if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.innerText = el.dataset.chosung; }
+        else { el.className = 'blank stage2-blank answer-mode'; el.innerText = el.dataset.answer; }
+    }
+    let isAllAnswersShown = false;
+    function toggleHint(id, btn) {
+        const blanks = document.getElementById(`q-${id}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
+        btn.nextElementSibling.classList.remove('active'); btn.nextElementSibling.innerText = "정답 보기";
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "초성 끄기"; blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; }); }
+        else { btn.classList.remove('active'); btn.innerText = "초성 보기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; }); }
+    }
+    function toggleAnswer(id, btn) {
+        const blanks = document.getElementById(`q-${id}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
+        if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = "초성 보기"; }
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); }
+        else { btn.classList.remove('active'); btn.innerText = (activeLevel >= 2) ? "전체 정답 보기" : "정답 보기"; blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }
+    }
+    function toggleAll() {
+        const btns = document.querySelectorAll('.btn-answer');
+        isAllAnswersShown = !isAllAnswersShown;
+        btns.forEach((btn) => {
+            const id = btn.closest('.quiz-card').querySelector('.question-text').id.replace('q-', '');
+            const isActive = btn.classList.contains('active');
+            if (isAllAnswersShown && !isActive) toggleAnswer(id, btn);
+            else if (!isAllAnswersShown && isActive) toggleAnswer(id, btn);
+        });
+    }
+
+    // --- [🏆 모의고사 보스전 로직] ---
+    // 모의고사 범위: 계 14:1~20 (총 20절)
+    let currentExamIndex = 0;
+    let examScore = 0;
+    let examWrongData = [];
+    const totalVerses = verses14_pool.length; // 20
+
+    function startExam() {
+        currentExamIndex = 0; examScore = 0; examWrongData = [];
+        document.getElementById('exam-play-area').style.display = 'block';
+        document.getElementById('exam-result-area').style.display = 'none';
+        renderExamVerse();
+    }
+
+    function retryCurrentExam() { setMode('exam', activeLevel); }
+
+    function renderExamVerse() {
+        document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절`;
+
+        const verseStr = (activeLevel === 1) ? verses14_active[currentExamIndex] : verses14_pool[currentExamIndex];
+        let htmlStr = "";
+
+        if (activeLevel === 1) {
+            htmlStr = verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
+                let width = (ans.length * 1.5) + 1;
+                return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            });
+        } else {
+            let rawText = verseStr.replace(/\{|\}/g, '');
+            let words = rawText.split(' ');
+            htmlStr = words.map((word, i) => {
+                if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
+                let width = (word.length * 1.2) + 1;
+                let placeholder = activeLevel === 2 ? getChosung(word) : "";
+                return `<input type="text" class="exam-input" style="width: ${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            }).join(' ');
+        }
+
+        document.getElementById('examVerseText').innerHTML = htmlStr;
+        setTimeout(() => { const firstInput = document.querySelector('.exam-input'); if (firstInput) firstInput.focus(); }, 100);
+    }
+
+    function handleExamInput(e, currentInput) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const inputs = document.querySelectorAll('.exam-input');
+            const currentIndex = Array.from(inputs).indexOf(currentInput);
+            if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+                const nextInput = inputs[currentIndex + 1];
+                nextInput.focus();
+                nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else if (currentIndex === inputs.length - 1) {
+                submitExamVerse();
+            }
+        }
+    }
+
+    function submitExamVerse() {
+        const inputs = document.querySelectorAll('.exam-input');
+        let isVerseAllCorrect = true;
+        let verseLog = [];
+
+        inputs.forEach(input => {
+            const cleanUser = input.value.trim().replace(/,/g, '');
+            const cleanCorrect = input.dataset.answer.trim().replace(/,/g, '');
+            if (cleanUser !== cleanCorrect) {
+                isVerseAllCorrect = false;
+                verseLog.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
+            }
+        });
+
+        if (isVerseAllCorrect) {
+            examScore++;
+        } else {
+            const displayVerse = (activeLevel === 1) ? verses14_active[currentExamIndex] : verses14_pool[currentExamIndex];
+            examWrongData.push({ verseNum: currentExamIndex + 1, fullVerse: displayVerse, errors: verseLog });
+        }
+
+        currentExamIndex++;
+        if (currentExamIndex >= totalVerses) showExamResult();
+        else renderExamVerse();
+    }
+
+    function showExamResult() {
+        document.getElementById('exam-play-area').style.display = 'none';
+        document.getElementById('exam-result-area').style.display = 'block';
+        scrollToTop();
+
+        const scoreBox = document.getElementById('finalScore');
+        scoreBox.innerText = `${examScore} / ${totalVerses}`;
+        scoreBox.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
+
+        let rankText = "";
+        if (examScore === totalVerses && activeLevel === 3) rankText = "👑 계시록 14장 마스터! 완벽하게 인 맞았습니다!";
+        else if (examScore === totalVerses) rankText = "🎉 완벽합니다! 다음 단계 모의고사에 도전하세요!";
+        else rankText = "한 절에 하나라도 틀리면 오답 처리되었습니다.";
+        document.getElementById('examResultMessage').innerText = rankText;
+
+        const wrongListContainer = document.getElementById('wrongListContainer');
+        wrongListContainer.innerHTML = '';
+
+        if (examWrongData.length > 0) {
+            let html = `<h3>📝 오답 노트</h3>`;
+            examWrongData.forEach(item => {
+                let verseDisplay = item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`);
+                let errorDetails = item.errors.map(err => `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`).join(', ');
+                html += `
+                    <div class="wrong-item">
+                        <strong>[${item.verseNum}절]</strong><br>
+                        ${verseDisplay}<br>
+                        <span style="display:inline-block; margin-top:8px; font-size:0.9em; color:#666;">❌ 틀린 부분: ${errorDetails}</span>
+                    </div>
+                `;
+            });
+            wrongListContainer.innerHTML = html;
+        }
+    }
+
+    // 🌙 다크 모드
+    function togglePlayer() {
+        const box = document.querySelector('.audio-player-box');
+        const btn = document.getElementById('collapseBtn');
+        const collapsed = box.classList.toggle('collapsed');
+        btn.textContent = collapsed ? '▼' : '▲';
+        localStorage.setItem('playerCollapsed', collapsed);
+    }
+    if (localStorage.getItem('playerCollapsed') === 'true') {
+        const box = document.querySelector('.audio-player-box');
+        const btn = document.getElementById('collapseBtn');
+        if (box) box.classList.add('collapsed');
+        if (btn) btn.textContent = '▼';
+    }
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.btn-dark');
+        if (body.getAttribute('data-theme') === 'dark') { body.setAttribute('data-theme', 'light'); btn.innerText = "🌙 다크 모드"; }
+        else { body.setAttribute('data-theme', 'dark'); btn.innerText = "☀️ 라이트 모드"; }
+    }
+</script>
+
+</body>
+</html>

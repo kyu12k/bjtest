@@ -469,7 +469,7 @@
     }
 
     function toggleSingleBlank(el) {
-        if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.dataset.answer; }
+        if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
         else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
     }
     function toggleStage2Word(el) {

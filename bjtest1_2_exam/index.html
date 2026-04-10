@@ -163,8 +163,9 @@
 
 <div id="warningModal" class="modal-overlay">
     <div class="modal-content">
-        <h2>⚠️ 모의고사 안내 (계 1~2장)</h2>
+        <h2>⚠️ 모의고사 안내 (계 1~2장 시험 대비)</h2>
         <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
+        📌 <strong>빈칸 범위:</strong> 계 1장 1, 3, 5, 9, 11절 / 계 2장 2, 10절 (총 7절)<br><br>
         각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
         <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
         <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
@@ -175,7 +176,7 @@
 
 <div class="container">
     <header>
-        <h1>🌟 계 1~2장 인 맞음 시뮬레이터 (시험 대비)</h1>
+        <h1>🌟 계 1~2장 시험 대비 문답 시뮬레이터</h1>
 
         <div class="dashboard">
             <div class="stage-column">
@@ -224,7 +225,7 @@
     <div id="exam-arena" class="quiz-card">
         <div id="exam-play-area">
             <div class="exam-header">
-                <div class="exam-progress-text" id="examProgressText">1 / 49 절</div>
+                <div class="exam-progress-text" id="examProgressText">1 / 7 절</div>
                 <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
             </div>
             <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
@@ -232,7 +233,7 @@
         </div>
         <div id="exam-result-area" class="result-screen" style="display: none;">
             <h2>🎉 모의고사 결과 🎉</h2>
-            <div class="score-display" id="finalScore">0 / 49</div>
+            <div class="score-display" id="finalScore">0 / 7</div>
             <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
             <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
             <div id="wrongListContainer" class="wrong-list"></div>
@@ -359,39 +360,35 @@
     // 계 1장 + 계 2장 합산 (총 49절)
     const allVersesPool = [...verses1_pool, ...verses2_pool];
 
-    // 정적 퀴즈 묶음 (Stage 2/3용 — pool 전체 단어 대상)
+    // 📌 시험 범위 풀 (계 1:1, 3, 5, 9, 11 / 계 2:2, 10) — 총 7절
+    const versesExam_pool = [
+        verses1_pool[0],   // 계 1:1
+        verses1_pool[2],   // 계 1:3
+        verses1_pool[4],   // 계 1:5
+        verses1_pool[8],   // 계 1:9
+        verses1_pool[10],  // 계 1:11
+        verses2_pool[1],   // 계 2:2
+        verses2_pool[9]    // 계 2:10
+    ];
+
+    // 정적 퀴즈 묶음 (Stage 2/3용 — 시험 범위 7절)
     const quizData_pool = [
-        // === 계 1장 (10 묶음) ===
-        { title: "1. 계시록의 서론 — 요한에게 지시하신 것 (계 1:1~2)", content: verses1_pool[0] + "<br>" + verses1_pool[1] },
-        { title: "2. 이 예언의 말씀을 지키는 자의 복 (계 1:3~4)", content: verses1_pool[2] + "<br>" + verses1_pool[3] },
-        { title: "3. 예수 그리스도의 은혜와 재림 예고 (계 1:5~6)", content: verses1_pool[4] + "<br>" + verses1_pool[5] },
-        { title: "4. 구름 타고 오시는 이와 알파오메가 (계 1:7~8)", content: verses1_pool[6] + "<br>" + verses1_pool[7] },
-        { title: "5. 밧모섬과 나팔 소리 같은 음성 (계 1:9~10)", content: verses1_pool[8] + "<br>" + verses1_pool[9] },
-        { title: "6. 일곱 교회와 일곱 금 촛대 (계 1:11~12)", content: verses1_pool[10] + "<br>" + verses1_pool[11] },
-        { title: "7. 인자 같은 이의 모습 (계 1:13~14)", content: verses1_pool[12] + "<br>" + verses1_pool[13] },
-        { title: "8. 인자 같은 이의 발과 음성 (계 1:15~16)", content: verses1_pool[14] + "<br>" + verses1_pool[15] },
-        { title: "9. 두려워 말라 — 처음이요 나중이니 (계 1:17~18)", content: verses1_pool[16] + "<br>" + verses1_pool[17] },
-        { title: "10. 장차 될 일을 기록하라 (계 1:19~20)", content: verses1_pool[18] + "<br>" + verses1_pool[19] },
-        // === 계 2장 (10 묶음) ===
-        { title: "11. 에베소 교회 — 서론 (계 2:1~3)", content: verses2_pool[0] + "<br>" + verses2_pool[1] + "<br>" + verses2_pool[2] },
-        { title: "12. 에베소 교회 — 처음 사랑을 버림, 권고와 약속 (계 2:4~7)", content: verses2_pool[3] + "<br>" + verses2_pool[4] + "<br>" + verses2_pool[5] + "<br>" + verses2_pool[6] },
-        { title: "13. 서머나 교회 — 환난과 궁핍, 생명의 면류관 (계 2:8~11)", content: verses2_pool[7] + "<br>" + verses2_pool[8] + "<br>" + verses2_pool[9] + "<br>" + verses2_pool[10] },
-        { title: "14. 버가모 교회 — 서론과 발람의 교훈 (계 2:12~14)", content: verses2_pool[11] + "<br>" + verses2_pool[12] + "<br>" + verses2_pool[13] },
-        { title: "15. 버가모 교회 — 니골라당 권고와 만나·흰 돌 약속 (계 2:15~17)", content: verses2_pool[14] + "<br>" + verses2_pool[15] + "<br>" + verses2_pool[16] },
-        { title: "16. 두아디라 교회 — 서론과 이세벨 문제 (계 2:18~20)", content: verses2_pool[17] + "<br>" + verses2_pool[18] + "<br>" + verses2_pool[19] },
-        { title: "17. 두아디라 교회 — 경고와 심판 (계 2:21~23)", content: verses2_pool[20] + "<br>" + verses2_pool[21] + "<br>" + verses2_pool[22] },
-        { title: "18. 두아디라 교회 — 나머지 자들에게 (계 2:24~25)", content: verses2_pool[23] + "<br>" + verses2_pool[24] },
-        { title: "19. 두아디라 교회 — 이기는 자에게 만국 권세 (계 2:26~27)", content: verses2_pool[25] + "<br>" + verses2_pool[26] },
-        { title: "20. 두아디라 교회 — 새벽 별 약속 (계 2:28~29)", content: verses2_pool[27] + "<br>" + verses2_pool[28] }
+        { title: "1. 예수 그리스도의 계시 (계 1:1)", content: versesExam_pool[0] },
+        { title: "2. 이 예언의 말씀을 지키는 자의 복 (계 1:3)", content: versesExam_pool[1] },
+        { title: "3. 예수 그리스도의 은혜와 해방 (계 1:5)", content: versesExam_pool[2] },
+        { title: "4. 밧모 섬의 요한 (계 1:9)", content: versesExam_pool[3] },
+        { title: "5. 일곱 교회에 보내라 (계 1:11)", content: versesExam_pool[4] },
+        { title: "6. 에베소 교회 — 행위와 수고와 인내 (계 2:2)", content: versesExam_pool[5] },
+        { title: "7. 서머나 교회 — 죽도록 충성하라 (계 2:10)", content: versesExam_pool[6] }
     ];
 
     // 무작위 빈칸 세트 (Stage 1용)
-    let allVersesActive = [];
+    let versesExam_active = [];
     let quizData_active = [];
 
     // 🔀 무작위 빈칸 생성 함수 (ratio: 핵심 단어 중 빈칸 비율)
     function generateRandomBlanks(ratio = 0.6) {
-        allVersesActive = allVersesPool.map(verse => {
+        versesExam_active = versesExam_pool.map(verse => {
             const importantWords = [];
             verse.replace(/\{([^}]+)\}/g, (match, word) => { importantWords.push(word); });
             if (importantWords.length === 0) return verse;
@@ -405,32 +402,39 @@
             });
         });
 
-        // Stage 1용 퀴즈 묶음 재생성
-        quizData_active = [
-            // 계 1장
-            { title: quizData_pool[0].title, content: allVersesActive[0] + "<br>" + allVersesActive[1] },
-            { title: quizData_pool[1].title, content: allVersesActive[2] + "<br>" + allVersesActive[3] },
-            { title: quizData_pool[2].title, content: allVersesActive[4] + "<br>" + allVersesActive[5] },
-            { title: quizData_pool[3].title, content: allVersesActive[6] + "<br>" + allVersesActive[7] },
-            { title: quizData_pool[4].title, content: allVersesActive[8] + "<br>" + allVersesActive[9] },
-            { title: quizData_pool[5].title, content: allVersesActive[10] + "<br>" + allVersesActive[11] },
-            { title: quizData_pool[6].title, content: allVersesActive[12] + "<br>" + allVersesActive[13] },
-            { title: quizData_pool[7].title, content: allVersesActive[14] + "<br>" + allVersesActive[15] },
-            { title: quizData_pool[8].title, content: allVersesActive[16] + "<br>" + allVersesActive[17] },
-            { title: quizData_pool[9].title, content: allVersesActive[18] + "<br>" + allVersesActive[19] },
-            // 계 2장
-            { title: quizData_pool[10].title, content: allVersesActive[20] + "<br>" + allVersesActive[21] + "<br>" + allVersesActive[22] },
-            { title: quizData_pool[11].title, content: allVersesActive[23] + "<br>" + allVersesActive[24] + "<br>" + allVersesActive[25] + "<br>" + allVersesActive[26] },
-            { title: quizData_pool[12].title, content: allVersesActive[27] + "<br>" + allVersesActive[28] + "<br>" + allVersesActive[29] + "<br>" + allVersesActive[30] },
-            { title: quizData_pool[13].title, content: allVersesActive[31] + "<br>" + allVersesActive[32] + "<br>" + allVersesActive[33] },
-            { title: quizData_pool[14].title, content: allVersesActive[34] + "<br>" + allVersesActive[35] + "<br>" + allVersesActive[36] },
-            { title: quizData_pool[15].title, content: allVersesActive[37] + "<br>" + allVersesActive[38] + "<br>" + allVersesActive[39] },
-            { title: quizData_pool[16].title, content: allVersesActive[40] + "<br>" + allVersesActive[41] + "<br>" + allVersesActive[42] },
-            { title: quizData_pool[17].title, content: allVersesActive[43] + "<br>" + allVersesActive[44] },
-            { title: quizData_pool[18].title, content: allVersesActive[45] + "<br>" + allVersesActive[46] },
-            { title: quizData_pool[19].title, content: allVersesActive[47] + "<br>" + allVersesActive[48] }
-        ];
+        // Stage 1용 퀴즈 묶음 재생성 (시험 범위 7절)
+        quizData_active = quizData_pool.map((item, i) => ({
+            title: item.title,
+            content: versesExam_active[i]
+        }));
     }
+
+    // 🌟 내용 시험 문답 (8~10번) — 항상 Stage 1 방식으로 렌더링
+    const additionalQuizData = [
+        {
+            title: "8. 하나님이 주시는 두 가지 계시 (출처: 고등 종강 시험)",
+            content: "하나님이 주시는 두 가지의 계시는 ①무엇이고, 그중 계시록 성취 때 하나님의 종들이 받아야 할 계시는 ②무엇이며, 이 계시가 ③전달되는 과정을 쓰시오.<br><br>" +
+                     "① {예언적 환상 계시}, {실상 계시}<br>" +
+                     "② {실상 계시}<br>" +
+                     "③ {하나님} → {예수님} → {천사} → {새요한} → {종들}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 고등 종강 시험</small>"
+        },
+        {
+            title: "9. 계 1, 2, 3장에 출현하는 존재 (출처: 12지파 교육부장 시험)",
+            content: "계 1, 2, 3장에는 ①몇 존재가 출현하며, 출현 순서는 ②무엇인가?<br><br>" +
+                     "① {네 존재}<br>" +
+                     "② {예수님}, {일곱 별(일곱 사자)}, {사단 니골라당}, {새요한}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 12지파 교육부장 시험</small>"
+        },
+        {
+            title: "10. 계시록의 3가지 비밀 (출처: 고등 종강 시험)",
+            content: "계시록의 3가지 비밀은 무엇인지 성구와 함께 기록하시오.<br><br>" +
+                     "① {일곱 별과 일곱 금 촛대의 비밀}, {계 1:20}<br>" +
+                     "② {음녀 바벨론과 일곱 머리와 열 뿔 가진 짐승의 비밀}, {계 17:5~7}<br>" +
+                     "③ {마지막 일곱째 나팔의 비밀}, {계 10:7}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 고등 종강 시험</small>"
+        }
+    ];
 
     // 🔀 새 문제 만들기 버튼
     function reshuffleBlanks() {
@@ -486,17 +490,15 @@
         quizList.innerHTML = ''; isAllAnswersShown = false;
 
         const data = (activeLevel === 1) ? quizData_active : quizData_pool;
+        data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
 
-        data.forEach((item, index) => {
-            // 챕터 구분선 삽입 (index 10 = 계 2장 시작)
-            if (index === 10) {
-                const divider = document.createElement('div');
-                divider.className = 'chapter-divider';
-                divider.innerText = '✉️ 계시록 2장 — 일곱 교회 사자에게 보낸 편지';
-                quizList.appendChild(divider);
-            }
-            renderSingleCard(item, index, quizList, false);
-        });
+        // 8~10번 구분 헤더
+        const separator = document.createElement('div');
+        separator.innerHTML = `<h2 class="question-title" style="color: #d9534f; border-bottom-color: #f5c6cb; margin-top: 40px;">📚 내용 시험 문답 (8~10번)</h2>`;
+        quizList.appendChild(separator);
+
+        // 8~10번: 항상 Stage 1 방식(답 부분만 빈칸)으로 렌더링
+        additionalQuizData.forEach((item, index) => { renderSingleCard(item, 'add-' + index, quizList, true); });
     }
 
     // 카드 생성 함수
@@ -563,15 +565,15 @@
     }
 
     // --- [🏆 모의고사 보스전 로직] ---
-    const totalVerses = allVersesPool.length; // 49 (계 1장 20 + 계 2장 29)
+    const totalVerses = versesExam_pool.length; // 7 (시험 범위: 계 1:1, 3, 5, 9, 11 / 계 2:2, 10)
     let currentExamIndex = 0;
     let examScore = 0;
     let examWrongData = [];
 
-    // 절 번호 → 장:절 표시 (계 1장 1~20절, 계 2장 1~29절)
+    // 절 번호 → 장:절 표시 (시험 범위 7절)
+    const verseLabels = ['계 1장 1절', '계 1장 3절', '계 1장 5절', '계 1장 9절', '계 1장 11절', '계 2장 2절', '계 2장 10절'];
     function getVerseLabel(absIndex) {
-        if (absIndex < 20) return `계 1장 ${absIndex + 1}절`;
-        else return `계 2장 ${absIndex - 19}절`;
+        return verseLabels[absIndex] || `${absIndex + 1}절`;
     }
 
     function startExam() {
@@ -586,7 +588,7 @@
     function renderExamVerse() {
         document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${getVerseLabel(currentExamIndex)} (전체 ${currentExamIndex + 1} / ${totalVerses})`;
 
-        const verseStr = (activeLevel === 1) ? allVersesActive[currentExamIndex] : allVersesPool[currentExamIndex];
+        const verseStr = (activeLevel === 1) ? versesExam_active[currentExamIndex] : versesExam_pool[currentExamIndex];
         let htmlStr = "";
 
         if (activeLevel === 1) {
@@ -641,7 +643,7 @@
         if (isVerseAllCorrect) {
             examScore++;
         } else {
-            const displayVerse = (activeLevel === 1) ? allVersesActive[currentExamIndex] : allVersesPool[currentExamIndex];
+            const displayVerse = (activeLevel === 1) ? versesExam_active[currentExamIndex] : versesExam_pool[currentExamIndex];
             examWrongData.push({ verseLabel: getVerseLabel(currentExamIndex), fullVerse: displayVerse, errors: verseLog });
         }
 
@@ -660,7 +662,7 @@
         scoreBox.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
 
         let rankText = "";
-        if (examScore === totalVerses && activeLevel === 3) rankText = "👑 계시록 1~2장 완전 마스터! 완벽하게 인 맞았습니다!";
+        if (examScore === totalVerses && activeLevel === 3) rankText = "👑 계 1~2장 시험 범위 완전 마스터! 완벽합니다!";
         else if (examScore === totalVerses) rankText = "🎉 완벽합니다! 다음 단계 모의고사에 도전하세요!";
         else rankText = "한 절에 하나라도 틀리면 오답 처리되었습니다.";
         document.getElementById('examResultMessage').innerText = rankText;

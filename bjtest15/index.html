@@ -400,7 +400,7 @@
     }
 
     function handleExamInput(e, currentInput) {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
             e.preventDefault(); 
             const inputs = document.querySelectorAll('.exam-input');
             const currentIndex = Array.from(inputs).indexOf(currentInput);

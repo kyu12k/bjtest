@@ -261,10 +261,15 @@
             if (timeLeft > 0) amenBtn.innerText = `아멘 (${timeLeft}초 후 활성화)`;
             else { clearInterval(timer); amenBtn.disabled = false; amenBtn.innerText = "아멘 🙏"; }
         }, 1000);
-        amenBtn.addEventListener('click', () => { modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }, 300); });
-
-        generateRandomBlanks();
-        setMode('stage', 1);
+        function initQuiz() { generateRandomBlanks(); setMode('stage', 1); }
+        amenBtn.addEventListener('click', () => {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                'requestIdleCallback' in window ? requestIdleCallback(initQuiz) : setTimeout(initQuiz, 0);
+            }, 300);
+        });
     });
 
     // 🎧 오디오 플레이어 — 1장/2장 전환 지원
@@ -533,12 +538,16 @@
     }
 
     function toggleSingleBlank(el) {
-        if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
-        else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
+        requestAnimationFrame(() => {
+            if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
+            else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
+        });
     }
     function toggleStage2Word(el) {
-        if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.innerText = el.dataset.chosung; }
-        else { el.className = 'blank stage2-blank answer-mode'; el.innerText = el.dataset.answer; }
+        requestAnimationFrame(() => {
+            if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.innerText = el.dataset.chosung; }
+            else { el.className = 'blank stage2-blank answer-mode'; el.innerText = el.dataset.answer; }
+        });
     }
     let isAllAnswersShown = false;
     function toggleHint(id, btn) {
@@ -550,8 +559,8 @@
     function toggleAnswer(id, btn) {
         const blanks = document.getElementById(`q-${id}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
         if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = "초성 보기"; }
-        if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); }
-        else { btn.classList.remove('active'); btn.innerText = (activeLevel >= 2) ? "전체 정답 보기" : "정답 보기"; blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; requestAnimationFrame(() => { blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); }); }
+        else { btn.classList.remove('active'); btn.innerText = (activeLevel >= 2) ? "전체 정답 보기" : "정답 보기"; requestAnimationFrame(() => { blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }); }
     }
     function toggleAll() {
         const btns = document.querySelectorAll('.btn-answer');

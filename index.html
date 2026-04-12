@@ -83,6 +83,7 @@
             padding: 10px;
             max-width: 800px;
             margin: 0 auto;
+            contain: layout;
         }
 
         /* 🚪 개별 스테이지 카드 */
@@ -95,7 +96,7 @@
             text-decoration: none;
             color: var(--text-color);
             box-shadow: 0 4px 10px var(--shadow-color);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s, background-color 0.3s;
             position: relative;
             overflow: hidden;
             border: 2px solid transparent;
@@ -104,23 +105,24 @@
         .stage-card::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: all 0.5s;
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+            will-change: transform;
         }
         [data-theme="dark"] .stage-card::before {
             background: linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
         }
 
         .stage-card:hover {
-            transform: translateX(5px) translateY(-2px);
             box-shadow: 0 8px 20px var(--shadow-color);
             border-color: var(--primary-color);
             background-color: var(--hover-bg);
         }
 
         .stage-card:hover::before {
-            left: 100%;
+            transform: translateX(100%);
         }
 
         .stage-icon {
@@ -175,7 +177,7 @@
             border: 2px solid #ff4757 !important;
             background-color: #fff0f1;
             box-shadow: 0 0 15px rgba(255, 71, 87, 0.4) !important;
-            animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1) !important;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards, pulse 2s infinite cubic-bezier(0.66, 0, 0, 1) !important;
             margin-bottom: 10px;
         }
         [data-theme="dark"] .exam-highlight {

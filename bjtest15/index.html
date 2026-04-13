@@ -166,14 +166,20 @@
                 <button class="btn-exam" id="btnExam2" onclick="setMode('exam', 2)">🏆 2단계 모의고사</button>
             </div>
             <div class="stage-column">
-                <button class="btn-stage" id="btnStage3" onclick="setMode('stage', 3)">👑 3단계 (전체)</button>
+                <button class="btn-stage" id="btnStage3" onclick="setMode('stage', 3)">💪 3단계 (심화)</button>
                 <button class="btn-exam" id="btnExam3" onclick="setMode('exam', 3)">🏆 3단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage4" onclick="setMode('stage', 4)">👑 4단계 (전체)</button>
+                <button class="btn-exam" id="btnExam4" onclick="setMode('exam', 4)">🏆 4단계 모의고사</button>
             </div>
         </div>
 
         <div class="global-controls" id="globalControls">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-toggle" id="roundBtn" onclick="nextRound()" style="display:none;">다음 라운드 →</button>
+            <span id="roundDisplay" style="display:none; font-weight:bold; padding:6px 10px;">라운드 1/2</span>
         </div>
     </header>
 
@@ -284,6 +290,8 @@
     // 🎮 통합 모드 제어
     let currentMode = 'stage'; 
     let activeLevel = 1; 
+    let currentRound = 1;
+    const TOTAL_ROUNDS = 2;
 
     function setMode(mode, level) {
         scrollToTop(); 
@@ -297,6 +305,10 @@
             document.getElementById('quiz-list').style.display = 'block';
             document.getElementById('exam-arena').style.display = 'none';
             document.getElementById('globalControls').style.display = 'flex';
+            const showRound = level === 3;
+            document.getElementById('roundBtn').style.display = showRound ? 'inline-block' : 'none';
+            document.getElementById('roundDisplay').style.display = showRound ? 'inline-block' : 'none';
+            if (showRound) { currentRound = 1; document.getElementById('roundDisplay').innerText = `라운드 1/${TOTAL_ROUNDS}`; }
             renderQuizzes();
         } else if (mode === 'exam') {
             document.getElementById('btnExam' + level).classList.add('active');
@@ -319,14 +331,41 @@
             if (activeLevel === 1) {
                 htmlContent = item.content.replace(/\{([^}]+)\}/g, (match, ans) => `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`);
                 controlsHtml = `<button class="btn-hint" onclick="toggleHint(${index}, this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${index}, this)">정답 보기</button>`;
-            } else if (activeLevel === 2 || activeLevel === 3) {
+            } else if (activeLevel === 2) {
                 let rawText = item.content.replace(/\{|\}/g, '');
                 let lines = rawText.split('<br>');
                 let parsedLines = lines.map(line => {
                     return line.split(' ').map((word, i) => {
                         if (!word) return '';
                         if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
-                        if (activeLevel === 2) return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                        return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                    }).join(' ');
+                });
+                htmlContent = parsedLines.join('<br>');
+                controlsHtml = `<button class="btn-answer" onclick="toggleAnswer(${index}, this)">전체 정답 보기</button>`;
+            } else if (activeLevel === 3) {
+                let rawText = item.content.replace(/\{|\}/g, '');
+                let lines = rawText.split('<br>');
+                let parsedLines = lines.map(line => {
+                    let wordIdx = 0;
+                    return line.split(' ').map((word) => {
+                        if (!word) return '';
+                        if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`; }
+                        const isBlank = (wordIdx % TOTAL_ROUNDS) === (currentRound - 1);
+                        wordIdx++;
+                        if (isBlank) return `<span class="blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                        return word;
+                    }).join(' ');
+                });
+                htmlContent = parsedLines.join('<br>');
+                controlsHtml = `<button class="btn-hint" onclick="toggleHint(${index}, this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${index}, this)">정답 보기</button>`;
+            } else if (activeLevel === 4) {
+                let rawText = item.content.replace(/\{|\}/g, '');
+                let lines = rawText.split('<br>');
+                let parsedLines = lines.map(line => {
+                    return line.split(' ').map((word, i) => {
+                        if (!word) return '';
+                        if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
                         return `<span class="blank stage3-blank" data-answer="${word}" onclick="toggleSingleBlank(this)">${word}</span>`;
                     }).join(' ');
                 });
@@ -351,9 +390,10 @@
         const blanks = document.getElementById(`q-${index}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
         if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = "초성 보기"; }
         if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); } 
-        else { btn.classList.remove('active'); btn.innerText = (activeLevel === 2 || activeLevel === 3) ? "전체 정답 보기" : "정답 보기"; blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }
+        else { btn.classList.remove('active'); btn.innerText = (activeLevel === 2 || activeLevel === 4) ? "전체 정답 보기" : "정답 보기"; blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }
     }
     function toggleAll() { const btns = document.querySelectorAll('.btn-answer'); isAllAnswersShown = !isAllAnswersShown; btns.forEach((btn, index) => { const isActive = btn.classList.contains('active'); if (isAllAnswersShown && !isActive) toggleAnswer(index, btn); else if (!isAllAnswersShown && isActive) toggleAnswer(index, btn); }); }
+    function nextRound() { currentRound = (currentRound % TOTAL_ROUNDS) + 1; document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`; renderQuizzes(); }
 
     // --- [🏆 모의고사 보스전 로직] ---
     let currentExamIndex = 0; 
@@ -380,6 +420,18 @@
                 let width = (ans.length * 1.5) + 1; 
                 return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
             });
+        } else if (activeLevel === 3) {
+            let rawText = verseStr.replace(/\{|\}/g, '');
+            let words = rawText.split(' ');
+            let wordIdx = 0;
+            htmlStr = words.map((word) => {
+                if (!word) return '';
+                if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`; }
+                const isBlank = (wordIdx % TOTAL_ROUNDS) === 0;
+                wordIdx++;
+                if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
+                return word;
+            }).join(' ');
         } else {
             let rawText = verseStr.replace(/\{|\}/g, '');
             let words = rawText.split(' ');

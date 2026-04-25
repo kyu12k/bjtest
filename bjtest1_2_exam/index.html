@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -667,8 +667,10 @@
             const currentIndex = Array.from(inputs).indexOf(currentInput);
             if (currentIndex > -1 && currentIndex < inputs.length - 1) {
                 const nextInput = inputs[currentIndex + 1];
-                nextInput.focus();
-                nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                setTimeout(() => {
+                    nextInput.focus();
+                    nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 0);
             } else if (currentIndex === inputs.length - 1) {
                 submitExamVerse();
             }

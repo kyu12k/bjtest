@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신 43년 계시록 6장 인 맞음 확인 시험 예상 문답</title>
+    <style>
+        :root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --blank-bg: #e9ecef;
+            --blank-text: transparent;
+            --hint-bg: #fff3cd;
+            --hint-color: #888;
+            --answer-bg: #d1e7dd;
+            --answer-color: #0f5132;
+            --marker-color: #e83e8c;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+            --exam-color: #e53e3e;
+            --hover-bg: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --blank-bg: #5f6368;
+            --hint-bg: #423805;
+            --hint-color: #e2b838;
+            --answer-bg: #0c3b28;
+            --answer-color: #8ab4f8;
+            --marker-color: #f783ac;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --exam-color: #fc8181;
+            --hover-bg: #3c4043;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); transition: opacity 0.3s; }
+        .modal-content { background-color: var(--card-bg); padding: 30px 25px; border-radius: 16px; text-align: center; max-width: 420px; width: 85%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #d9534f; margin-top: 0; font-size: 1.4rem; }
+        .modal-content p { font-size: 1.05rem; margin-bottom: 25px; word-break: keep-all; line-height: 1.5; }
+        .btn-amen { padding: 12px 30px; font-size: 1.2rem; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-amen:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .btn-amen:not(:disabled):hover { transform: scale(1.03); }
+
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); font-size: 1.6rem; margin-bottom: 10px; }
+
+        .dashboard { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stage-column { display: flex; flex-direction: column; gap: 8px; align-items: center; flex: 1; min-width: 140px; }
+        .btn-stage { padding: 10px 15px; width: 100%; font-size: 0.95rem; border: 2px solid var(--blank-bg); border-radius: 8px; background-color: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-stage:hover { background-color: var(--blank-bg); }
+        .btn-stage.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); transform: scale(1.05); z-index: 2; }
+
+        .btn-exam { padding: 8px 10px; width: 100%; font-size: 0.85rem; border: 2px dashed var(--exam-color); border-radius: 8px; background-color: transparent; color: var(--exam-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-exam:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .btn-exam.active { background-color: var(--exam-color); color: white; border-style: solid; transform: scale(1.05); z-index: 2; }
+
+        .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; padding: 15px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .shuffle-info { font-size: 0.85rem; color: #888; text-align: center; margin: 0 0 15px 0; }
+        [data-theme="dark"] .shuffle-info { color: #aaa; }
+
+        .audio-player-box { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 25px; width: 100%; box-sizing: border-box; position: sticky; top: 15px; z-index: 100; flex-wrap: wrap; }
+        .player-btn, .loop-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .player-btn { background: var(--primary-color); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.4rem; transition: transform 0.2s; }
+        .loop-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; transition: 0.2s; white-space: nowrap; }
+        .loop-btn.active { background: var(--primary-color); color: white; }
+        .collapse-btn { background: transparent; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; flex-shrink: 0; border-radius: 6px; transition: 0.2s; line-height: 1; }
+        .collapse-btn:hover { background: var(--blank-bg); }
+        .audio-player-box.collapsed { padding: 8px 20px; margin-bottom: 10px; }
+        .audio-player-box.collapsed #playBtn,
+        .audio-player-box.collapsed .player-controls > div:not(.audio-title),
+        .audio-player-box.collapsed .audio-buttons-row { display: none; }
+        .audio-player-box.collapsed .audio-title { margin-bottom: 0; }
+
+        .player-controls { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; min-width: 200px; }
+        .audio-title { font-size: 0.95rem; font-weight: bold; color: var(--primary-color); margin-bottom: 5px; }
+        .progress-container { position: relative; width: 100%; margin: 5px 0; display: flex; align-items: center; height: 10px; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--primary-color); height: 5px; margin: 0; background: transparent; }
+        .time-display { font-size: 0.8rem; color: #888; text-align: right; }
+        .audio-buttons-row { display: flex; gap: 10px; width: 100%; justify-content: flex-end; }
+
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .question-title { font-weight: bold; font-size: 1.15rem; margin-bottom: 15px; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 10px; }
+        .question-text { font-size: 1.05rem; margin-bottom: 20px; word-break: keep-all; line-height: 1.8; }
+
+        .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; }
+        .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
+        .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+        .blank.stage2-blank { min-width: 20px; color: var(--hint-color); background-color: var(--hint-bg); border-bottom: 2px solid var(--hint-color); }
+        .blank.stage2-blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+
+        .controls { display: flex; gap: 8px; justify-content: flex-end; }
+        button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-hint { background-color: #ffc107; color: #333; }
+        .btn-answer { background-color: #198754; color: white; }
+        .btn-toggle { background-color: #6c757d; color: white; }
+        .btn-dark { background-color: #343a40; color: white; }
+        .btn-shuffle { background-color: #6f42c1; color: white; }
+
+        [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
+        [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
+
+        #exam-arena { display: none; }
+        .exam-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: var(--blank-bg); padding: 15px; border-radius: 12px; }
+        .exam-progress-text { font-weight: bold; color: var(--exam-color); font-size: 1.3rem; margin-bottom: 5px; }
+        .exam-notice { font-size: 0.9rem; color: #666; text-align: center; }
+        [data-theme="dark"] .exam-notice { color: #aaa; }
+
+        .exam-input { border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--exam-color); font-size: 1.1rem; font-weight: bold; text-align: center; outline: none; transition: 0.2s; margin: 4px 2px; padding: 2px; font-family: inherit; }
+        .exam-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); }
+        .exam-input::placeholder { color: #ccc; font-weight: normal; }
+        [data-theme="dark"] .exam-input::placeholder { color: #666; }
+
+        .btn-next-exam { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 15px; margin-top: 25px; border-radius: 12px; }
+
+        .result-screen { text-align: center; padding: 30px 10px; }
+        .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .wrong-list { text-align: left; background: var(--blank-bg); padding: 20px; border-radius: 12px; margin-top: 20px; font-size: 1rem; }
+        .wrong-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; line-height: 1.7; }
+        .wrong-item:last-child { border-bottom: none; }
+        .correct-ans { color: #198754; font-weight: bold; background: rgba(25,135,84,0.1); padding: 0 4px; border-radius: 4px; }
+        .wrong-ans { color: #d9534f; text-decoration: line-through; font-size: 0.9em; margin-right: 4px; }
+
+        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; outline: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        #topBtn:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+<div id="warningModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>⚠️ 모의고사 안내 (계 6장 시험 대비)</h2>
+        <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
+        📌 <strong>빈칸 범위:</strong> 계 6장 1~17절 (총 17절)<br><br>
+        각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
+        <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
+        <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
+        만점을 향해 도전하세요!</p>
+        <button id="amenBtn" class="btn-amen" disabled>아멘 (2초 후 활성화)</button>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>🌟 계 6장 시험 대비 문답 시뮬레이터</h1>
+
+        <div class="dashboard">
+            <div class="stage-column">
+                <button class="btn-stage active" id="btnStage1" onclick="setMode('stage', 1)">🌱 1단계 (핵심)</button>
+                <button class="btn-exam" id="btnExam1" onclick="setMode('exam', 1)">🏆 1단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage2" onclick="setMode('stage', 2)">🔥 2단계 (초성)</button>
+                <button class="btn-exam" id="btnExam2" onclick="setMode('exam', 2)">🏆 2단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage3" onclick="setMode('stage', 3)">💪 3단계 (심화)</button>
+                <button class="btn-exam" id="btnExam3" onclick="setMode('exam', 3)">🏆 3단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage4" onclick="setMode('stage', 4)">👑 4단계 (전체)</button>
+                <button class="btn-exam" id="btnExam4" onclick="setMode('exam', 4)">🏆 4단계 모의고사</button>
+            </div>
+        </div>
+
+        <div class="global-controls" id="globalControls">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-shuffle" id="shuffleBtn" onclick="reshuffleBlanks()">🔀 새 문제 만들기</button>
+            <button class="btn-toggle" id="roundBtn" onclick="nextRound()" style="display:none;">다음 라운드 →</button>
+            <span id="roundDisplay" style="display:none; font-weight:bold; padding:6px 10px;">라운드 1/2</span>
+        </div>
+        <p class="shuffle-info" id="shuffleInfo">💡 1단계: 핵심 단어 중 <strong>무작위</strong>로 빈칸이 출제됩니다. [새 문제 만들기]를 누르면 매번 새로운 조합이 생성됩니다.</p>
+    </header>
+
+    <div class="audio-player-box">
+        <button id="playBtn" class="player-btn" onclick="togglePlayPause()">▶</button>
+        <div class="player-controls">
+            <div class="audio-title" id="audioTitle">🎵 계 6장 듣기</div>
+            <div class="progress-container">
+                <input type="range" id="progressBar" value="0" step="0.1" min="0">
+            </div>
+            <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+        </div>
+        <div class="audio-buttons-row">
+            <button id="loopBtn" class="loop-btn" onclick="toggleLoop()" title="전체 반복 재생">🔁 전체 반복</button>
+        </div>
+        <button class="collapse-btn" id="collapseBtn" onclick="togglePlayer()" title="접기/펼치기">▲</button>
+    </div>
+
+    <div id="quiz-list"></div>
+
+    <div id="exam-arena" class="quiz-card">
+        <div id="exam-play-area">
+            <div class="exam-header">
+                <div class="exam-progress-text" id="examProgressText">1 / 17 절</div>
+                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+            </div>
+            <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
+            <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
+        </div>
+        <div id="exam-result-area" class="result-screen" style="display: none;">
+            <h2>🎉 모의고사 결과 🎉</h2>
+            <div class="score-display" id="finalScore">0 / 17</div>
+            <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
+            <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
+            <div id="wrongListContainer" class="wrong-list"></div>
+        </div>
+    </div>
+</div>
+
+<button id="topBtn" onclick="scrollToTop()" title="맨 위로 가기">⬆️</button>
+
+<script>
+    window.onscroll = function() { scrollFunction() };
+    function scrollFunction() {
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) { document.getElementById("topBtn").style.display = "block"; }
+        else { document.getElementById("topBtn").style.display = "none"; }
+    }
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById('warningModal');
+        const amenBtn = document.getElementById('amenBtn');
+        let timeLeft = 2; document.body.style.overflow = 'hidden';
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) amenBtn.innerText = `아멘 (${timeLeft}초 후 활성화)`;
+            else { clearInterval(timer); amenBtn.disabled = false; amenBtn.innerText = "아멘 🙏"; }
+        }, 1000);
+        function initQuiz() { generateRandomBlanks(); setMode('stage', 1); }
+        amenBtn.addEventListener('click', () => {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                'requestIdleCallback' in window ? requestIdleCallback(initQuiz) : setTimeout(initQuiz, 0);
+            }, 300);
+        });
+    });
+
+    const globalAudio = new Audio("../bjtest6/mp3/6.mp3");
+    const playBtn = document.getElementById('playBtn'), loopBtn = document.getElementById('loopBtn'), progressBar = document.getElementById('progressBar'), timeDisplay = document.getElementById('timeDisplay');
+    let isDragging = false, isLooping = false;
+
+    function toggleLoop() { isLooping = !isLooping; globalAudio.loop = isLooping; isLooping ? loopBtn.classList.add('active') : loopBtn.classList.remove('active'); }
+    globalAudio.addEventListener('loadedmetadata', () => { progressBar.max = globalAudio.duration; updateTimeText(); });
+    function togglePlayPause() { if (globalAudio.paused) { globalAudio.play(); playBtn.innerText = "⏸"; } else { globalAudio.pause(); playBtn.innerText = "▶"; } }
+    progressBar.addEventListener('input', () => { isDragging = true; updateTimeText(progressBar.value); });
+    progressBar.addEventListener('change', () => { globalAudio.currentTime = parseFloat(progressBar.value); isDragging = false; });
+    globalAudio.addEventListener('timeupdate', () => { if (!isDragging) { progressBar.value = globalAudio.currentTime; updateTimeText(); } });
+    function updateTimeText(val = null) { let current = val !== null ? val : globalAudio.currentTime; timeDisplay.innerText = `${formatTime(current)} / ${formatTime(globalAudio.duration || 0)}`; }
+    function formatTime(seconds) { if (isNaN(seconds) || !isFinite(seconds)) return "00:00"; const min = Math.floor(seconds / 60), sec = Math.floor(seconds % 60); return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`; }
+    globalAudio.addEventListener('ended', () => { if (!isLooping) { playBtn.innerText = "▶"; globalAudio.currentTime = 0; progressBar.value = 0; updateTimeText(); } });
+
+    // 📖 계시록 6장 핵심 단어 풀 — 총 17절
+    const verses6_pool = [
+        "1 내가 보매 {어린 양}이 {일곱 인} 중에 하나를 떼시는 그 때에 내가 들으니 {네 생물} 중에 하나가 {우뢰소리} 같이 말하되 오라 하기로",
+        "2 내가 이에 보니 {흰 말}이 있는데 그 탄 자가 {활}을 가졌고 {면류관}을 받고 나가서 {이기고 또 이기려고} 하더라",
+        "3 {둘째 인}을 떼실 때에 내가 들으니 {둘째 생물}이 말하되 오라 하더니",
+        "4 이에 {붉은 다른 말}이 나오더라 그 탄 자가 허락을 받아 땅에서 {화평}을 제하여 버리며 서로 {죽이게} 하고 또 {큰 칼}을 받았더라",
+        "5 {세째 인}을 떼실 때에 내가 들으니 {세째 생물}이 말하되 오라 하기로 내가 보니 {검은 말}이 나오는데 그 탄 자가 손에 {저울}을 가졌더라",
+        "6 내가 {네 생물} 사이로서 나는듯하는 {음성}을 들으니 가로되 한 데나리온에 {밀 한되}요 한 데나리온에 {보리 석되}로다 또 {감람유}와 {포도주}는 {해치 말라} 하더라",
+        "7 {네째 인}을 떼실 때에 내가 {네째 생물}의 음성을 들으니 가로되 오라 하기로",
+        "8 내가 보매 {청황색 말}이 나오는데 그 탄 자의 이름은 {사망}이니 {음부}가 그 뒤를 따르더라 저희가 땅 {사분 일의 권세}를 얻어 검과 흉년과 사망과 땅의 짐승으로써 죽이더라",
+        "9 {다섯째 인}을 떼실 때에 내가 보니 하나님의 말씀과 저희의 가진 증거를 인하여 죽임을 당한 {영혼들}이 {제단 아래} 있어",
+        "10 큰 소리로 불러 가로되 거룩하고 참되신 {대주재}여 땅에 거하는 자들을 심판하여 우리 피를 {신원하여} 주지 아니하시기를 어느 때까지 하시려나이까 하니",
+        "11 각각 저희에게 {흰 두루마기}를 주시며 가라사대 아직 잠시 동안 쉬되 저희 {동무 종들}과 {형제들}도 자기처럼 죽임을 받아 그 {수가 차기까지} 하라 하시더라",
+        "12 내가 보니 {여섯째 인}을 떼실 때에 큰 지진이 나며 {해}가 총담 같이 검어지고 온 {달}이 피 같이 되며",
+        "13 하늘의 {별들}이 무화과나무가 대풍에 흔들려 {선 과실}이 떨어지는것 같이 땅에 {떨어지며}",
+        "14 하늘은 {종이 축}이 말리는것 같이 떠나가고 각 {산과 섬}이 제 자리에서 {옮기우매}",
+        "15 땅의 임금들과 왕족들과 장군들과 부자들과 강한 자들과 각 종과 자주자가 {굴과 산 바위틈}에 숨어",
+        "16 산과 바위에게 이르되 우리 위에 떨어져 보좌에 앉으신 이의 {낯}에서와 {어린 양의 진노}에서 우리를 {가리우라}",
+        "17 그들의 {진노의 큰 날}이 이르렀으니 누가 {능히 서리요} 하더라"
+    ];
+
+    const versesExam_pool = verses6_pool;
+
+    const quizData_pool = [
+        { title: "1. 첫째 인 (계 6:1)", content: versesExam_pool[0] },
+        { title: "2. 흰 말 (계 6:2)", content: versesExam_pool[1] },
+        { title: "3. 둘째 인 (계 6:3)", content: versesExam_pool[2] },
+        { title: "4. 붉은 다른 말 (계 6:4)", content: versesExam_pool[3] },
+        { title: "5. 세째 인 (계 6:5)", content: versesExam_pool[4] },
+        { title: "6. 검은 말과 저울 (계 6:6)", content: versesExam_pool[5] },
+        { title: "7. 네째 인 (계 6:7)", content: versesExam_pool[6] },
+        { title: "8. 청황색 말 (계 6:8)", content: versesExam_pool[7] },
+        { title: "9. 다섯째 인 (계 6:9)", content: versesExam_pool[8] },
+        { title: "10. 대주재여 (계 6:10)", content: versesExam_pool[9] },
+        { title: "11. 흰 두루마기 (계 6:11)", content: versesExam_pool[10] },
+        { title: "12. 여섯째 인 (계 6:12)", content: versesExam_pool[11] },
+        { title: "13. 별들이 떨어지며 (계 6:13)", content: versesExam_pool[12] },
+        { title: "14. 하늘이 떠나가고 (계 6:14)", content: versesExam_pool[13] },
+        { title: "15. 굴과 산 바위틈에 (계 6:15)", content: versesExam_pool[14] },
+        { title: "16. 어린 양의 진노 (계 6:16)", content: versesExam_pool[15] },
+        { title: "17. 진노의 큰 날 (계 6:17)", content: versesExam_pool[16] }
+    ];
+
+    let versesExam_active = [];
+    let quizData_active = [];
+
+    function generateRandomBlanks(ratio = 0.6) {
+        versesExam_active = versesExam_pool.map(verse => {
+            const importantWords = [];
+            verse.replace(/\{([^}]+)\}/g, (match, word) => { importantWords.push(word); });
+            if (importantWords.length === 0) return verse;
+
+            const shuffled = [...importantWords].sort(() => Math.random() - 0.5);
+            const numToBlank = Math.max(1, Math.ceil(importantWords.length * ratio));
+            const blanksSet = new Set(shuffled.slice(0, numToBlank));
+
+            return verse.replace(/\{([^}]+)\}/g, (match, word) => {
+                return blanksSet.has(word) ? `{${word}}` : word;
+            });
+        });
+
+        quizData_active = quizData_pool.map((item, i) => ({
+            title: item.title,
+            content: versesExam_active[i]
+        }));
+    }
+
+    function reshuffleBlanks() {
+        generateRandomBlanks();
+        if (currentMode === 'stage' && activeLevel === 1) renderQuizzes();
+        const btn = document.getElementById('shuffleBtn');
+        const orig = btn.innerText;
+        btn.innerText = "✅ 새 문제 생성 완료!";
+        btn.style.backgroundColor = "#28a745";
+        setTimeout(() => { btn.innerText = orig; btn.style.backgroundColor = ""; }, 1500);
+    }
+
+    function getChosung(str) {
+        const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i) - 44032;
+            if (code > -1 && code < 11172) result += chosung[Math.floor(code / 588)];
+            else result += str.charAt(i);
+        }
+        return result;
+    }
+
+    let currentMode = 'stage';
+    let activeLevel = 1;
+    let currentRound = 1;
+    const TOTAL_ROUNDS = 2;
+
+    function setMode(mode, level) {
+        scrollToTop();
+        currentMode = mode; activeLevel = level;
+        document.querySelectorAll('.btn-stage, .btn-exam').forEach(btn => btn.classList.remove('active'));
+
+        if (mode === 'stage') {
+            document.getElementById('btnStage' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'block';
+            document.getElementById('exam-arena').style.display = 'none';
+            document.getElementById('globalControls').style.display = 'flex';
+            document.getElementById('shuffleInfo').style.display = (level === 1) ? 'block' : 'none';
+            const showRound = activeLevel === 3;
+            document.getElementById('roundBtn').style.display = showRound ? 'inline-block' : 'none';
+            document.getElementById('roundDisplay').style.display = showRound ? 'inline-block' : 'none';
+            if (showRound) { currentRound = 1; document.getElementById('roundDisplay').innerText = `라운드 1/${TOTAL_ROUNDS}`; }
+            renderQuizzes();
+        } else if (mode === 'exam') {
+            document.getElementById('btnExam' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'none';
+            document.getElementById('exam-arena').style.display = 'block';
+            document.getElementById('globalControls').style.display = 'none';
+            document.getElementById('shuffleInfo').style.display = 'none';
+            startExam();
+        }
+    }
+
+    function renderQuizzes() {
+        const quizList = document.getElementById('quiz-list');
+        quizList.innerHTML = ''; isAllAnswersShown = false;
+
+        const data = (activeLevel === 1) ? quizData_active : quizData_pool;
+        data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+    }
+
+    function renderSingleCard(item, id, container, forceStage1) {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        let htmlContent = '', controlsHtml = '';
+        const level = forceStage1 ? 1 : activeLevel;
+
+        if (level === 1) {
+            htmlContent = item.content.replace(/\{([^}]+)\}/g, (match, ans) =>
+                `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`
+            );
+            controlsHtml = `<button class="btn-hint" onclick="toggleHint('${id}', this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer('${id}', this)">정답 보기</button>`;
+        } else if (level === 2) {
+            let rawText = item.content.replace(/\{|\}/g, '');
+            let lines = rawText.split('<br>');
+            let parsedLines = lines.map(line => {
+                return line.split(' ').map((word, i) => {
+                    if (!word) return '';
+                    if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
+                    return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                }).join(' ');
+            });
+            htmlContent = parsedLines.join('<br>');
+            controlsHtml = `<button class="btn-answer" onclick="toggleAnswer('${id}', this)">전체 정답 보기</button>`;
+        } else if (level === 3) {
+            let rawText = item.content.replace(/\{|\}/g, '');
+            let lines = rawText.split('<br>');
+            let parsedLines = lines.map(line => {
+                let wordIdx = 0;
+                return line.split(' ').map((word) => {
+                    if (!word) return '';
+                    if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`; }
+                    const isBlank = (wordIdx % TOTAL_ROUNDS) === (currentRound - 1);
+                    wordIdx++;
+                    if (isBlank) return `<span class="blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                    return word;
+                }).join(' ');
+            });
+            htmlContent = parsedLines.join('<br>');
+            controlsHtml = `<button class="btn-hint" onclick="toggleHint('${id}', this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer('${id}', this)">정답 보기</button>`;
+        } else if (level === 4) {
+            let rawText = item.content.replace(/\{|\}/g, '');
+            let lines = rawText.split('<br>');
+            let parsedLines = lines.map(line => {
+                return line.split(' ').map((word, i) => {
+                    if (!word) return '';
+                    if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
+                    return `<span class="blank stage3-blank" data-answer="${word}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                }).join(' ');
+            });
+            htmlContent = parsedLines.join('<br>');
+            controlsHtml = `<button class="btn-answer" onclick="toggleAnswer('${id}', this)">전체 정답 보기</button>`;
+        }
+
+        card.innerHTML = `<div class="question-title">${item.title}</div><div class="question-text" id="q-${id}">${htmlContent}</div><div class="controls">${controlsHtml}</div>`;
+        container.appendChild(card);
+    }
+
+    function toggleSingleBlank(el) {
+        requestAnimationFrame(() => {
+            if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
+            else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
+        });
+    }
+    function toggleStage2Word(el) {
+        requestAnimationFrame(() => {
+            if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.innerText = el.dataset.chosung; }
+            else { el.className = 'blank stage2-blank answer-mode'; el.innerText = el.dataset.answer; }
+        });
+    }
+    let isAllAnswersShown = false;
+    function toggleHint(id, btn) {
+        const blanks = document.getElementById(`q-${id}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
+        btn.nextElementSibling.classList.remove('active'); btn.nextElementSibling.innerText = "정답 보기";
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "초성 끄기"; blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; }); }
+        else { btn.classList.remove('active'); btn.innerText = "초성 보기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; }); }
+    }
+    function toggleAnswer(id, btn) {
+        const blanks = document.getElementById(`q-${id}`).querySelectorAll('.blank'); const isActive = btn.classList.contains('active');
+        if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = "초성 보기"; }
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; requestAnimationFrame(() => { blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); }); }
+        else { btn.classList.remove('active'); btn.innerText = (activeLevel === 2 || activeLevel === 4) ? "전체 정답 보기" : "정답 보기"; requestAnimationFrame(() => { blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }); }
+    }
+    function toggleAll() {
+        const btns = document.querySelectorAll('.btn-answer');
+        isAllAnswersShown = !isAllAnswersShown;
+        btns.forEach((btn) => {
+            const id = btn.closest('.quiz-card').querySelector('.question-text').id.replace('q-', '');
+            const isActive = btn.classList.contains('active');
+            if (isAllAnswersShown && !isActive) toggleAnswer(id, btn);
+            else if (!isAllAnswersShown && isActive) toggleAnswer(id, btn);
+        });
+    }
+    function nextRound() { currentRound = (currentRound % TOTAL_ROUNDS) + 1; document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`; renderQuizzes(); }
+
+    const totalVerses = versesExam_pool.length; // 17절
+    let currentExamIndex = 0;
+    let examScore = 0;
+    let examWrongData = [];
+
+    const verseLabels = ['계 6장 1절','계 6장 2절','계 6장 3절','계 6장 4절','계 6장 5절','계 6장 6절','계 6장 7절','계 6장 8절','계 6장 9절','계 6장 10절','계 6장 11절','계 6장 12절','계 6장 13절','계 6장 14절','계 6장 15절','계 6장 16절','계 6장 17절'];
+    function getVerseLabel(absIndex) { return verseLabels[absIndex] || `${absIndex + 1}절`; }
+
+    function startExam() {
+        currentExamIndex = 0; examScore = 0; examWrongData = [];
+        document.getElementById('exam-play-area').style.display = 'block';
+        document.getElementById('exam-result-area').style.display = 'none';
+        renderExamVerse();
+    }
+
+    function retryCurrentExam() { setMode('exam', activeLevel); }
+
+    function renderExamVerse() {
+        document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${getVerseLabel(currentExamIndex)} (전체 ${currentExamIndex + 1} / ${totalVerses})`;
+
+        const verseStr = (activeLevel === 1) ? versesExam_active[currentExamIndex] : versesExam_pool[currentExamIndex];
+        let htmlStr = "";
+
+        if (activeLevel === 1) {
+            htmlStr = verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
+                let width = (ans.length * 1.5) + 1;
+                return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            });
+        } else {
+            let rawText = verseStr.replace(/\{|\}/g, '');
+            let words = rawText.split(' ');
+            htmlStr = words.map((word, i) => {
+                if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
+                let width = (word.length * 1.2) + 1;
+                let placeholder = activeLevel === 2 ? getChosung(word) : "";
+                return `<input type="text" class="exam-input" style="width: ${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            }).join(' ');
+        }
+
+        document.getElementById('examVerseText').innerHTML = htmlStr;
+        setTimeout(() => { const firstInput = document.querySelector('.exam-input'); if (firstInput) firstInput.focus(); }, 100);
+    }
+
+    function handleExamInput(e, currentInput) {
+        if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
+            e.preventDefault();
+            const inputs = document.querySelectorAll('.exam-input');
+            const currentIndex = Array.from(inputs).indexOf(currentInput);
+            if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+                const nextInput = inputs[currentIndex + 1];
+                setTimeout(() => { nextInput.focus(); nextInput.scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
+            } else if (currentIndex === inputs.length - 1) {
+                submitExamVerse();
+            }
+        }
+    }
+
+    function submitExamVerse() {
+        const inputs = document.querySelectorAll('.exam-input');
+        let isVerseAllCorrect = true;
+        let verseLog = [];
+
+        inputs.forEach(input => {
+            const cleanUser = input.value.trim().replace(/,/g, '');
+            const cleanCorrect = input.dataset.answer.trim().replace(/,/g, '');
+            if (cleanUser !== cleanCorrect) {
+                isVerseAllCorrect = false;
+                verseLog.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
+            }
+        });
+
+        if (isVerseAllCorrect) {
+            examScore++;
+        } else {
+            const displayVerse = (activeLevel === 1) ? versesExam_active[currentExamIndex] : versesExam_pool[currentExamIndex];
+            examWrongData.push({ verseLabel: getVerseLabel(currentExamIndex), fullVerse: displayVerse, errors: verseLog });
+        }
+
+        currentExamIndex++;
+        if (currentExamIndex >= totalVerses) showExamResult();
+        else renderExamVerse();
+    }
+
+    function showExamResult() {
+        document.getElementById('exam-play-area').style.display = 'none';
+        document.getElementById('exam-result-area').style.display = 'block';
+        scrollToTop();
+
+        const scoreBox = document.getElementById('finalScore');
+        scoreBox.innerText = `${examScore} / ${totalVerses}`;
+        scoreBox.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
+
+        let rankText = "";
+        if (examScore === totalVerses && activeLevel === 4) rankText = "👑 계 6장 완전 마스터! 완벽합니다!";
+        else if (examScore === totalVerses) rankText = "🎉 완벽합니다! 다음 단계 모의고사에 도전하세요!";
+        else rankText = "한 절에 하나라도 틀리면 오답 처리되었습니다.";
+        document.getElementById('examResultMessage').innerText = rankText;
+
+        const wrongListContainer = document.getElementById('wrongListContainer');
+        wrongListContainer.innerHTML = '';
+
+        if (examWrongData.length > 0) {
+            let html = `<h3>📝 오답 노트</h3>`;
+            examWrongData.forEach(item => {
+                let verseDisplay = item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`);
+                let errorDetails = item.errors.map(err => `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`).join(', ');
+                html += `
+                    <div class="wrong-item">
+                        <strong>[${item.verseLabel}]</strong><br>
+                        ${verseDisplay}<br>
+                        <span style="display:inline-block; margin-top:8px; font-size:0.9em; color:#666;">❌ 틀린 부분: ${errorDetails}</span>
+                    </div>
+                `;
+            });
+            wrongListContainer.innerHTML = html;
+        }
+    }
+
+    function togglePlayer() {
+        const box = document.querySelector('.audio-player-box');
+        const btn = document.getElementById('collapseBtn');
+        const collapsed = box.classList.toggle('collapsed');
+        btn.textContent = collapsed ? '▼' : '▲';
+        localStorage.setItem('playerCollapsed', collapsed);
+    }
+    if (localStorage.getItem('playerCollapsed') === 'true') {
+        const box = document.querySelector('.audio-player-box');
+        const btn = document.getElementById('collapseBtn');
+        if (box) box.classList.add('collapsed');
+        if (btn) btn.textContent = '▼';
+    }
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.btn-dark');
+        if (body.getAttribute('data-theme') === 'dark') { body.setAttribute('data-theme', 'light'); btn.innerText = "🌙 다크 모드"; }
+        else { body.setAttribute('data-theme', 'dark'); btn.innerText = "☀️ 라이트 모드"; }
+    }
+</script>
+
+</body>
+</html>

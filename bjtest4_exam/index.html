@@ -218,6 +218,61 @@
 
     <div id="quiz-list"></div>
 
+    <!-- 📝 8~10번 서술형 문제 영역 -->
+    <div id="essay-section">
+        <div class="chapter-divider">📝 서술형 예상 문제 (8~10번)</div>
+
+        <div class="quiz-card">
+            <div class="question-title">8번. 하나님의 보좌가 임하는 곳</div>
+            <div class="question-text">
+                계 4:8에서 하나님의 보좌가 장차 이 땅에 임해오신다고 하였다.<br>
+                하나님의 보좌는 계시록에서<br>
+                ① 몇 장의 어디에 오시며,<br>
+                ② 그곳의 실체는 어디인가?
+            </div>
+            <div class="essay-answer" id="essay-8" style="display:none; background:var(--answer-bg); color:var(--answer-color); border-radius:8px; padding:14px 18px; margin-bottom:10px; line-height:1.9; font-size:1rem;">
+                <strong>① 계 14장의 12지파 144,000이 있는 시온산</strong><br>
+                <strong>② 신천지예수교 증거장막성전</strong><br>
+                <span style="font-size:0.85rem; color:#888;">출처: 신 41년(25차) 인 맞음 확인 시험 문답</span>
+            </div>
+            <div class="controls">
+                <button class="btn-answer" onclick="toggleEssay('essay-8', this)">정답 보기</button>
+            </div>
+        </div>
+
+        <div class="quiz-card">
+            <div class="question-title">9번. 요한이 본 것과 들은 것</div>
+            <div class="question-text">
+                계 4장을 통해 요한이<br>
+                ① 본 것<br>
+                ② 들은 것은 무엇인지 쓰시오.
+            </div>
+            <div class="essay-answer" id="essay-9" style="display:none; background:var(--answer-bg); color:var(--answer-color); border-radius:8px; padding:14px 18px; margin-bottom:10px; line-height:1.9; font-size:1rem;">
+                <strong>① 본 것:</strong> 영계 하나님의 보좌와 계열<br>
+                <strong>② 들은 것:</strong> 하나님과 영계의 나라가 장차 이 땅에 임해 오실 것<br>
+                <span style="font-size:0.85rem; color:#888;">출처: 온라인 세미나 육하원칙 계시 문답</span>
+            </div>
+            <div class="controls">
+                <button class="btn-answer" onclick="toggleEssay('essay-9', this)">정답 보기</button>
+            </div>
+        </div>
+
+        <div class="quiz-card">
+            <div class="question-title">10번. 새요한에게 영계를 보여주신 목적</div>
+            <div class="question-text">
+                새요한에게 영계를 보여주신 목적은 무엇인지를 증거성구와 함께 쓰시오.
+            </div>
+            <div class="essay-answer" id="essay-10" style="display:none; background:var(--answer-bg); color:var(--answer-color); border-radius:8px; padding:14px 18px; margin-bottom:10px; line-height:1.9; font-size:1rem;">
+                <strong>이 땅에 하나님께서 임해오실 하나님의 나라를 창조하기 위함</strong><br>
+                <span style="font-size:0.9rem;">(마 6:10, 요 5:19)</span><br>
+                <span style="font-size:0.85rem; color:#888;">출처: 온라인 세미나 육하원칙 계시 문답</span>
+            </div>
+            <div class="controls">
+                <button class="btn-answer" onclick="toggleEssay('essay-10', this)">정답 보기</button>
+            </div>
+        </div>
+    </div>
+
     <div id="exam-arena" class="quiz-card">
         <div id="exam-play-area">
             <div class="exam-header">
@@ -379,6 +434,7 @@
             document.getElementById('btnStage' + level).classList.add('active');
             document.getElementById('quiz-list').style.display = 'block';
             document.getElementById('exam-arena').style.display = 'none';
+            document.getElementById('essay-section').style.display = 'block';
             document.getElementById('globalControls').style.display = 'flex';
             document.getElementById('shuffleInfo').style.display = (level === 1) ? 'block' : 'none';
             const showRound = activeLevel === 3;
@@ -390,6 +446,7 @@
             document.getElementById('btnExam' + level).classList.add('active');
             document.getElementById('quiz-list').style.display = 'none';
             document.getElementById('exam-arena').style.display = 'block';
+            document.getElementById('essay-section').style.display = 'none';
             document.getElementById('globalControls').style.display = 'none';
             document.getElementById('shuffleInfo').style.display = 'none';
             startExam();
@@ -622,6 +679,15 @@
             });
             wrongListContainer.innerHTML = html;
         }
+    }
+
+    // 📝 서술형 정답 토글
+    function toggleEssay(id, btn) {
+        const box = document.getElementById(id);
+        const isHidden = box.style.display === 'none';
+        box.style.display = isHidden ? 'block' : 'none';
+        btn.innerText = isHidden ? '정답 가리기' : '정답 보기';
+        btn.classList.toggle('active', isHidden);
     }
 
     // 🌙 다크 모드 및 플레이어 접기

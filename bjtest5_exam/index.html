@@ -292,20 +292,38 @@
     const versesExam_pool = verses5_pool;
 
     const quizData_pool = [
-        { title: "1. 보좌에 앉으신 이의 오른손의 책 (계 5:1)", content: versesExam_pool[0] },
-        { title: "2. 책 인을 뗄 자 (계 5:2)", content: versesExam_pool[1] },
-        { title: "3. 아무도 없더라 (계 5:3)", content: versesExam_pool[2] },
-        { title: "4. 내가 크게 울었더니 (계 5:4)", content: versesExam_pool[3] },
-        { title: "5. 유대 지파의 사자 (계 5:5)", content: versesExam_pool[4] },
-        { title: "6. 어린 양과 일곱 뿔 일곱 눈 (계 5:6)", content: versesExam_pool[5] },
-        { title: "7. 어린 양이 책을 취하시니라 (계 5:7)", content: versesExam_pool[6] },
-        { title: "8. 향이 가득한 금 대접 (계 5:8)", content: versesExam_pool[7] },
-        { title: "9. 새 노래 (계 5:9)", content: versesExam_pool[8] },
-        { title: "10. 나라와 제사장 (계 5:10)", content: versesExam_pool[9] },
-        { title: "11. 만만이요 천천이라 (계 5:11)", content: versesExam_pool[10] },
-        { title: "12. 어린 양이 받으시기에 합당하도다 (계 5:12)", content: versesExam_pool[11] },
-        { title: "13. 모든 만물의 찬양 (계 5:13)", content: versesExam_pool[12] },
-        { title: "14. 아멘과 경배 (계 5:14)", content: versesExam_pool[13] }
+        { title: "1. 보좌에 앉으신 이의 오른손의 책 (계 5:1~2)", content: versesExam_pool[0] + "<br>" + versesExam_pool[1] },
+        { title: "2. 아무도 없더라 / 내가 크게 울었더니 (계 5:3~4)", content: versesExam_pool[2] + "<br>" + versesExam_pool[3] },
+        { title: "3. 유대 지파의 사자 / 어린 양 (계 5:5~6)", content: versesExam_pool[4] + "<br>" + versesExam_pool[5] },
+        { title: "4. 어린 양이 책을 취하시니라 / 향이 가득한 금 대접 (계 5:7~8)", content: versesExam_pool[6] + "<br>" + versesExam_pool[7] },
+        { title: "5. 새 노래 / 나라와 제사장 (계 5:9~10)", content: versesExam_pool[8] + "<br>" + versesExam_pool[9] },
+        { title: "6. 만만이요 천천이라 / 합당하도다 (계 5:11~12)", content: versesExam_pool[10] + "<br>" + versesExam_pool[11] },
+        { title: "7. 모든 만물의 찬양 / 아멘과 경배 (계 5:13~14)", content: versesExam_pool[12] + "<br>" + versesExam_pool[13] }
+    ];
+
+    // 🌟 내용 시험 문답 (8~10번) — 항상 Stage 1 방식으로 렌더링
+    const additionalQuizData = [
+        {
+            title: "8. 계 5장과 같은 구약의 성구 / 계 5:9~10의 신약 성구",
+            content: "계 5장과 같은 구약의 성구는 ①무엇이며, 계 5:9~10은 신약의 ②어떤 성구가 이루어진 결과인가?<br><br>" +
+                     "① {사 29:9~13}<br>" +
+                     "② {눅 22:14~20}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 12지파 교육부 시험</small>"
+        },
+        {
+            title: "9. 계 1:5~6에 죄에서 해방된 자들의 장과 절",
+            content: "계 1장 5~6절에 죄에서 해방된 자들은 몇 장의 누구인지 그 장과 절을 쓰시오.<br><br>" +
+                     "답: {계 5:9~10}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 서무시험 8차</small>"
+        },
+        {
+            title: "10. 계 5:9~10의 피는 언제 무슨 날 누가 약속한 것인가",
+            content: "계 5장 9~10절의 피는 언제 무슨 날 누가 약속한 것인지 쓰시오.<br><br>" +
+                     "언제: {초림 때}<br>" +
+                     "무슨 날: {유월절}<br>" +
+                     "누가: {예수님}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 서무시험 10차</small>"
+        }
     ];
 
     let versesExam_active = [];
@@ -326,10 +344,15 @@
             });
         });
 
-        quizData_active = quizData_pool.map((item, i) => ({
-            title: item.title,
-            content: versesExam_active[i]
-        }));
+        quizData_active = [
+            { title: quizData_pool[0].title, content: versesExam_active[0] + "<br>" + versesExam_active[1] },
+            { title: quizData_pool[1].title, content: versesExam_active[2] + "<br>" + versesExam_active[3] },
+            { title: quizData_pool[2].title, content: versesExam_active[4] + "<br>" + versesExam_active[5] },
+            { title: quizData_pool[3].title, content: versesExam_active[6] + "<br>" + versesExam_active[7] },
+            { title: quizData_pool[4].title, content: versesExam_active[8] + "<br>" + versesExam_active[9] },
+            { title: quizData_pool[5].title, content: versesExam_active[10] + "<br>" + versesExam_active[11] },
+            { title: quizData_pool[6].title, content: versesExam_active[12] + "<br>" + versesExam_active[13] }
+        ];
     }
 
     function reshuffleBlanks() {
@@ -390,6 +413,14 @@
 
         const data = (activeLevel === 1) ? quizData_active : quizData_pool;
         data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+
+        // 8~10번 구분 헤더
+        const separator = document.createElement('div');
+        separator.innerHTML = `<h2 class="question-title" style="color: #d9534f; border-bottom-color: #f5c6cb; margin-top: 40px;">📚 내용 시험 문답 (8~10번)</h2>`;
+        quizList.appendChild(separator);
+
+        // 8~10번: 항상 Stage 1 방식(답 부분만 빈칸)으로 렌더링
+        additionalQuizData.forEach((item, index) => { renderSingleCard(item, 'add-' + index, quizList, true); });
     }
 
     function renderSingleCard(item, id, container, forceStage1) {

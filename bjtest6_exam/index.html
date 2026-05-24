@@ -295,23 +295,13 @@
     const versesExam_pool = verses6_pool;
 
     const quizData_pool = [
-        { title: "1. 첫째 인 (계 6:1)", content: versesExam_pool[0] },
-        { title: "2. 흰 말 (계 6:2)", content: versesExam_pool[1] },
-        { title: "3. 둘째 인 (계 6:3)", content: versesExam_pool[2] },
-        { title: "4. 붉은 다른 말 (계 6:4)", content: versesExam_pool[3] },
-        { title: "5. 세째 인 (계 6:5)", content: versesExam_pool[4] },
-        { title: "6. 검은 말과 저울 (계 6:6)", content: versesExam_pool[5] },
-        { title: "7. 네째 인 (계 6:7)", content: versesExam_pool[6] },
-        { title: "8. 청황색 말 (계 6:8)", content: versesExam_pool[7] },
-        { title: "9. 다섯째 인 (계 6:9)", content: versesExam_pool[8] },
-        { title: "10. 대주재여 (계 6:10)", content: versesExam_pool[9] },
-        { title: "11. 흰 두루마기 (계 6:11)", content: versesExam_pool[10] },
-        { title: "12. 여섯째 인 (계 6:12)", content: versesExam_pool[11] },
-        { title: "13. 별들이 떨어지며 (계 6:13)", content: versesExam_pool[12] },
-        { title: "14. 하늘이 떠나가고 (계 6:14)", content: versesExam_pool[13] },
-        { title: "15. 굴과 산 바위틈에 (계 6:15)", content: versesExam_pool[14] },
-        { title: "16. 어린 양의 진노 (계 6:16)", content: versesExam_pool[15] },
-        { title: "17. 진노의 큰 날 (계 6:17)", content: versesExam_pool[16] }
+        { title: "1. 첫째 인 / 흰 말 (계 6:1~2)", content: versesExam_pool[0] + "<br>" + versesExam_pool[1] },
+        { title: "2. 둘째 인 / 붉은 다른 말 (계 6:3~4)", content: versesExam_pool[2] + "<br>" + versesExam_pool[3] },
+        { title: "3. 세째 인 / 검은 말과 저울 (계 6:5~6)", content: versesExam_pool[4] + "<br>" + versesExam_pool[5] },
+        { title: "4. 네째 인 / 청황색 말 (계 6:7~8)", content: versesExam_pool[6] + "<br>" + versesExam_pool[7] },
+        { title: "5. 다섯째 인 / 대주재여 (계 6:9~10)", content: versesExam_pool[8] + "<br>" + versesExam_pool[9] },
+        { title: "6. 흰 두루마기 / 여섯째 인 (계 6:11~12)", content: versesExam_pool[10] + "<br>" + versesExam_pool[11] },
+        { title: "7. 별들이 떨어지며 ~ 진노의 큰 날 (계 6:13~17)", content: versesExam_pool[12] + "<br>" + versesExam_pool[13] + "<br>" + versesExam_pool[14] + "<br>" + versesExam_pool[15] + "<br>" + versesExam_pool[16] }
     ];
 
     let versesExam_active = [];
@@ -332,10 +322,15 @@
             });
         });
 
-        quizData_active = quizData_pool.map((item, i) => ({
-            title: item.title,
-            content: versesExam_active[i]
-        }));
+        quizData_active = [
+            { title: quizData_pool[0].title, content: versesExam_active[0] + "<br>" + versesExam_active[1] },
+            { title: quizData_pool[1].title, content: versesExam_active[2] + "<br>" + versesExam_active[3] },
+            { title: quizData_pool[2].title, content: versesExam_active[4] + "<br>" + versesExam_active[5] },
+            { title: quizData_pool[3].title, content: versesExam_active[6] + "<br>" + versesExam_active[7] },
+            { title: quizData_pool[4].title, content: versesExam_active[8] + "<br>" + versesExam_active[9] },
+            { title: quizData_pool[5].title, content: versesExam_active[10] + "<br>" + versesExam_active[11] },
+            { title: quizData_pool[6].title, content: versesExam_active[12] + "<br>" + versesExam_active[13] + "<br>" + versesExam_active[14] + "<br>" + versesExam_active[15] + "<br>" + versesExam_active[16] }
+        ];
     }
 
     function reshuffleBlanks() {

@@ -126,6 +126,11 @@
             h1 { font-size:1.2rem; }
             .btn-stage, .btn-exam { font-size:0.82rem; padding:8px 10px; }
         }
+
+        /* 모바일: 텍스트 탭 시 구글 검색 토스트 방지 */
+        @media (pointer: coarse) {
+            .question-text, .passage-text, .verse-line { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        }
     </style>
 </head>
 <body>

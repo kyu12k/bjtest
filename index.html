@@ -252,6 +252,11 @@
         .modal-content ul { padding-left: 20px; text-align: left; }
         .modal-content li { margin-bottom: 10px; font-size: 0.95rem; }
         .modal-close-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+
+        /* 모바일: 텍스트 탭 시 구글 검색 토스트 방지 */
+        @media (pointer: coarse) {
+            .question-text, .passage-text, .verse-line { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        }
     </style>
 </head>
 <body>

@@ -154,7 +154,7 @@
     <div class="modal-content">
         <h2>⚠️ 모의고사 안내 (계 6장 시험 대비)</h2>
         <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
-        📌 <strong>빈칸 범위:</strong> 계 6장 1~17절 (총 17절)<br><br>
+        📌 <strong>빈칸 범위:</strong> 계 6장 1~2, 5~6, 8~15절 (총 12절)<br><br>
         각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
         <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
         <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
@@ -297,16 +297,49 @@
         "17 그들의 {진노의 큰 날}이 이르렀으니 누가 {능히 서리요} 하더라"
     ];
 
-    const versesExam_pool = verses6_pool;
+    // 시험 범위: 계 6장 1~2, 5~6, 8~15절
+    const versesExam_pool = [
+        verses6_pool[0], verses6_pool[1],   // 1~2절
+        verses6_pool[4], verses6_pool[5],   // 5~6절
+        verses6_pool[7],                     // 8절
+        verses6_pool[8], verses6_pool[9],   // 9~10절
+        verses6_pool[10], verses6_pool[11], // 11~12절
+        verses6_pool[12], verses6_pool[13], // 13~14절
+        verses6_pool[14]                     // 15절
+    ];
 
     const quizData_pool = [
         { title: "1. 첫째 인 / 흰 말 (계 6:1~2)", content: versesExam_pool[0] + "<br>" + versesExam_pool[1] },
-        { title: "2. 둘째 인 / 붉은 다른 말 (계 6:3~4)", content: versesExam_pool[2] + "<br>" + versesExam_pool[3] },
-        { title: "3. 세째 인 / 검은 말과 저울 (계 6:5~6)", content: versesExam_pool[4] + "<br>" + versesExam_pool[5] },
-        { title: "4. 네째 인 / 청황색 말 (계 6:7~8)", content: versesExam_pool[6] + "<br>" + versesExam_pool[7] },
-        { title: "5. 다섯째 인 / 대주재여 (계 6:9~10)", content: versesExam_pool[8] + "<br>" + versesExam_pool[9] },
-        { title: "6. 흰 두루마기 / 여섯째 인 (계 6:11~12)", content: versesExam_pool[10] + "<br>" + versesExam_pool[11] },
-        { title: "7. 별들이 떨어지며 ~ 진노의 큰 날 (계 6:13~17)", content: versesExam_pool[12] + "<br>" + versesExam_pool[13] + "<br>" + versesExam_pool[14] + "<br>" + versesExam_pool[15] + "<br>" + versesExam_pool[16] }
+        { title: "2. 세째 인 / 검은 말과 저울 (계 6:5~6)", content: versesExam_pool[2] + "<br>" + versesExam_pool[3] },
+        { title: "3. 청황색 말 (계 6:8)", content: versesExam_pool[4] },
+        { title: "4. 다섯째 인 / 대주재여 (계 6:9~10)", content: versesExam_pool[5] + "<br>" + versesExam_pool[6] },
+        { title: "5. 흰 두루마기 / 여섯째 인 (계 6:11~12)", content: versesExam_pool[7] + "<br>" + versesExam_pool[8] },
+        { title: "6. 별들이 떨어지며 / 하늘이 떠나가고 (계 6:13~14)", content: versesExam_pool[9] + "<br>" + versesExam_pool[10] },
+        { title: "7. 굴과 산 바위틈에 (계 6:15)", content: versesExam_pool[11] }
+    ];
+
+    // 🌟 내용 시험 문답 (8~10번) — 항상 Stage 1 방식으로 렌더링
+    const additionalQuizData = [
+        {
+            title: "8. 계 6장의 심판하는 자들",
+            content: "계 6장의 심판하는 자들은 ①어디서 본 누구이며, ②무슨 일 후에 있는 것인가?<br><br>" +
+                     "① {계 4장의 예수님과 네 생물}<br>" +
+                     "② {계 2~3장의 편지한 후 (계 5장에서 예수님이 봉한 책을 받은 후)}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 서무 시험 22차</small>"
+        },
+        {
+            title: "9. 계 6장 백마 탄 자가 이긴 곳과 이길 곳",
+            content: "계 6장의 백마 탄 자가 이기고 또 이기려고 한다. ①어디서 이겼고, 또 이길 곳은 ②어디인가? 해당하는 장을 각각 쓰시오.<br><br>" +
+                     "① 어디서 이겼고: {초림 때, 요 16장}<br>" +
+                     "② 이길 곳은 어디: {계 19장}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 서무시험 39차</small>"
+        },
+        {
+            title: "10. 계 6장과 같은 사건이 있는 신약 성구",
+            content: "계 6장과 같은 사건이 신약에 두 군데 있다. 해당 성구(또는 성경 장)를 쓰시오.<br><br>" +
+                     "답: {마 8:11~12}, {마 24장}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 12지파 교육부 시험</small>"
+        }
     ];
 
     let versesExam_active = [];
@@ -330,11 +363,11 @@
         quizData_active = [
             { title: quizData_pool[0].title, content: versesExam_active[0] + "<br>" + versesExam_active[1] },
             { title: quizData_pool[1].title, content: versesExam_active[2] + "<br>" + versesExam_active[3] },
-            { title: quizData_pool[2].title, content: versesExam_active[4] + "<br>" + versesExam_active[5] },
-            { title: quizData_pool[3].title, content: versesExam_active[6] + "<br>" + versesExam_active[7] },
-            { title: quizData_pool[4].title, content: versesExam_active[8] + "<br>" + versesExam_active[9] },
-            { title: quizData_pool[5].title, content: versesExam_active[10] + "<br>" + versesExam_active[11] },
-            { title: quizData_pool[6].title, content: versesExam_active[12] + "<br>" + versesExam_active[13] + "<br>" + versesExam_active[14] + "<br>" + versesExam_active[15] + "<br>" + versesExam_active[16] }
+            { title: quizData_pool[2].title, content: versesExam_active[4] },
+            { title: quizData_pool[3].title, content: versesExam_active[5] + "<br>" + versesExam_active[6] },
+            { title: quizData_pool[4].title, content: versesExam_active[7] + "<br>" + versesExam_active[8] },
+            { title: quizData_pool[5].title, content: versesExam_active[9] + "<br>" + versesExam_active[10] },
+            { title: quizData_pool[6].title, content: versesExam_active[11] }
         ];
     }
 
@@ -396,6 +429,14 @@
 
         const data = (activeLevel === 1) ? quizData_active : quizData_pool;
         data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+
+        // 8~10번 구분 헤더
+        const separator = document.createElement('div');
+        separator.innerHTML = `<h2 class="question-title" style="color: #d9534f; border-bottom-color: #f5c6cb; margin-top: 40px;">📚 내용 시험 문답 (8~10번)</h2>`;
+        quizList.appendChild(separator);
+
+        // 8~10번: 항상 Stage 1 방식(답 부분만 빈칸)으로 렌더링
+        additionalQuizData.forEach((item, index) => { renderSingleCard(item, 'add-' + index, quizList, true); });
     }
 
     function renderSingleCard(item, id, container, forceStage1) {
@@ -497,7 +538,7 @@
     let examScore = 0;
     let examWrongData = [];
 
-    const verseLabels = ['계 6장 1절','계 6장 2절','계 6장 3절','계 6장 4절','계 6장 5절','계 6장 6절','계 6장 7절','계 6장 8절','계 6장 9절','계 6장 10절','계 6장 11절','계 6장 12절','계 6장 13절','계 6장 14절','계 6장 15절','계 6장 16절','계 6장 17절'];
+    const verseLabels = ['계 6장 1절','계 6장 2절','계 6장 5절','계 6장 6절','계 6장 8절','계 6장 9절','계 6장 10절','계 6장 11절','계 6장 12절','계 6장 13절','계 6장 14절','계 6장 15절'];
     function getVerseLabel(absIndex) { return verseLabels[absIndex] || `${absIndex + 1}절`; }
 
     function startExam() {

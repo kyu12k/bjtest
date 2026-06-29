@@ -153,7 +153,8 @@
     <div class="modal-content">
         <h2>⚠️ 모의고사 안내 (계 8장 시험 대비)</h2>
         <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
-        📌 <strong>빈칸 범위:</strong> 계 8장 전체 (13절)<br><br>
+        📌 <strong>구절 범위 (1~7번):</strong> 계 8장 전체 (13절)<br>
+        📌 <strong>내용 시험 (8~10번):</strong> 계 8장 전반<br><br>
         각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
         <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
         <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
@@ -303,6 +304,30 @@
         { title: "6. 네째 나팔과 세 가지 화 (계 8:12~13)", content: verses8_pool[11] + "<br>" + verses8_pool[12] }
     ];
 
+    // 🌟 내용 시험 문답 (8~10번) — 항상 Stage 1 방식으로 렌더링
+    const additionalQuizData = [
+        {
+            title: "8. 계 8~9장 나팔소리와 죽임 당한 자들",
+            content: "계 8~9장, 왜 8장에서 나팔소리가 ①나며, 8~9장에서 죽임을 당한 자들은 ②누구인가?<br><br>" +
+                     "① {인을 다 떼므로 책이 열려 보이므로}<br>" +
+                     "② {계 6장에서 쫓겨난 자들}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 새 언약 이행시험</small>"
+        },
+        {
+            title: "9. 계 8~9장 사건의 배경",
+            content: "계 8~9장 사건은 ① 무슨 일 후에 있어진 사건이며, 무슨 일은 ② 왜 있게 되었는가? 성구와 함께 기록하시오.<br><br>" +
+                     "① {계 6장 심판 후}<br>" +
+                     "② {계 2~3장의 배도 행위}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 총회장님 출제 12차 시험</small>"
+        },
+        {
+            title: "10. 심판한 자와 심판받는 자",
+            content: "계 6, 8, 9장에서 심판을 베풀었으나 회개하지 않았다. 심판한 자와 심판을 받는 자는 누구인가?<br><br>" +
+                     "답: {예수님과 네 생물}, {배도한 선민}<br>" +
+                     "<small style='color:#888; display:block; margin-top:10px;'>※ 출처: 새 언약 이행 시험</small>"
+        }
+    ];
+
     let versesExam_active = [];
     let quizData_active = [];
 
@@ -384,6 +409,14 @@
         quizList.innerHTML = ''; isAllAnswersShown = false;
         const data = (activeLevel === 1) ? quizData_active : quizData_pool;
         data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+
+        // 8~10번 구분 헤더
+        const separator = document.createElement('div');
+        separator.innerHTML = `<h2 class="question-title" style="color: #d9534f; border-bottom-color: #f5c6cb; margin-top: 40px;">📚 내용 시험 문답 (8~10번)</h2>`;
+        quizList.appendChild(separator);
+
+        // 8~10번: 항상 Stage 1 방식으로 렌더링
+        additionalQuizData.forEach((item, index) => { renderSingleCard(item, 'add-' + index, quizList, true); });
     }
 
     function renderSingleCard(item, id, container, forceStage1) {

@@ -153,7 +153,8 @@
     <div class="modal-content">
         <h2>⚠️ 모의고사 안내 (계 9장 시험 대비)</h2>
         <p>본 훈련은 <strong>시험</strong>을 위한 실전 암기 시뮬레이터입니다.<br><br>
-        📌 <strong>빈칸 범위:</strong> 계 9장 전체 (21절)<br><br>
+        📌 <strong>구절 범위 (1~7번):</strong> 계 9장 1~5절, 15~20절 (총 11절)<br>
+        📌 <strong>내용 시험 (8~10번):</strong> 계 9장 전반<br><br>
         각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
         <small>(*단, 쉼표(,) 입력 유무는 자동으로 보정되어 정답 처리됩니다.)</small><br><br>
         <strong>🔀 1단계 빈칸은 매번 무작위로 출제됩니다!</strong><br>
@@ -223,7 +224,7 @@
         </div>
         <div id="exam-result-area" class="result-screen" style="display: none;">
             <h2>🎉 모의고사 결과 🎉</h2>
-            <div class="score-display" id="finalScore">0 / 21</div>
+            <div class="score-display" id="finalScore">0 / 11</div>
             <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
             <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
             <div id="wrongListContainer" class="wrong-list"></div>
@@ -300,19 +301,35 @@
         "21 또 그 {살인과 복술과 음행과 도적질}을 회개치 아니하더라"
     ];
 
-    const versesExam_pool = verses9_pool; // 전체 21절
+    // 시험 범위: 1~5절 + 15~20절 (총 11절)
+    const versesExam_pool = [
+        verses9_pool[0], verses9_pool[1], verses9_pool[2], verses9_pool[3], verses9_pool[4],
+        verses9_pool[14], verses9_pool[15], verses9_pool[16], verses9_pool[17], verses9_pool[18], verses9_pool[19]
+    ];
 
     const quizData_pool = [
         { title: "1. 다섯째 나팔과 무저갱 (계 9:1~2)", content: verses9_pool[0] + "<br>" + verses9_pool[1] },
         { title: "2. 황충의 등장과 권세 (계 9:3~4)", content: verses9_pool[2] + "<br>" + verses9_pool[3] },
-        { title: "3. 황충의 재앙 (계 9:5~6)", content: verses9_pool[4] + "<br>" + verses9_pool[5] },
-        { title: "4. 황충의 모양 (1) (계 9:7~8)", content: verses9_pool[6] + "<br>" + verses9_pool[7] },
-        { title: "5. 황충의 모양 (2) (계 9:9~10)", content: verses9_pool[8] + "<br>" + verses9_pool[9] },
-        { title: "6. 무저갱의 사자 (계 9:11~12)", content: verses9_pool[10] + "<br>" + verses9_pool[11] },
-        { title: "7. 여섯째 나팔과 네 천사 (계 9:13~14)", content: verses9_pool[12] + "<br>" + verses9_pool[13] },
-        { title: "8. 마병대의 등장 (계 9:15~16)", content: verses9_pool[14] + "<br>" + verses9_pool[15] },
-        { title: "9. 마병대의 재앙 (계 9:17~19)", content: verses9_pool[16] + "<br>" + verses9_pool[17] + "<br>" + verses9_pool[18] },
-        { title: "10. 회개치 않는 자들 (계 9:20~21)", content: verses9_pool[19] + "<br>" + verses9_pool[20] }
+        { title: "3. 황충의 재앙 (계 9:5)", content: verses9_pool[4] },
+        { title: "4. 마병대의 등장 (계 9:15~16)", content: verses9_pool[14] + "<br>" + verses9_pool[15] },
+        { title: "5. 마병대의 모습 (계 9:17)", content: verses9_pool[16] },
+        { title: "6. 마병대의 재앙 (계 9:18~19)", content: verses9_pool[17] + "<br>" + verses9_pool[18] },
+        { title: "7. 회개치 않는 자들 (계 9:20)", content: verses9_pool[19] }
+    ];
+
+    const additionalQuizData = [
+        {
+            title: "8. 이방 짐승(멸망자)이 심판하는 장 3개와 나팔의 실체",
+            content: "① 이방 짐승이 심판하는 장 3개 : {계 8장, 계 9장, 계 13장}<br>② 일곱 나팔의 실체 : {심판 때 믿음의 씨로 빼낸 성도들}, 출처 : {계 6장}<br><small style='color:#888; display:block; margin-top:10px;'>※ 출처: 수료종합시험</small>"
+        },
+        {
+            title: "9. 계 9장과 계 19장 — 탄 자와 말·머리·꼬리·불연기유황의 실체",
+            content: "① 탄 자와 말: 계 9장({마귀 소속 영·육}) / 계 19장({하나님 소속 영·육})<br>② 머리 : {용의 일곱 목자}<br>③ 꼬리 : {거짓 선지자}<br>④ 불·연기·유황 : {거짓 교리와 교법}<br><small style='color:#888; display:block; margin-top:10px;'>※ 출처: 수료종합시험</small>"
+        },
+        {
+            title: "10. 여섯째 나팔 재앙 — 죽임 당하는 자와 그 연월일시",
+            content: "① 죽임 당하는 자 : {배도한 장막성전 사람들}<br>② 연월일시 : {1981년 9월 20일 14시}, {목사 임직식}<br><small style='color:#888; display:block; margin-top:10px;'>※ 출처: 수료종합시험</small>"
+        }
     ];
 
     let versesExam_active = [];
@@ -332,14 +349,11 @@
         quizData_active = [
             { title: quizData_pool[0].title, content: versesExam_active[0] + "<br>" + versesExam_active[1] },
             { title: quizData_pool[1].title, content: versesExam_active[2] + "<br>" + versesExam_active[3] },
-            { title: quizData_pool[2].title, content: versesExam_active[4] + "<br>" + versesExam_active[5] },
-            { title: quizData_pool[3].title, content: versesExam_active[6] + "<br>" + versesExam_active[7] },
-            { title: quizData_pool[4].title, content: versesExam_active[8] + "<br>" + versesExam_active[9] },
-            { title: quizData_pool[5].title, content: versesExam_active[10] + "<br>" + versesExam_active[11] },
-            { title: quizData_pool[6].title, content: versesExam_active[12] + "<br>" + versesExam_active[13] },
-            { title: quizData_pool[7].title, content: versesExam_active[14] + "<br>" + versesExam_active[15] },
-            { title: quizData_pool[8].title, content: versesExam_active[16] + "<br>" + versesExam_active[17] + "<br>" + versesExam_active[18] },
-            { title: quizData_pool[9].title, content: versesExam_active[19] + "<br>" + versesExam_active[20] }
+            { title: quizData_pool[2].title, content: versesExam_active[4] },
+            { title: quizData_pool[3].title, content: versesExam_active[5] + "<br>" + versesExam_active[6] },
+            { title: quizData_pool[4].title, content: versesExam_active[7] },
+            { title: quizData_pool[5].title, content: versesExam_active[8] + "<br>" + versesExam_active[9] },
+            { title: quizData_pool[6].title, content: versesExam_active[10] }
         ];
     }
 
@@ -400,6 +414,10 @@
         quizList.innerHTML = ''; isAllAnswersShown = false;
         const data = (activeLevel === 1) ? quizData_active : quizData_pool;
         data.forEach((item, index) => { renderSingleCard(item, index, quizList, false); });
+        const separator = document.createElement('div');
+        separator.innerHTML = `<h2 class="question-title" style="color: #d9534f; border-bottom-color: #f5c6cb; margin-top: 40px;">📚 내용 시험 문답 (8~10번)</h2>`;
+        quizList.appendChild(separator);
+        additionalQuizData.forEach((item, index) => { renderSingleCard(item, 'add-' + index, quizList, true); });
     }
 
     function renderSingleCard(item, id, container, forceStage1) {
@@ -496,17 +514,14 @@
     }
     function nextRound() { currentRound = (currentRound % TOTAL_ROUNDS) + 1; document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`; renderQuizzes(); }
 
-    const totalVerses = versesExam_pool.length; // 21
+    const totalVerses = versesExam_pool.length; // 11 (1~5절, 15~20절)
     let currentExamIndex = 0;
     let examScore = 0;
     let examWrongData = [];
 
     const verseLabels = [
         '계 9장 1절','계 9장 2절','계 9장 3절','계 9장 4절','계 9장 5절',
-        '계 9장 6절','계 9장 7절','계 9장 8절','계 9장 9절','계 9장 10절',
-        '계 9장 11절','계 9장 12절','계 9장 13절','계 9장 14절','계 9장 15절',
-        '계 9장 16절','계 9장 17절','계 9장 18절','계 9장 19절','계 9장 20절',
-        '계 9장 21절'
+        '계 9장 15절','계 9장 16절','계 9장 17절','계 9장 18절','계 9장 19절','계 9장 20절'
     ];
     function getVerseLabel(absIndex) { return verseLabels[absIndex] || `${absIndex + 1}절`; }
 

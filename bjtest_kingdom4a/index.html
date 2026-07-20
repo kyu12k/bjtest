@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>천국고시 4단계 예상 문제</title>
+    <style>
+        :root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --blank-bg: #e9ecef;
+            --blank-text: transparent;
+            --hint-bg: #fff3cd;
+            --hint-color: #888;
+            --answer-bg: #d1e7dd;
+            --answer-color: #0f5132;
+            --section-bg: #eef2ff;
+            --section-border: #c7d2fe;
+        }
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --blank-bg: #5f6368;
+            --hint-bg: #423805;
+            --hint-color: #e2b838;
+            --answer-bg: #0c3b28;
+            --answer-color: #8ab4f8;
+            --section-bg: #1a1f3a;
+            --section-border: #3730a3;
+        }
+        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.6; transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 60px; }
+
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary-color); font-size: 1.7rem; margin-bottom: 6px; }
+        .subtitle { color: #888; font-size: 0.95rem; margin: 0 0 20px 0; }
+        [data-theme="dark"] .subtitle { color: #aaa; }
+
+        .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; font-size: 0.9rem; }
+        button:active { transform: scale(0.97); }
+        .btn-dark { background-color: #343a40; color: white; }
+        .btn-global { background-color: #6c757d; color: white; }
+        .btn-hint { background-color: #ffc107; color: #333; }
+        .btn-answer { background-color: #198754; color: white; }
+        .btn-answer.active { background-color: #0f5132; }
+        [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
+        [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
+
+        .section-header { background-color: var(--section-bg); border-left: 4px solid var(--section-border); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 35px 0 16px 0; }
+        .section-header h2 { margin: 0; color: var(--primary-color); font-size: 1.2rem; }
+        .section-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: #888; }
+        [data-theme="dark"] .section-header p { color: #aaa; }
+
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
+        .question-label { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 8px; margin-bottom: 12px; }
+        .question-body { font-size: 1.05rem; line-height: 1.9; word-break: keep-all; margin-bottom: 14px; }
+        .hint-line { font-size: 0.95rem; color: #888; margin-bottom: 10px; }
+        [data-theme="dark"] .hint-line { color: #aaa; }
+        .hint-line strong { color: var(--primary-color); font-size: 1.05rem; }
+
+        /* 장 제목 / 성구 정답 블록 */
+        .answer-block { display: none; background-color: var(--answer-bg); color: var(--answer-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 1.05rem; line-height: 1.9; word-break: keep-all; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .answer-block.shown { display: block; }
+
+        /* 빈칸 */
+        .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px 1px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; touch-action: manipulation; white-space: nowrap; }
+        .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
+        .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+
+        .controls { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        #topBtn:hover { transform: scale(1.1); }
+        @media (pointer: coarse) { .quiz-card { -webkit-user-select: none; user-select: none; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>👑 천국고시 4단계 예상 문제</h1>
+        <p class="subtitle">7/25(금) 천국고시 4단계 자문회용 · 계 11~14장</p>
+        <div class="global-controls">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button class="btn-global" id="globalToggleBtn" onclick="toggleAllAnswers()">👁️ 전체 정답 보기</button>
+        </div>
+    </header>
+
+    <!-- ── 1부: 장 제목 ── -->
+    <div class="section-header">
+        <h2>📌 1부 — 장 제목 기록 (1~3번)</h2>
+    </div>
+    <div id="section-titles"></div>
+
+    <!-- ── 2부: 성구 기록 ── -->
+    <div class="section-header">
+        <h2>✍️ 2부 — 성구 기록 (4~13번)</h2>
+        <p>주어진 시작 단어를 보고 절 전체를 기록하시오.</p>
+    </div>
+    <div id="section-verses"></div>
+
+    <!-- ── 3부: 빈칸 채우기 ── -->
+    <div class="section-header">
+        <h2>✏️ 3부 — 빈칸 채우기 (14~25번)</h2>
+        <p>괄호 속에 들어갈 말을 성경대로 쓰시오. (부분 점수 없음)</p>
+    </div>
+    <div id="section-blanks"></div>
+</div>
+
+<button id="topBtn" onclick="scrollToTop()">⬆️</button>
+
+<script>
+    window.onscroll = function() {
+        document.getElementById('topBtn').style.display =
+            (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? 'block' : 'none';
+    };
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    // ─── 데이터 ───────────────────────────────────────────────────────────────
+
+    const titleData = [
+        { num: 1, q: "계 11장의 제목을 기록하시오.", a: "두 증인과 일곱째 나팔" },
+        { num: 2, q: "계 12장의 제목을 기록하시오.", a: "용과 하나님과의 전쟁" },
+        { num: 3, q: "계 14장의 제목을 기록하시오.", a: "처음 익은 열매 시온산 십사만 사천" }
+    ];
+
+    const verseData = [
+        { num: 4,  ref: "계 11:1",  hint: "또 내게",               full: "또 내게 지팡이 같은 갈대를 주며 말하기를 일어나서 하나님의 성전과 제단과 그 안에서 경배하는 자들을 척량하되" },
+        { num: 5,  ref: "계 11:15", hint: "일곱째 천사가",          full: "일곱째 천사가 나팔을 불매 하늘에 큰 음성들이 나서 가로되 세상 나라가 우리 주와 그 그리스도의 나라가 되어 그가 세세토록 왕노릇 하시리로다 하니" },
+        { num: 6,  ref: "계 12:1",  hint: "하늘에 큰 이적이 보이니", full: "하늘에 큰 이적이 보이니 해를 입은 한 여자가 있는데 그 발 아래는 달이 있고 그 머리에는 열 두 별의 면류관을 썼더라" },
+        { num: 7,  ref: "계 12:4",  hint: "그 꼬리가",              full: "그 꼬리가 하늘 별 삼분의 일을 끌어다가 땅에 던지더라 용이 해산하려는 여자 앞에서 그가 해산하면 그 아이를 삼키고자 하더니" },
+        { num: 8,  ref: "계 12:6",  hint: "그 여자가",              full: "그 여자가 광야로 도망하매 거기서 일천 이백 육십일 동안 저를 양육하기 위하여 하나님의 예비하신 곳이 있더라" },
+        { num: 9,  ref: "계 13:1",  hint: "내가 보니",              full: "내가 보니 바다에서 한 짐승이 나오는데 뿔이 열이요 머리가 일곱이라 그 뿔에는 열 면류관이 있고 그 머리들에는 참람된 이름들이 있더라" },
+        { num: 10, ref: "계 13:5",  hint: "또 짐승이",              full: "또 짐승이 큰 말과 참람된 말 하는 입을 받고 또 마흔 두달 일할 권세를 받으니라" },
+        { num: 11, ref: "계 13:6",  hint: "짐승이 입을 벌려",       full: "짐승이 입을 벌려 하나님을 향하여 훼방하되 그의 이름과 그의 장막 곧 하늘에 거하는 자들을 훼방하더라" },
+        { num: 12, ref: "계 14:1",  hint: "또 내가 보니",           full: "또 내가 보니 보라 어린 양이 시온산에 섰고 그와 함께 십 사만 사천이 섰는데 그 이마에 어린 양의 이름과 그 아버지의 이름을 쓴 것이 있도다" },
+        { num: 13, ref: "계 14:16", hint: "구름 위에",              full: "구름 위에 앉으신 이가 낫을 땅에 휘두르매 곡식이 거두어지니라" }
+    ];
+
+    const blankData = [
+        { num: 14, ref: "계 11:2",  text: "{성전 밖 마당}은 척량하지 말고 그냥 두라 이것을 {이방인}에게 주었은즉 저희가 거룩한 성을 {마흔 두달} 동안 짓밟으리라" },
+        { num: 15, ref: "계 11:8",  text: "저희 {시체}가 큰 성길에 있으리니 그 성은 {영적으로 하면} {소돔이라고도} 하고 {애굽}이라고도 하니 곧 저희 주께서 {십자가}에 못 박히신 곳이니라" },
+        { num: 16, ref: "계 11:9",  text: "백성들과 {족속과} {방언}과 나라 중에서 사람들이 그 시체를 {사흘 반} 동안을 목도하며 {무덤에} {장사}하지 못하게 하리로다" },
+        { num: 17, ref: "계 12:3",  text: "하늘에 {또 다른 이적이 보이니 보라 한} {큰 붉은 용}이 있어 머리가 일곱이요 뿔이 열이라 그 여러 머리에 {일곱 면류관}이 있는데" },
+        { num: 18, ref: "계 12:5",  text: "여자가 {아들을 낳으니 이는 장차} {철장으로 만국을 다스릴} {남자라 그 아이를} 하나님 앞과 그 {보좌} 앞으로 올려가더라" },
+        { num: 19, ref: "계 12:10", text: "내가 또 들으니 {하늘}에 큰 음성이 있어 가로되 이제 우리 {하나님의} {구원과} {능력}과 나라와 또 그의 그리스도의 {권세}가 이루었으니 우리 형제들을 {참소하던 자} 곧 우리 하나님 앞에서 밤낮 참소하던 자가 쫓겨 났고" },
+        { num: 20, ref: "계 13:8",  text: "죽임을 당한 {어린 양의} {생명책에} {창세 이후로} {녹명되지 못하고 이 땅에} 사는 자들은 다 {짐승}에게 경배하리라" },
+        { num: 21, ref: "계 13:17", text: "누구든지 이 표를 가진 자 외에는 {매매}를 못하게 하니 이 표는 곧 {짐승의 이름이나} {그 이름의 수}라" },
+        { num: 22, ref: "계 13:18", text: "지혜가 여기 있으니 총명 있는 자는 그 {짐승의 수를 세어 보라} 그 수는 {사람의 수니} {육백 육십 륙}이니라" },
+        { num: 23, ref: "계 14:2",  text: "내가 {하늘}에서 나는 소리를 들으니 많은 {물소리도 같고 큰} {뇌성도 같은데} 내게 들리는 소리는 거문고 타는 자들의 그 {거문고} 타는 것 같더라" },
+        { num: 24, ref: "계 14:3",  text: "저희가 {보좌}와 네 생물과 장로들 앞에서 {새 노래를 부르니 땅에서} {구속함을 얻은} {십 사만 사천인 밖에는 능히 이} {노래}를 배울 자가 없더라" },
+        { num: 25, ref: "계 14:4",  text: "이 사람들은 {여자}로 더불어 더럽히지 아니하고 정절이 있는 자라 {어린 양이} 어디로 인도하든지 {따라가는 자며 사람 가운데서} {구속을 받아} {처음 익은 열매로} 하나님과 {어린 양}에게 속한 자들이니" }
+    ];
+
+    // ─── 초성 변환 ────────────────────────────────────────────────────────────
+
+    function getChosung(str) {
+        const cs = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+        let r = "";
+        for (let i = 0; i < str.length; i++) {
+            const c = str.charCodeAt(i) - 44032;
+            r += (c > -1 && c < 11172) ? cs[Math.floor(c / 588)] : str.charAt(i);
+        }
+        return r;
+    }
+
+    // ─── 렌더링 ───────────────────────────────────────────────────────────────
+
+    function renderTitles() {
+        const el = document.getElementById('section-titles');
+        titleData.forEach(d => {
+            el.innerHTML += `
+            <div class="quiz-card">
+                <div class="question-label">${d.num}. ${d.q}</div>
+                <div class="answer-block" id="ans-${d.num}">${d.a}</div>
+                <div class="controls">
+                    <button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderVerses() {
+        const el = document.getElementById('section-verses');
+        verseData.forEach(d => {
+            el.innerHTML += `
+            <div class="quiz-card">
+                <div class="question-label">${d.num}. ${d.ref}</div>
+                <div class="hint-line">📌 시작: <strong>${d.hint}</strong> ···</div>
+                <div class="answer-block" id="ans-${d.num}">${d.full}</div>
+                <div class="controls">
+                    <button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function renderBlanks() {
+        const el = document.getElementById('section-blanks');
+        blankData.forEach(d => {
+            const html = d.text.replace(/\{([^}]+)\}/g, (m, ans) => {
+                const w = Math.max(3, ans.length * 0.75) + 'em';
+                return `<span class="blank" style="min-width:${w}" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleBlank(this)">${ans}</span>`;
+            });
+            el.innerHTML += `
+            <div class="quiz-card">
+                <div class="question-label">${d.num}. ${d.ref}</div>
+                <div class="question-body" id="q-${d.num}">${html}</div>
+                <div class="controls">
+                    <button class="btn-hint" onclick="toggleCardHint('${d.num}', this)">초성 보기</button>
+                    <button class="btn-answer" id="ans-btn-${d.num}" onclick="toggleCardAnswer('${d.num}', this)">정답 보기</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    // ─── 토글 함수 ────────────────────────────────────────────────────────────
+
+    function toggleReveal(id, btn) {
+        const block = document.getElementById(id);
+        const showing = block.classList.toggle('shown');
+        btn.innerText = showing ? '정답 가리기' : '정답 보기';
+        showing ? btn.classList.add('active') : btn.classList.remove('active');
+    }
+
+    function toggleBlank(el) {
+        requestAnimationFrame(() => {
+            if (el.classList.contains('answer-mode')) {
+                el.classList.remove('answer-mode');
+                el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer;
+            } else {
+                el.classList.add('answer-mode');
+                el.classList.remove('hint-mode');
+                el.innerText = el.dataset.answer;
+            }
+        });
+    }
+
+    function toggleCardHint(id, btn) {
+        const blanks = document.getElementById('q-' + id).querySelectorAll('.blank');
+        const active = btn.classList.contains('active');
+        const ansBtn = document.getElementById('ans-btn-' + id);
+        ansBtn.classList.remove('active'); ansBtn.innerText = '정답 보기';
+        if (!active) {
+            btn.classList.add('active'); btn.innerText = '초성 끄기';
+            blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; });
+        } else {
+            btn.classList.remove('active'); btn.innerText = '초성 보기';
+            blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; });
+        }
+    }
+
+    function toggleCardAnswer(id, btn) {
+        const blanks = document.getElementById('q-' + id).querySelectorAll('.blank');
+        const active = btn.classList.contains('active');
+        const hintBtn = btn.previousElementSibling;
+        hintBtn.classList.remove('active'); hintBtn.innerText = '초성 보기';
+        if (!active) {
+            btn.classList.add('active'); btn.innerText = '정답 가리기';
+            blanks.forEach(b => { b.classList.add('answer-mode'); b.classList.remove('hint-mode'); b.innerText = b.dataset.answer; });
+        } else {
+            btn.classList.remove('active'); btn.innerText = '정답 보기';
+            blanks.forEach(b => { b.className = 'blank'; b.innerText = b.dataset.answer; });
+        }
+    }
+
+    // ─── 전체 토글 ────────────────────────────────────────────────────────────
+
+    let isAllShown = false;
+
+    function toggleAllAnswers() {
+        isAllShown = !isAllShown;
+
+        // 1부 & 2부: answer-block
+        document.querySelectorAll('.answer-block').forEach(block => {
+            if (isAllShown) block.classList.add('shown');
+            else block.classList.remove('shown');
+        });
+        document.querySelectorAll('.btn-answer').forEach(btn => {
+            if (!btn.id.startsWith('ans-btn-')) {
+                btn.innerText = isAllShown ? '정답 가리기' : '정답 보기';
+                isAllShown ? btn.classList.add('active') : btn.classList.remove('active');
+            }
+        });
+
+        // 3부: blanks
+        document.querySelectorAll('.blank').forEach(b => {
+            if (isAllShown) { b.classList.add('answer-mode'); b.classList.remove('hint-mode'); b.innerText = b.dataset.answer; }
+            else { b.className = 'blank'; b.innerText = b.dataset.answer; }
+        });
+        document.querySelectorAll('[id^="ans-btn-"]').forEach(btn => {
+            btn.innerText = isAllShown ? '정답 가리기' : '정답 보기';
+            isAllShown ? btn.classList.add('active') : btn.classList.remove('active');
+        });
+        document.querySelectorAll('.btn-hint').forEach(btn => {
+            btn.classList.remove('active'); btn.innerText = '초성 보기';
+        });
+
+        document.getElementById('globalToggleBtn').innerText =
+            isAllShown ? '👁️ 전체 정답 숨기기' : '👁️ 전체 정답 보기';
+    }
+
+    // ─── 테마 ─────────────────────────────────────────────────────────────────
+
+    function toggleTheme() {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+        localStorage.setItem('theme', dark ? 'light' : 'dark');
+    }
+
+    // ─── 초기화 ───────────────────────────────────────────────────────────────
+
+    renderTitles();
+    renderVerses();
+    renderBlanks();
+</script>
+</body>
+</html>

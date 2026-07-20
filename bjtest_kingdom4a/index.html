@@ -18,6 +18,7 @@
             --answer-color: #0f5132;
             --section-bg: #eef2ff;
             --section-border: #c7d2fe;
+            --exam-color: #e53e3e;
         }
         [data-theme="dark"] {
             --primary-color: #8ab4f8;
@@ -31,15 +32,23 @@
             --answer-color: #8ab4f8;
             --section-bg: #1a1f3a;
             --section-border: #3730a3;
+            --exam-color: #fc8181;
         }
         body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.6; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 800px; margin: 0 auto; padding-bottom: 60px; }
 
-        header { text-align: center; margin-bottom: 30px; }
+        header { text-align: center; margin-bottom: 24px; }
         h1 { color: var(--primary-color); font-size: 1.7rem; margin-bottom: 6px; }
-        .subtitle { color: #888; font-size: 0.95rem; margin: 0 0 20px 0; }
+        .subtitle { color: #888; font-size: 0.95rem; margin: 0 0 16px 0; }
         [data-theme="dark"] .subtitle { color: #aaa; }
 
+        /* ── 모드 탭 ── */
+        .mode-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
+        .mode-tab { padding: 10px 24px; border: 2px solid var(--blank-bg); border-radius: 24px; background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: bold; font-family: inherit; font-size: 0.95rem; transition: all 0.2s; }
+        .mode-tab.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .mode-tab:hover:not(.active) { border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* ── 공통 버튼 ── */
         .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; font-size: 0.9rem; }
         button:active { transform: scale(0.97); }
@@ -48,36 +57,74 @@
         .btn-hint { background-color: #ffc107; color: #333; }
         .btn-answer { background-color: #198754; color: white; }
         .btn-answer.active { background-color: #0f5132; }
+        .btn-submit { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 16px; border-radius: 12px; margin-top: 20px; }
+        .btn-retry { background-color: var(--primary-color); color: white; padding: 12px 30px; border-radius: 10px; font-size: 1rem; margin-top: 10px; }
         [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
         [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
 
-        .section-header { background-color: var(--section-bg); border-left: 4px solid var(--section-border); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 35px 0 16px 0; }
-        .section-header h2 { margin: 0; color: var(--primary-color); font-size: 1.2rem; }
+        /* ── 섹션 헤더 ── */
+        .section-header { background-color: var(--section-bg); border-left: 4px solid var(--section-border); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 30px 0 14px 0; }
+        .section-header h2 { margin: 0; color: var(--primary-color); font-size: 1.15rem; }
         .section-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: #888; }
         [data-theme="dark"] .section-header p { color: #aaa; }
 
-        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
-        .question-label { font-weight: bold; font-size: 1.1rem; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 8px; margin-bottom: 12px; }
+        /* ── 학습 카드 ── */
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
+        .question-label { font-weight: bold; font-size: 1.05rem; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 8px; margin-bottom: 12px; }
         .question-body { font-size: 1.05rem; line-height: 1.9; word-break: keep-all; margin-bottom: 14px; }
-        .hint-line { font-size: 0.95rem; color: #888; margin-bottom: 10px; }
+        .hint-line { font-size: 0.9rem; color: #888; margin-bottom: 8px; }
         [data-theme="dark"] .hint-line { color: #aaa; }
-        .hint-line strong { color: var(--primary-color); font-size: 1.05rem; }
+        .hint-line strong { color: var(--primary-color); }
 
-        /* 장 제목 / 성구 정답 블록 */
         .answer-block { display: none; background-color: var(--answer-bg); color: var(--answer-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 1.05rem; line-height: 1.9; word-break: keep-all; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         .answer-block.shown { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 빈칸 */
         .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px 1px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; touch-action: manipulation; white-space: nowrap; }
         .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
         .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
-
         .controls { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
-        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
-        #topBtn:hover { transform: scale(1.1); }
-        @media (pointer: coarse) { .quiz-card { -webkit-user-select: none; user-select: none; } }
+        /* ── 모의고사 카드 ── */
+        .exam-card { background: var(--card-bg); border-radius: 12px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
+        .exam-q-label { font-weight: bold; font-size: 1.05rem; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 8px; margin-bottom: 12px; }
+
+        /* 1부: 한 줄 입력 */
+        .exam-line-input { width: 100%; box-sizing: border-box; border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--text-color); font-size: 1.05rem; font-family: inherit; padding: 6px 2px; outline: none; transition: 0.2s; margin-top: 4px; }
+        .exam-line-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); border-radius: 4px 4px 0 0; }
+
+        /* 2부: 텍스트 영역 */
+        .verse-hint-exam { font-size: 0.9rem; color: #888; margin-bottom: 8px; }
+        [data-theme="dark"] .verse-hint-exam { color: #aaa; }
+        .verse-hint-exam strong { color: var(--primary-color); }
+        .exam-textarea { width: 100%; box-sizing: border-box; border: 2px solid var(--blank-bg); border-radius: 8px; background: var(--bg-color); color: var(--text-color); font-size: 1.05rem; font-family: inherit; padding: 10px 12px; outline: none; resize: vertical; transition: 0.2s; line-height: 1.8; }
+        .exam-textarea:focus { border-color: var(--primary-color); background: var(--card-bg); }
+        [data-theme="dark"] .exam-textarea { background: #2a2d30; }
+
+        /* 3부: 인라인 입력 */
+        .exam-blank-input { display: inline-block; border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--exam-color); font-size: 1.0rem; font-family: inherit; font-weight: bold; text-align: center; outline: none; padding: 1px 4px; margin: 2px 1px; transition: 0.2s; vertical-align: middle; }
+        .exam-blank-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); border-radius: 3px 3px 0 0; }
+        .exam-verse-body { font-size: 1.05rem; line-height: 2.2; word-break: keep-all; }
+
+        /* ── 결과 화면 ── */
+        .result-card { background: var(--card-bg); border-radius: 16px; padding: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
+        .score-big { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 16px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .score-big.perfect { color: #198754; }
+        .score-label { font-size: 1.1rem; color: #888; }
+        [data-theme="dark"] .score-label { color: #aaa; }
+
+        .wrong-section { background: var(--card-bg); border-radius: 12px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.06); text-align: left; }
+        .wrong-section h3 { color: var(--primary-color); margin: 0 0 14px 0; font-size: 1.1rem; border-bottom: 2px solid var(--blank-bg); padding-bottom: 8px; }
+        .wrong-item { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--blank-bg); font-size: 0.95rem; line-height: 1.8; }
+        .wrong-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .wrong-item-label { font-weight: bold; color: var(--exam-color); margin-bottom: 4px; }
+        .correct-ans { color: #198754; font-weight: bold; background: rgba(25,135,84,0.1); padding: 1px 5px; border-radius: 4px; }
+        .wrong-ans { color: #d9534f; text-decoration: line-through; font-size: 0.9em; }
+        .ok-badge { display: inline-block; background: rgba(25,135,84,0.1); color: #198754; border-radius: 6px; padding: 2px 8px; font-size: 0.85rem; font-weight: bold; }
+        .fail-badge { display: inline-block; background: rgba(229,62,62,0.1); color: var(--exam-color); border-radius: 6px; padding: 2px 8px; font-size: 0.85rem; font-weight: bold; }
+
+        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        @media (pointer: coarse) { .quiz-card, .exam-card { -webkit-user-select: none; user-select: none; } .exam-line-input, .exam-textarea, .exam-blank-input { -webkit-user-select: text; user-select: text; } }
     </style>
 </head>
 <body>
@@ -86,31 +133,50 @@
     <header>
         <h1>👑 천국고시 4단계 예상 문제</h1>
         <p class="subtitle">7/25(금) 천국고시 4단계 자문회용 · 계 11~14장</p>
-        <div class="global-controls">
+        <div class="mode-tabs">
+            <button class="mode-tab active" id="tabStudy" onclick="setMode('study')">📖 학습 모드</button>
+            <button class="mode-tab" id="tabExam"  onclick="setMode('exam')">📝 모의고사</button>
+        </div>
+        <div class="global-controls" id="studyControls">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button class="btn-global" id="globalToggleBtn" onclick="toggleAllAnswers()">👁️ 전체 정답 보기</button>
         </div>
+        <div class="global-controls" id="examControls" style="display:none;">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+        </div>
     </header>
 
-    <!-- ── 1부: 장 제목 ── -->
-    <div class="section-header">
-        <h2>📌 1부 — 장 제목 기록 (1~3번)</h2>
+    <!-- ── 학습 모드 ── -->
+    <div id="studyView">
+        <div class="section-header"><h2>📌 1부 — 장 제목 기록 (1~3번)</h2></div>
+        <div id="study-titles"></div>
+        <div class="section-header"><h2>✍️ 2부 — 성구 기록 (4~13번)</h2><p>주어진 시작 단어를 보고 절 전체를 기록하시오.</p></div>
+        <div id="study-verses"></div>
+        <div class="section-header"><h2>✏️ 3부 — 빈칸 채우기 (14~25번)</h2><p>괄호 속에 들어갈 말을 성경대로 쓰시오. (부분 점수 없음)</p></div>
+        <div id="study-blanks"></div>
     </div>
-    <div id="section-titles"></div>
 
-    <!-- ── 2부: 성구 기록 ── -->
-    <div class="section-header">
-        <h2>✍️ 2부 — 성구 기록 (4~13번)</h2>
-        <p>주어진 시작 단어를 보고 절 전체를 기록하시오.</p>
+    <!-- ── 모의고사 모드 ── -->
+    <div id="examView" style="display:none;">
+        <div class="section-header"><h2>📌 1부 — 장 제목 기록 (1~3번)</h2></div>
+        <div id="exam-titles"></div>
+        <div class="section-header"><h2>✍️ 2부 — 성구 기록 (4~13번)</h2><p>절 전체를 빈칸 없이 기록하시오.</p></div>
+        <div id="exam-verses"></div>
+        <div class="section-header"><h2>✏️ 3부 — 빈칸 채우기 (14~25번)</h2><p>괄호 속에 들어갈 말을 성경대로 쓰시오. (부분 점수 없음)</p></div>
+        <div id="exam-blanks"></div>
+        <button class="btn-submit" onclick="submitExam()">📩 답안 제출</button>
     </div>
-    <div id="section-verses"></div>
 
-    <!-- ── 3부: 빈칸 채우기 ── -->
-    <div class="section-header">
-        <h2>✏️ 3부 — 빈칸 채우기 (14~25번)</h2>
-        <p>괄호 속에 들어갈 말을 성경대로 쓰시오. (부분 점수 없음)</p>
+    <!-- ── 결과 화면 ── -->
+    <div id="resultView" style="display:none;">
+        <div class="result-card">
+            <div class="score-label">총 25문항 중</div>
+            <div class="score-big" id="scoreBig"></div>
+            <div id="scoreMsg"></div>
+            <button class="btn-retry" onclick="retryExam()">🔄 다시 도전</button>
+        </div>
+        <div id="wrongList"></div>
     </div>
-    <div id="section-blanks"></div>
 </div>
 
 <button id="topBtn" onclick="scrollToTop()">⬆️</button>
@@ -132,16 +198,16 @@
     ];
 
     const verseData = [
-        { num: 4,  ref: "계 11:1",  hint: "또 내게",               full: "또 내게 지팡이 같은 갈대를 주며 말하기를 일어나서 하나님의 성전과 제단과 그 안에서 경배하는 자들을 척량하되" },
-        { num: 5,  ref: "계 11:15", hint: "일곱째 천사가",          full: "일곱째 천사가 나팔을 불매 하늘에 큰 음성들이 나서 가로되 세상 나라가 우리 주와 그 그리스도의 나라가 되어 그가 세세토록 왕노릇 하시리로다 하니" },
+        { num: 4,  ref: "계 11:1",  hint: "또 내게",                full: "또 내게 지팡이 같은 갈대를 주며 말하기를 일어나서 하나님의 성전과 제단과 그 안에서 경배하는 자들을 척량하되" },
+        { num: 5,  ref: "계 11:15", hint: "일곱째 천사가",           full: "일곱째 천사가 나팔을 불매 하늘에 큰 음성들이 나서 가로되 세상 나라가 우리 주와 그 그리스도의 나라가 되어 그가 세세토록 왕노릇 하시리로다 하니" },
         { num: 6,  ref: "계 12:1",  hint: "하늘에 큰 이적이 보이니", full: "하늘에 큰 이적이 보이니 해를 입은 한 여자가 있는데 그 발 아래는 달이 있고 그 머리에는 열 두 별의 면류관을 썼더라" },
-        { num: 7,  ref: "계 12:4",  hint: "그 꼬리가",              full: "그 꼬리가 하늘 별 삼분의 일을 끌어다가 땅에 던지더라 용이 해산하려는 여자 앞에서 그가 해산하면 그 아이를 삼키고자 하더니" },
-        { num: 8,  ref: "계 12:6",  hint: "그 여자가",              full: "그 여자가 광야로 도망하매 거기서 일천 이백 육십일 동안 저를 양육하기 위하여 하나님의 예비하신 곳이 있더라" },
-        { num: 9,  ref: "계 13:1",  hint: "내가 보니",              full: "내가 보니 바다에서 한 짐승이 나오는데 뿔이 열이요 머리가 일곱이라 그 뿔에는 열 면류관이 있고 그 머리들에는 참람된 이름들이 있더라" },
-        { num: 10, ref: "계 13:5",  hint: "또 짐승이",              full: "또 짐승이 큰 말과 참람된 말 하는 입을 받고 또 마흔 두달 일할 권세를 받으니라" },
-        { num: 11, ref: "계 13:6",  hint: "짐승이 입을 벌려",       full: "짐승이 입을 벌려 하나님을 향하여 훼방하되 그의 이름과 그의 장막 곧 하늘에 거하는 자들을 훼방하더라" },
-        { num: 12, ref: "계 14:1",  hint: "또 내가 보니",           full: "또 내가 보니 보라 어린 양이 시온산에 섰고 그와 함께 십 사만 사천이 섰는데 그 이마에 어린 양의 이름과 그 아버지의 이름을 쓴 것이 있도다" },
-        { num: 13, ref: "계 14:16", hint: "구름 위에",              full: "구름 위에 앉으신 이가 낫을 땅에 휘두르매 곡식이 거두어지니라" }
+        { num: 7,  ref: "계 12:4",  hint: "그 꼬리가",               full: "그 꼬리가 하늘 별 삼분의 일을 끌어다가 땅에 던지더라 용이 해산하려는 여자 앞에서 그가 해산하면 그 아이를 삼키고자 하더니" },
+        { num: 8,  ref: "계 12:6",  hint: "그 여자가",               full: "그 여자가 광야로 도망하매 거기서 일천 이백 육십일 동안 저를 양육하기 위하여 하나님의 예비하신 곳이 있더라" },
+        { num: 9,  ref: "계 13:1",  hint: "내가 보니",               full: "내가 보니 바다에서 한 짐승이 나오는데 뿔이 열이요 머리가 일곱이라 그 뿔에는 열 면류관이 있고 그 머리들에는 참람된 이름들이 있더라" },
+        { num: 10, ref: "계 13:5",  hint: "또 짐승이",               full: "또 짐승이 큰 말과 참람된 말 하는 입을 받고 또 마흔 두달 일할 권세를 받으니라" },
+        { num: 11, ref: "계 13:6",  hint: "짐승이 입을 벌려",        full: "짐승이 입을 벌려 하나님을 향하여 훼방하되 그의 이름과 그의 장막 곧 하늘에 거하는 자들을 훼방하더라" },
+        { num: 12, ref: "계 14:1",  hint: "또 내가 보니",            full: "또 내가 보니 보라 어린 양이 시온산에 섰고 그와 함께 십 사만 사천이 섰는데 그 이마에 어린 양의 이름과 그 아버지의 이름을 쓴 것이 있도다" },
+        { num: 13, ref: "계 14:16", hint: "구름 위에",               full: "구름 위에 앉으신 이가 낫을 땅에 휘두르매 곡식이 거두어지니라" }
     ];
 
     const blankData = [
@@ -171,46 +237,57 @@
         return r;
     }
 
-    // ─── 렌더링 ───────────────────────────────────────────────────────────────
+    // ─── 모드 전환 ────────────────────────────────────────────────────────────
 
-    function renderTitles() {
-        const el = document.getElementById('section-titles');
-        titleData.forEach(d => {
-            el.innerHTML += `
-            <div class="quiz-card">
-                <div class="question-label">${d.num}. ${d.q}</div>
-                <div class="answer-block" id="ans-${d.num}">${d.a}</div>
-                <div class="controls">
-                    <button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button>
-                </div>
-            </div>`;
-        });
+    let currentMode = 'study';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('studyView').style.display  = mode === 'study'  ? 'block' : 'none';
+        document.getElementById('examView').style.display   = mode === 'exam'   ? 'block' : 'none';
+        document.getElementById('resultView').style.display = mode === 'result' ? 'block' : 'none';
+        document.getElementById('studyControls').style.display = mode === 'study' ? 'flex' : 'none';
+        document.getElementById('examControls').style.display  = mode !== 'study' ? 'flex' : 'none';
+        document.getElementById('tabStudy').classList.toggle('active', mode === 'study');
+        document.getElementById('tabExam').classList.toggle('active', mode !== 'study');
+        scrollToTop();
     }
 
-    function renderVerses() {
-        const el = document.getElementById('section-verses');
+    function retryExam() {
+        // Clear all exam inputs
+        document.querySelectorAll('.exam-line-input, .exam-textarea, .exam-blank-input').forEach(el => { el.value = ''; });
+        setMode('exam');
+    }
+
+    // ─── 학습 모드 렌더링 ────────────────────────────────────────────────────
+
+    function renderStudy() {
+        const t = document.getElementById('study-titles');
+        titleData.forEach(d => {
+            t.innerHTML += `<div class="quiz-card">
+                <div class="question-label">${d.num}. ${d.q}</div>
+                <div class="answer-block" id="ans-${d.num}">${d.a}</div>
+                <div class="controls"><button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button></div>
+            </div>`;
+        });
+
+        const v = document.getElementById('study-verses');
         verseData.forEach(d => {
-            el.innerHTML += `
-            <div class="quiz-card">
+            v.innerHTML += `<div class="quiz-card">
                 <div class="question-label">${d.num}. ${d.ref}</div>
                 <div class="hint-line">📌 시작: <strong>${d.hint}</strong> ···</div>
                 <div class="answer-block" id="ans-${d.num}">${d.full}</div>
-                <div class="controls">
-                    <button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button>
-                </div>
+                <div class="controls"><button class="btn-answer" onclick="toggleReveal('ans-${d.num}', this)">정답 보기</button></div>
             </div>`;
         });
-    }
 
-    function renderBlanks() {
-        const el = document.getElementById('section-blanks');
+        const b = document.getElementById('study-blanks');
         blankData.forEach(d => {
             const html = d.text.replace(/\{([^}]+)\}/g, (m, ans) => {
                 const w = Math.max(3, ans.length * 0.75) + 'em';
                 return `<span class="blank" style="min-width:${w}" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleBlank(this)">${ans}</span>`;
             });
-            el.innerHTML += `
-            <div class="quiz-card">
+            b.innerHTML += `<div class="quiz-card">
                 <div class="question-label">${d.num}. ${d.ref}</div>
                 <div class="question-body" id="q-${d.num}">${html}</div>
                 <div class="controls">
@@ -221,7 +298,149 @@
         });
     }
 
-    // ─── 토글 함수 ────────────────────────────────────────────────────────────
+    // ─── 모의고사 렌더링 ─────────────────────────────────────────────────────
+
+    function renderExam() {
+        const t = document.getElementById('exam-titles');
+        titleData.forEach((d, i) => {
+            t.innerHTML += `<div class="exam-card">
+                <div class="exam-q-label">${d.num}. ${d.q}</div>
+                <input type="text" class="exam-line-input" id="et-${i}" placeholder="장 제목을 입력하세요" autocomplete="off">
+            </div>`;
+        });
+
+        const v = document.getElementById('exam-verses');
+        verseData.forEach((d, i) => {
+            v.innerHTML += `<div class="exam-card">
+                <div class="exam-q-label">${d.num}. ${d.ref}</div>
+                <div class="verse-hint-exam">📌 시작: <strong>${d.hint}</strong> ···</div>
+                <textarea class="exam-textarea" id="ev-${i}" rows="4" placeholder="절 전체를 여기에 기록하세요"></textarea>
+            </div>`;
+        });
+
+        const b = document.getElementById('exam-blanks');
+        blankData.forEach((d, qi) => {
+            let inputIdx = 0;
+            const html = d.text.replace(/\{([^}]+)\}/g, (m, ans) => {
+                const w = Math.max(3.5, ans.length * 0.85) + 'em';
+                const id = `eb-${qi}-${inputIdx++}`;
+                return `<input type="text" class="exam-blank-input" id="${id}" data-answer="${ans}" style="width:${w}" placeholder="${'_'.repeat(Math.min(ans.length, 6))}" autocomplete="off" onkeydown="blankKeyNav(event,this,'${qi}',${inputIdx-1})">`;
+            });
+            b.innerHTML += `<div class="exam-card">
+                <div class="exam-q-label">${d.num}. ${d.ref}</div>
+                <div class="exam-verse-body">${html}</div>
+            </div>`;
+        });
+    }
+
+    // 3부 빈칸 입력 내 엔터 → 다음 빈칸으로 이동
+    function blankKeyNav(e, el, qi, idx) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const next = document.getElementById('eb-' + qi + '-' + (idx + 1));
+        if (next) next.focus();
+    }
+
+    // ─── 채점 ────────────────────────────────────────────────────────────────
+
+    function normalize(str) {
+        return (str || '').trim().replace(/,/g, '').replace(/\s+/g, ' ');
+    }
+
+    function submitExam() {
+        let score = 0;
+        const wrongs = [];
+
+        // 1부: 장 제목
+        titleData.forEach((d, i) => {
+            const userVal = document.getElementById('et-' + i).value;
+            const ok = normalize(userVal) === normalize(d.a);
+            if (ok) { score++; }
+            else { wrongs.push({ label: d.num + '. ' + d.q, correct: d.a, user: userVal || '(미기재)', type: 'title' }); }
+        });
+
+        // 2부: 성구 기록
+        verseData.forEach((d, i) => {
+            const userVal = document.getElementById('ev-' + i).value;
+            const u = normalize(userVal), c = normalize(d.full);
+            const ok = u === c;
+            if (ok) { score++; }
+            else {
+                // 단어별 비교
+                const uw = u.split(' ').filter(w => w), cw = c.split(' ').filter(w => w);
+                const diffs = [];
+                const len = Math.max(uw.length, cw.length);
+                for (let j = 0; j < len; j++) {
+                    if ((uw[j] || '') !== (cw[j] || ''))
+                        diffs.push({ user: uw[j] || '(없음)', correct: cw[j] || '' });
+                }
+                wrongs.push({ label: d.num + '. ' + d.ref, correct: d.full, user: userVal || '(미기재)', type: 'verse', diffs });
+            }
+        });
+
+        // 3부: 빈칸 채우기
+        blankData.forEach((d, qi) => {
+            const inputs = document.querySelectorAll('[id^="eb-' + qi + '-"]');
+            let allOk = true;
+            const blankResults = [];
+            inputs.forEach(inp => {
+                const ok = normalize(inp.value) === normalize(inp.dataset.answer);
+                if (!ok) allOk = false;
+                blankResults.push({ user: inp.value, correct: inp.dataset.answer, ok });
+            });
+            if (allOk) { score++; }
+            else { wrongs.push({ label: d.num + '. ' + d.ref, type: 'blank', blankResults }); }
+        });
+
+        showResult(score, wrongs);
+    }
+
+    function showResult(score, wrongs) {
+        const total = 25;
+        const sb = document.getElementById('scoreBig');
+        sb.textContent = score + ' / ' + total;
+        sb.className = 'score-big' + (score === total ? ' perfect' : '');
+
+        let msg = score === total ? '🎉 만점입니다! 천국고시 4단계 완벽 대비!' :
+                  score >= 22   ? '👍 훌륭합니다! 조금만 더 다듬으면 완벽해요.' :
+                  score >= 18   ? '📝 잘 하고 있어요! 오답 노트로 마무리하세요.' :
+                                  '💪 더 연습해 봐요. 학습 모드로 돌아가 확인하세요.';
+        document.getElementById('scoreMsg').textContent = msg;
+
+        const wl = document.getElementById('wrongList');
+        wl.innerHTML = '';
+        if (wrongs.length === 0) {
+            wl.innerHTML = '<div class="wrong-section"><p style="text-align:center; color:#198754; font-weight:bold;">오답이 없습니다! 🎊</p></div>';
+        } else {
+            wrongs.forEach(w => {
+                let inner = '';
+                if (w.type === 'title') {
+                    inner = `<div class="wrong-item-label">❌ ${w.label}</div>
+                        <div>내 답: <span class="wrong-ans">${w.user}</span></div>
+                        <div>정답: <span class="correct-ans">${w.correct}</span></div>`;
+                } else if (w.type === 'verse') {
+                    const diffHtml = w.diffs.slice(0, 5).map(d =>
+                        `[<span class="wrong-ans">${d.user}</span> → <span class="correct-ans">${d.correct}</span>]`
+                    ).join(' ') + (w.diffs.length > 5 ? ' ···' : '');
+                    inner = `<div class="wrong-item-label">❌ ${w.label}</div>
+                        ${w.diffs.length > 0 ? '<div style="font-size:0.9em; margin-bottom:4px;">틀린 단어: ' + diffHtml + '</div>' : ''}
+                        <div style="font-size:0.92em; color:var(--answer-color); background:var(--answer-bg); border-radius:6px; padding:8px 10px; margin-top:4px; line-height:1.8;">${w.correct}</div>`;
+                } else if (w.type === 'blank') {
+                    const blankHtml = w.blankResults.map(b =>
+                        b.ok ? `<span class="ok-badge">${b.correct}</span>` :
+                               `<span class="wrong-ans">${b.user || '(빈칸)'}</span> → <span class="correct-ans">${b.correct}</span>`
+                    ).join(' / ');
+                    inner = `<div class="wrong-item-label">❌ ${w.label}</div>
+                        <div style="font-size:0.92em; line-height:2;">${blankHtml}</div>`;
+                }
+                wl.innerHTML += `<div class="wrong-section"><div class="wrong-item">${inner}</div></div>`;
+            });
+        }
+
+        setMode('result');
+    }
+
+    // ─── 학습 모드 토글 함수 ─────────────────────────────────────────────────
 
     function toggleReveal(id, btn) {
         const block = document.getElementById(id);
@@ -235,11 +454,7 @@
             if (el.classList.contains('answer-mode')) {
                 el.classList.remove('answer-mode');
                 el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer;
-            } else {
-                el.classList.add('answer-mode');
-                el.classList.remove('hint-mode');
-                el.innerText = el.dataset.answer;
-            }
+            } else { el.classList.add('answer-mode'); el.classList.remove('hint-mode'); el.innerText = el.dataset.answer; }
         });
     }
 
@@ -248,13 +463,8 @@
         const active = btn.classList.contains('active');
         const ansBtn = document.getElementById('ans-btn-' + id);
         ansBtn.classList.remove('active'); ansBtn.innerText = '정답 보기';
-        if (!active) {
-            btn.classList.add('active'); btn.innerText = '초성 끄기';
-            blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; });
-        } else {
-            btn.classList.remove('active'); btn.innerText = '초성 보기';
-            blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; });
-        }
+        if (!active) { btn.classList.add('active'); btn.innerText = '초성 끄기'; blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; }); }
+        else { btn.classList.remove('active'); btn.innerText = '초성 보기'; blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; }); }
     }
 
     function toggleCardAnswer(id, btn) {
@@ -262,49 +472,22 @@
         const active = btn.classList.contains('active');
         const hintBtn = btn.previousElementSibling;
         hintBtn.classList.remove('active'); hintBtn.innerText = '초성 보기';
-        if (!active) {
-            btn.classList.add('active'); btn.innerText = '정답 가리기';
-            blanks.forEach(b => { b.classList.add('answer-mode'); b.classList.remove('hint-mode'); b.innerText = b.dataset.answer; });
-        } else {
-            btn.classList.remove('active'); btn.innerText = '정답 보기';
-            blanks.forEach(b => { b.className = 'blank'; b.innerText = b.dataset.answer; });
-        }
+        if (!active) { btn.classList.add('active'); btn.innerText = '정답 가리기'; blanks.forEach(b => { b.classList.add('answer-mode'); b.classList.remove('hint-mode'); b.innerText = b.dataset.answer; }); }
+        else { btn.classList.remove('active'); btn.innerText = '정답 보기'; blanks.forEach(b => { b.className = 'blank'; b.innerText = b.dataset.answer; }); }
     }
 
-    // ─── 전체 토글 ────────────────────────────────────────────────────────────
-
     let isAllShown = false;
-
     function toggleAllAnswers() {
         isAllShown = !isAllShown;
-
-        // 1부 & 2부: answer-block
-        document.querySelectorAll('.answer-block').forEach(block => {
-            if (isAllShown) block.classList.add('shown');
-            else block.classList.remove('shown');
-        });
-        document.querySelectorAll('.btn-answer').forEach(btn => {
-            if (!btn.id.startsWith('ans-btn-')) {
-                btn.innerText = isAllShown ? '정답 가리기' : '정답 보기';
-                isAllShown ? btn.classList.add('active') : btn.classList.remove('active');
-            }
-        });
-
-        // 3부: blanks
+        document.querySelectorAll('.answer-block').forEach(block => { isAllShown ? block.classList.add('shown') : block.classList.remove('shown'); });
+        document.querySelectorAll('.btn-answer:not([id^="ans-btn-"])').forEach(btn => { btn.innerText = isAllShown ? '정답 가리기' : '정답 보기'; isAllShown ? btn.classList.add('active') : btn.classList.remove('active'); });
         document.querySelectorAll('.blank').forEach(b => {
             if (isAllShown) { b.classList.add('answer-mode'); b.classList.remove('hint-mode'); b.innerText = b.dataset.answer; }
             else { b.className = 'blank'; b.innerText = b.dataset.answer; }
         });
-        document.querySelectorAll('[id^="ans-btn-"]').forEach(btn => {
-            btn.innerText = isAllShown ? '정답 가리기' : '정답 보기';
-            isAllShown ? btn.classList.add('active') : btn.classList.remove('active');
-        });
-        document.querySelectorAll('.btn-hint').forEach(btn => {
-            btn.classList.remove('active'); btn.innerText = '초성 보기';
-        });
-
-        document.getElementById('globalToggleBtn').innerText =
-            isAllShown ? '👁️ 전체 정답 숨기기' : '👁️ 전체 정답 보기';
+        document.querySelectorAll('[id^="ans-btn-"]').forEach(btn => { btn.innerText = isAllShown ? '정답 가리기' : '정답 보기'; isAllShown ? btn.classList.add('active') : btn.classList.remove('active'); });
+        document.querySelectorAll('.btn-hint').forEach(btn => { btn.classList.remove('active'); btn.innerText = '초성 보기'; });
+        document.getElementById('globalToggleBtn').innerText = isAllShown ? '👁️ 전체 정답 숨기기' : '👁️ 전체 정답 보기';
     }
 
     // ─── 테마 ─────────────────────────────────────────────────────────────────
@@ -317,9 +500,8 @@
 
     // ─── 초기화 ───────────────────────────────────────────────────────────────
 
-    renderTitles();
-    renderVerses();
-    renderBlanks();
+    renderStudy();
+    renderExam();
 </script>
 </body>
 </html>

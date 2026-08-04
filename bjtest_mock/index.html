@@ -531,15 +531,6 @@ const EXAMS = {
 }
 };
 EXAMS['2-1']=EXAMS['1-1'];
-(()=>{
-  const s=new URLSearchParams(location.search).get('stage');
-  if(!s) return;
-  document.querySelectorAll('.stage-group').forEach(g=>{
-    const lbl=g.querySelector('.stage-lbl');
-    if(lbl&&!lbl.textContent.startsWith(s+'단계')) g.style.display='none';
-  });
-  if(EXAMS[s+'-1']) selectExam(s+'-1');
-})();
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function plain(s){ return s.replace(/\{([^}]+)\}/g,'$1'); }
@@ -550,6 +541,16 @@ function getCS(s){
 }
 
 let curExam=null, allShown=false;
+
+(()=>{
+  const s=new URLSearchParams(location.search).get('stage');
+  if(!s) return;
+  document.querySelectorAll('.stage-group').forEach(g=>{
+    const lbl=g.querySelector('.stage-lbl');
+    if(lbl&&!lbl.textContent.startsWith(s+'단계')) g.style.display='none';
+  });
+  if(EXAMS[s+'-1']) selectExam(s+'-1');
+})();
 
 function showModal(){ document.getElementById('selModal').style.display='flex'; }
 function hideModal(){ document.getElementById('selModal').style.display='none'; }

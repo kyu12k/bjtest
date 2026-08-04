@@ -21,6 +21,9 @@ h1{color:var(--p);font-size:1.6rem;margin:0 0 6px}
 .exam-btn-list{display:flex;flex-direction:column;gap:10px}
 .exam-btn{padding:14px 18px;border-radius:10px;border:2px solid var(--p);background:var(--card);color:var(--p);font-size:1rem;font-weight:bold;font-family:inherit;cursor:pointer;text-align:left;transition:.2s}
 .exam-btn:hover{background:var(--p);color:#fff}
+.stage-group{margin-bottom:14px}
+.stage-group:last-child{margin-bottom:0}
+.stage-lbl{font-size:.82rem;font-weight:bold;color:var(--p);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--blank-bg)}
 
 /* ── 모드 탭 ── */
 .mode-tabs{display:flex;gap:8px;margin-bottom:14px}
@@ -99,7 +102,7 @@ button:active{transform:scale(.97)}
 <div class="wrap">
 <header>
   <h1>📝 천국고시 모의고사</h1>
-  <p class="sub">계 1~11장 · 4단계(1)~(4)</p>
+  <p class="sub">계 1~11장 · 1단계 · 4단계</p>
   <div class="tab-bar" id="topBar" style="display:none">
     <div class="mode-tabs">
       <button class="tab active" id="tabS" onclick="setMode('study')">📖 학습</button>
@@ -122,10 +125,18 @@ button:active{transform:scale(.97)}
     <h2>📋 문제지 선택</h2>
     <p>풀고 싶은 모의고사를 선택하세요.</p>
     <div class="exam-btn-list">
-      <button class="exam-btn" onclick="selectExam(1)">4단계(1) · 계 1~3장 · 25문항</button>
-      <button class="exam-btn" onclick="selectExam(2)">4단계(2) · 계 4~6장 · 25문항</button>
-      <button class="exam-btn" onclick="selectExam(3)">4단계(3) · 계 7~10장 · 25문항</button>
-      <button class="exam-btn" onclick="selectExam(4)">4단계(4) · 계 11장 · 6문항</button>
+      <div class="stage-group">
+        <div class="stage-lbl">1단계</div>
+        <button class="exam-btn" onclick="selectExam('1-1')">1단계(1) · 계 1장 · 20문항</button>
+        <button class="exam-btn" onclick="selectExam('1-2')">1단계(2) · 계 1~2장 · 20문항</button>
+      </div>
+      <div class="stage-group">
+        <div class="stage-lbl">4단계</div>
+        <button class="exam-btn" onclick="selectExam('4-1')">4단계(1) · 계 1~3장 · 25문항</button>
+        <button class="exam-btn" onclick="selectExam('4-2')">4단계(2) · 계 4~6장 · 25문항</button>
+        <button class="exam-btn" onclick="selectExam('4-3')">4단계(3) · 계 7~10장 · 25문항</button>
+        <button class="exam-btn" onclick="selectExam('4-4')">4단계(4) · 계 11장 · 6문항</button>
+      </div>
     </div>
   </div>
 </div>
@@ -164,7 +175,65 @@ if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute
 
 // ─── 데이터 ───────────────────────────────────────────────────────────────────
 const EXAMS = {
-1:{
+'1-1':{
+  label:'1단계(1) · 계 1장', total:20,
+  titleData:[
+    {num:1, q:'계 1:1~8의 제목을 기록하시오.', a:'계시록 전장의 요약과 결론'},
+    {num:2, q:'계 1:9~20의 제목을 기록하시오.', a:'계시록 사건의 시작과 일곱 별과 일곱 금 촛대의 비밀'}
+  ],
+  verseData:[
+    {num:3, ref:'계 1:1', hint:'', full:'예수 그리스도의 계시라 이는 하나님이 그에게 주사 반드시 속히 될 일을 그 종들에게 보이시려고 그 천사를 그 종 요한에게 보내어 지시하신 것이라'},
+    {num:4, ref:'계 1:2', hint:'', full:'요한은 하나님의 말씀과 예수 그리스도의 증거 곧 자기의 본 것을 다 증거하였느니라'},
+    {num:5, ref:'계 1:3', hint:'', full:'이 예언의 말씀을 읽는 자와 듣는 자들과 그 가운데 기록한 것을 지키는 자들이 복이 있나니 때가 가까움이라'},
+    {num:6, ref:'계 1:19', hint:'', full:'그러므로 네 본 것과 이제 있는 일과 장차 될 일을 기록하라'},
+    {num:7, ref:'계 1:20', hint:'', full:'네 본 것은 내 오른손에 일곱 별의 비밀과 일곱 금 촛대라 일곱 별은 일곱 교회의 사자요 일곱 촛대는 일곱 교회니라'}
+  ],
+  blankData:[
+    {num:8,  ref:'계 1:4',  raw:'요한은 {아시아}에 있는 일곱 교회에 {편지하노니} 이제도 계시고 전에도 계시고 {장차 오실 이}와 그 보좌 앞에 {일곱 영}과'},
+    {num:9,  ref:'계 1:5',  raw:'또 충성된 증인으로 죽은 자들 가운데서 {먼저 나시고} 땅의 임금들의 머리가 되신 예수 그리스도로 말미암아 은혜와 평강이 너희에게 {있기를 원하노라} 우리를 사랑하사 그의 피로 우리 죄에서 우리를 {해방하시고}'},
+    {num:10, ref:'계 1:6',  raw:'그 아버지 하나님을 위하여 우리를 {나라와 제사장}으로 삼으신 그에게 {영광}과 능력이 세세토록 있기를 원하노라 아멘'},
+    {num:11, ref:'계 1:7',  raw:'볼찌어다 {구름}을 타고 오시리라 각인의 눈이 그를 보겠고 그를 {찌른 자}들도 볼터이요 땅에 있는 모든 족속이 그를 인하여 {애곡하리니} 그러하리라 아멘'},
+    {num:12, ref:'계 1:8',  raw:'주 하나님이 가라사대 나는 {알파}와 {오메가}라 이제도 있고 전에도 있었고 장차 올 자요 {전능한 자}라 하시더라'},
+    {num:13, ref:'계 1:9',  raw:'나 요한은 너희 형제요 예수의 {환난}과 나라와 참음에 동참하는 자라 하나님의 말씀과 예수의 증거를 인하여 {밧모}라 하는 섬에 있었더니'},
+    {num:14, ref:'계 1:10', raw:'{주의 날}에 내가 {성령}에 감동하여 내 뒤에서 나는 나팔 {소리} 같은 큰 음성을 들으니'},
+    {num:15, ref:'계 1:12', raw:'몸을 돌이켜 나더러 말한 음성을 알아 보려고 하여 돌이킬 때에 {일곱 금 촛대}를 보았는데'},
+    {num:16, ref:'계 1:13', raw:'촛대 사이에 {인자} 같은 이가 발에 끌리는 옷을 입고 가슴에 {금띠}를 띠고'},
+    {num:17, ref:'계 1:14', raw:'그 머리와 털의 희기가 {흰 양털} 같고 {눈} 같으며 그의 눈은 {불꽃} 같고'},
+    {num:18, ref:'계 1:15', raw:'그의 발은 풀무에 단련한 빛난 {주석} 같고 그의 음성은 {많은 물 소리}와 같으며'},
+    {num:19, ref:'계 1:16', raw:'그 오른손에 {일곱 별}이 있고 그 입에서 좌우에 {날선 검}이 나오고 그 얼굴은 해가 힘있게 {비취는것} 같더라'},
+    {num:20, ref:'계 1:17', raw:'내가 볼때에 그 발앞에 엎드러져 죽은 자 같이 되매 그가 오른손을 내게 얹고 가라사대 {두려워 말라} 나는 처음이요 {나중}이니'}
+  ]
+},
+'1-2':{
+  label:'1단계(2) · 계 1~2장', total:20,
+  titleData:[
+    {num:1, q:'계 1:1~8의 제목을 기록하시오.', a:'계시록 전장의 요약과 결론'},
+    {num:2, q:'계 1:9~20의 제목을 기록하시오.', a:'계시록 사건의 시작과 일곱 별과 일곱 금 촛대의 비밀'},
+    {num:3, q:'계 2장의 제목을 기록하시오.', a:'일곱 교회 사자에게 보낸 편지'}
+  ],
+  verseData:[
+    {num:4,  ref:'계 2:1',  hint:'에베소 교회의 사자에게', full:'에베소 교회의 사자에게 편지하기를 오른손에 일곱 별을 붙잡고 일곱 금 촛대 사이에 다니시는 이가 가라사대'},
+    {num:5,  ref:'계 2:4',  hint:'그러나 너를',             full:'그러나 너를 책망할 것이 있나니 너의 처음 사랑을 버렸느니라'},
+    {num:6,  ref:'계 2:8',  hint:'서머나 교회의',           full:'서머나 교회의 사자에게 편지하기를 처음이요 나중이요 죽었다가 살아나신 이가 가라사대'},
+    {num:7,  ref:'계 2:11', hint:'귀 있는 자는',            full:'귀 있는 자는 성령이 교회들에게 하시는 말씀을 들을찌어다 이기는 자는 둘째 사망의 해를 받지 아니하리라'},
+    {num:8,  ref:'계 2:12', hint:'버가모 교회의',           full:'버가모 교회의 사자에게 편지하기를 좌우에 날선 검을 가진 이가 가라사대'},
+    {num:9,  ref:'계 2:18', hint:'두아디라 교회의',         full:'두아디라 교회의 사자에게 편지하기를 그 눈이 불꽃 같고 그 발이 빛난 주석과 같은 하나님의 아들이 가라사대'},
+    {num:10, ref:'계 2:28', hint:'내가 또',                 full:'내가 또 그에게 새벽 별을 주리라'}
+  ],
+  blankData:[
+    {num:11, ref:'계 2:2',  raw:'내가 네 행위와 수고와 네 {인내}를 알고 또 {악한 자}들을 용납지 아니한 것과 자칭 {사도}라 하되 아닌 자들을 시험하여 그 거짓된 것을 네가 드러낸 것과'},
+    {num:12, ref:'계 2:3',  raw:'또 네가 참고 내 이름을 위하여 견디고 {게으르지 아니한} 것을 아노라'},
+    {num:13, ref:'계 2:5',  raw:'그러므로 어디서 떨어진 것을 생각하고 {회개}하여 처음 행위를 가지라 만일 그리하지 아니하고 회개치 아니하면 내가 네게 임하여 네 {촛대}를 그 자리에서 옮기리라'},
+    {num:14, ref:'계 2:6',  raw:'오직 네게 이것이 있으니 네가 {니골라당}의 행위를 미워하는도다 나도 이것을 미워하노라'},
+    {num:15, ref:'계 2:10', raw:'네가 장차 받을 고난을 {두려워 말라} 볼찌어다 {마귀}가 장차 너희 가운데서 몇 사람을 옥에 던져 시험을 받게 하리니 너희가 {십일} 동안 환난을 받으리라 네가 {죽도록 충성하라} 그리하면 내가 {생명의 면류관}을 네게 주리라'},
+    {num:16, ref:'계 2:13', raw:'네가 어디 사는 것을 내가 아노니 거기는 {사단의 위}가 있는 데라 네가 내 이름을 굳게 잡아서 내 충성된 증인 {안디바}가 너희 가운데 곧 사단의 거하는 곳에서 죽임을 당할 때에도 나를 믿는 {믿음}을 저버리지 아니하였도다'},
+    {num:17, ref:'계 2:14', raw:'그러나 네게 두어가지 책망할 것이 있나니 거기 네게 {발람의 교훈}을 지키는 자들이 있도다 발람이 {발락}을 가르쳐 이스라엘 앞에 올무를 놓아 {우상의 제물}을 먹게 하였고 또 {행음}하게 하였느니라'},
+    {num:18, ref:'계 2:15', raw:'이와 같이 네게도 {니골라당의 교훈}을 지키는 자들이 있도다'},
+    {num:19, ref:'계 2:19', raw:'내가 네 사업과 사랑과 {믿음과 섬김}과 인내를 아노니 네 {나중 행위}가 처음것보다 많도다'},
+    {num:20, ref:'계 2:23', raw:'또 내가 {사망}으로 그의 자녀를 죽이리니 모든 교회가 나는 사람의 {뜻과 마음}을 살피는 자인줄 알찌라 내가 너희 각 사람의 {행위대로} 갚아 주리라'}
+  ]
+},
+'4-1':{
   label:'4단계(1) · 계 1~3장', total:25,
   titleData:[
     {num:1, q:'계 1:1~8의 제목을 기록하시오.', a:'계시록 전장의 요약과 결론'},
@@ -198,7 +267,7 @@ const EXAMS = {
     {num:25, ref:'계 3:21', raw:'{이기는 그}에게는 내가 내 {보좌}에 함께 앉게 하여주기를 내가 이기고 아버지 보좌에 {함께 앉은 것}과 같이 하리라'}
   ]
 },
-2:{
+'4-2':{
   label:'4단계(2) · 계 4~6장', total:25,
   titleData:[
     {num:1, q:'계 4장의 제목을 기록하시오.', a:'영계 하나님의 보좌와 계열'},
@@ -232,7 +301,7 @@ const EXAMS = {
     {num:25, ref:'계 6:15', raw:'땅의 임금들과 왕족들과 장군들과 부자들과 강한 자들과 각 종과 자주자가 {굴과 산 바위틈}에 숨어'}
   ]
 },
-3:{
+'4-3':{
   label:'4단계(3) · 계 7~10장', total:25,
   titleData:[
     {num:1, q:'계 7장의 제목을 기록하시오.', a:'새 창조 된 영적 새 이스라엘 열두 지파'},
@@ -266,7 +335,7 @@ const EXAMS = {
     {num:25, ref:'계 10:8', raw:'하늘에서 나서 내게 들리던 {음성}이 또 내게 말하여 가로되 네가 가서 바다와 땅을 밟고 섰는 천사의 손에 {펴 놓인 책을 가지라} 하기로'}
   ]
 },
-4:{
+'4-4':{
   label:'4단계(4) · 계 11장', total:6,
   titleData:[
     {num:1, q:'계 11장의 제목을 기록하시오.', a:'두 증인과 일곱째 나팔'}

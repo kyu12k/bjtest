@@ -100,6 +100,22 @@ button:active{transform:scale(.97)}
 .sec-hd.collapsible:hover{opacity:.82;}
 .sec-body.collapsed{display:none;}
 .caret{float:right;font-size:.85rem;margin-top:2px;}
+
+/* ── 틀린 부분 찾기 ── */
+.sp-note{font-size:.88rem;color:var(--sub);margin:2px 0 14px;line-height:1.6}
+.sp-note b{color:var(--p)}
+.sp-body{font-size:1.04rem;line-height:2.4;word-break:keep-all}
+.tk{cursor:pointer;border-bottom:1px dashed var(--sub);padding:0 2px;border-radius:3px;transition:background .15s,color .15s;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.tk:hover{background:var(--hint-bg)}
+.tk.flag{background:rgba(229,62,62,.16);color:var(--red);font-weight:bold;border-bottom:2px solid var(--red)}
+.tk.locked{cursor:default;border-bottom-color:transparent}
+.tk.ok-correct{background:rgba(25,135,84,.18);color:#198754;font-weight:bold;border-bottom-color:transparent}
+.tk.missed{background:rgba(229,62,62,.16);color:var(--red);font-weight:bold;border-bottom-color:transparent}
+.tk.falsepos{background:rgba(255,193,7,.28);color:#9c7b17;font-weight:bold;border-bottom-color:transparent}
+.tk s{opacity:.65}
+.corr-note{font-size:.8em;font-weight:bold}
+.sp-summary{background:var(--card);border-radius:16px;padding:24px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.1);margin-bottom:16px}
+.sp-summary .big{font-size:3rem;font-weight:bold;margin:10px 0}
 </style>
 </head>
 <body>
@@ -111,10 +127,12 @@ button:active{transform:scale(.97)}
     <div class="mode-tabs">
       <button class="tab active" id="tabS" onclick="setMode('study')">📖 학습</button>
       <button class="tab" id="tabE" onclick="setMode('exam')">📝 모의고사</button>
+      <button class="tab" id="tabP" onclick="setMode('spot')">🔍 틀린 부분 찾기</button>
     </div>
     <div class="ctrl-row">
       <button class="btn-dark" onclick="toggleTheme()">🌙</button>
       <button class="btn-gray" id="globalBtn" onclick="toggleAll()">👁️ 전체 보기</button>
+      <button class="btn-change" onclick="showHist()">📊 기록</button>
     </div>
   </div>
   <div class="ctrl-row" id="topBar2">
@@ -132,6 +150,20 @@ button:active{transform:scale(.97)}
       <button class="exam-btn" onclick="selectStage('2')">2단계 · 계 1~5장</button>
       <button class="exam-btn" onclick="selectStage('3')">3단계 · 계 1~8장</button>
       <button class="exam-btn" onclick="selectStage('4')">4단계 · 계 1~11장</button>
+    </div>
+    <button class="btn-gray" onclick="showHist()" style="width:100%;margin-top:16px">📊 지난 시험 기록 보기</button>
+  </div>
+</div>
+
+<!-- ── 기록 모달 ── -->
+<div class="modal" id="histModal" style="display:none">
+  <div class="modal-box">
+    <h2>📊 시험 기록</h2>
+    <p>최근 기록부터 표시됩니다. (이 기기에만 저장)</p>
+    <div id="histBody" style="max-height:52vh;overflow:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn-gray" style="flex:1" onclick="clearHist()">🗑️ 기록 지우기</button>
+      <button class="btn-change" style="flex:1" onclick="hideHist()">닫기</button>
     </div>
   </div>
 </div>
@@ -151,6 +183,14 @@ button:active{transform:scale(.97)}
   <button class="btn-submit" onclick="submitExam()">📩 답안 제출</button>
 </div>
 
+<!-- ── 틀린 부분 찾기 ── -->
+<div id="spotView" style="display:none">
+  <div id="sp-summary"></div>
+  <p class="sp-note">🔍 정답처럼 보이지만 <b>일부 핵심 단어가 틀리게</b> 바뀌어 있습니다. 틀렸다고 생각하는 단어를 눌러 표시한 뒤 <b>채점하기</b>를 누르세요.</p>
+  <div id="sp-body"></div>
+  <button class="btn-submit" id="spSubmitBtn" onclick="submitSpot()">🔍 채점하기</button>
+</div>
+
 <!-- ── 결과 ── -->
 <div id="resultView" style="display:none">
   <div class="result-card">
@@ -159,6 +199,7 @@ button:active{transform:scale(.97)}
     <div id="rMsg" style="margin-bottom:14px"></div>
     <button class="btn-retry" onclick="retryExam()">🔄 다시 도전</button>
   </div>
+  <div id="rRecent"></div>
   <div id="wrongList"></div>
 </div>
 </div>
@@ -514,6 +555,159 @@ const EXAMS = {
 };
 EXAMS['2-1']=EXAMS['1-1'];
 
+// ─── 틀린 부분 찾기 오답 풀 ─────────────────────────────────────────────────────
+// EXAMS 키 → { blankData의 num → [ {a:정답(그대로 표시), w:그럴듯한 오답} ] }
+//   · a 는 해당 절 raw 의 {…} 핵심 단어와 정확히 일치해야 매칭됩니다.
+//   · 채점 시 실제로 바뀐(심어진) 단어만 정답 처리, 나머지 핵심 단어는 함정입니다.
+const SPOT = {
+ '1-1':{
+   8:[{a:'일곱 교회',w:'일곱 촛대'},{a:'장차 오실 이',w:'장차 오시는 이'},{a:'일곱 영',w:'일곱 등불'}],
+   9:[{a:'충성된 증인',w:'신실한 증인'},{a:'해방',w:'자유케'},{a:'은혜와 평강',w:'은혜와 평안'}],
+   10:[{a:'제사장',w:'종'},{a:'능력',w:'권능'}],
+   11:[{a:'애곡하리니',w:'통곡하리니'},{a:'각인의 눈',w:'모든 눈'},{a:'모든 족속',w:'모든 민족'}],
+   12:[{a:'주 하나님',w:'우리 하나님'},{a:'장차 올 자요',w:'장차 오실 자요'},{a:'전능한 자',w:'전능하신 이'}],
+   13:[{a:'참음',w:'인내'},{a:'밧모',w:'방모'},{a:'예수의 증거',w:'예수의 계시'}],
+   14:[{a:'나팔 소리',w:'물 소리'},{a:'성령에 감동',w:'성령에 이끌려'}],
+   15:[{a:'일곱 금 촛대',w:'일곱 금 등대'}],
+   16:[{a:'인자 같은 이',w:'사람 같은 이'}],
+   17:[{a:'그의 눈은 불꽃',w:'그의 눈은 불빛'}],
+   18:[{a:'빛난 주석',w:'빛난 놋'},{a:'물 소리',w:'큰 물 소리'}],
+   19:[{a:'날선 검',w:'날선 칼'},{a:'일곱 별',w:'일곱 등불'}],
+   20:[{a:'두려워 말라',w:'무서워 말라'},{a:'처음',w:'시작'},{a:'나중',w:'마지막'}]
+ },
+ '1-2':{
+   11:[{a:'자칭 사도',w:'자칭 선지자'},{a:'시험',w:'분별'}],
+   12:[{a:'참고',w:'인내하고'},{a:'게으르지',w:'낙심치'}],
+   13:[{a:'처음 행위',w:'처음 수고'},{a:'네 촛대',w:'네 등대'},{a:'옮기리라',w:'없이하리라'}],
+   14:[{a:'니골라당',w:'니골라 당원'},{a:'미워',w:'싫어'}],
+   15:[{a:'십일',w:'삼일'},{a:'생명의 면류관',w:'영광의 면류관'},{a:'옥',w:'감옥'}],
+   16:[{a:'사단의 위',w:'사단의 보좌'},{a:'충성된 증인',w:'신실한 증인'}],
+   17:[{a:'발람',w:'발락'},{a:'올무',w:'미끼'},{a:'우상의 제물',w:'우상의 음식'}],
+   18:[{a:'니골라당의 교훈',w:'발람의 교훈'}],
+   19:[{a:'사업',w:'행실'},{a:'나중 행위',w:'마지막 행위'}],
+   20:[{a:'사망',w:'죽음'},{a:'자녀',w:'제자'}]
+ },
+ '2-2':{
+   11:[{a:'이기는 그',w:'이기는 자'},{a:'하나님의 낙원',w:'하나님의 나라'},{a:'생명나무의 과실',w:'생명나무의 과일'}],
+   12:[{a:'고난',w:'환난'},{a:'마귀',w:'원수'},{a:'십일 동안',w:'삼일 동안'},{a:'생명의 면류관',w:'영광의 면류관'}],
+   13:[{a:'사데',w:'서머나'},{a:'일곱 영',w:'일곱 등불'}],
+   14:[{a:'흰 옷',w:'새 옷'},{a:'생명책',w:'생명수'},{a:'시인',w:'인정'}],
+   15:[{a:'하나님 성전',w:'하나님 나라'},{a:'새 이름',w:'내 이름'}],
+   16:[{a:'행위',w:'수고'},{a:'더웁지도',w:'뜨겁지도'}],
+   17:[{a:'가련한 것',w:'불쌍한 것'},{a:'눈 먼 것',w:'귀 먹은 것'}],
+   18:[{a:'연단한 금',w:'단련한 금'},{a:'흰 옷',w:'새 옷'},{a:'안약',w:'안경'}],
+   19:[{a:'문밖',w:'문 앞'},{a:'내 음성',w:'내 말씀'},{a:'먹고',w:'마시고'}],
+   20:[{a:'내 보좌',w:'내 우편'},{a:'보좌',w:'우편'},{a:'앉은 것',w:'이긴 것'}]
+ },
+ '2-3':{
+   11:[{a:'하늘',w:'공중'},{a:'열린 문',w:'닫힌 문'},{a:'나팔소리',w:'물소리'},{a:'마땅히 될 일',w:'장차 될 일'}],
+   12:[{a:'이십 사',w:'이십 팔'},{a:'흰 옷',w:'새 옷'},{a:'금 면류관',w:'흰 면류관'}],
+   13:[{a:'유리 바다',w:'수정 바다'},{a:'네 생물',w:'여섯 생물'}],
+   14:[{a:'여섯',w:'여덟'},{a:'계셨고',w:'있었고'},{a:'장차 오실 자',w:'장차 올 자'}],
+   15:[{a:'보좌',w:'우편'},{a:'경배',w:'찬송'}],
+   16:[{a:'힘 있는 천사',w:'힘 센 천사'},{a:'인',w:'봉인'}],
+   17:[{a:'울지',w:'슬퍼'},{a:'유대',w:'유다'},{a:'일곱 인',w:'일곱 봉인'}],
+   18:[{a:'새 노래',w:'옛 노래'},{a:'인봉',w:'봉인'},{a:'하나님',w:'아버지'}],
+   19:[{a:'제사장',w:'종'},{a:'왕노릇',w:'종노릇'}],
+   20:[{a:'하늘',w:'공중'},{a:'바다',w:'강'},{a:'어린 양',w:'인자'}]
+ },
+ '3-1':{
+   11:[{a:'충성된 증인',w:'신실한 증인'},{a:'은혜와 평강',w:'은혜와 평안'},{a:'해방',w:'자유케'}],
+   12:[{a:'예수의 환난',w:'예수의 고난'},{a:'참음',w:'인내'},{a:'예수의 증거',w:'예수의 계시'},{a:'밧모라 하는 섬',w:'방모라 하는 섬'}],
+   13:[{a:'빛난 주석',w:'빛난 놋'},{a:'음성',w:'말씀'}],
+   14:[{a:'행위',w:'수고'},{a:'자칭 사도',w:'자칭 선지자'}],
+   15:[{a:'처음 행위',w:'처음 수고'},{a:'회개치 아니하면',w:'돌이키지 아니하면'},{a:'네 촛대',w:'네 등대'}],
+   16:[{a:'고난',w:'환난'},{a:'두려워 말라',w:'무서워 말라'},{a:'옥',w:'감옥'},{a:'십일',w:'삼일'},{a:'생명의 면류관',w:'영광의 면류관'}],
+   17:[{a:'사단의 위',w:'사단의 보좌'},{a:'충성된 증인',w:'신실한 증인'},{a:'믿음',w:'신앙'}],
+   18:[{a:'발람의 교훈',w:'니골라당의 교훈'},{a:'올무',w:'미끼'},{a:'우상의 제물',w:'우상의 음식'},{a:'행음',w:'음행'}],
+   19:[{a:'감추었던 만나',w:'숨겨둔 만나'},{a:'흰 돌',w:'흰 옷'},{a:'새 이름',w:'내 이름'}],
+   20:[{a:'자칭 선지자',w:'자칭 사도'},{a:'내 종들',w:'내 백성'},{a:'우상의 제물',w:'우상의 음식'}]
+ },
+ '3-2':{
+   11:[{a:'사데',w:'서머나'},{a:'일곱 영',w:'일곱 등불'}],
+   12:[{a:'흰 옷',w:'새 옷'},{a:'생명책',w:'생명수'},{a:'시인',w:'인정'}],
+   13:[{a:'열린 문',w:'닫힌 문'},{a:'닫을 사람',w:'열 사람'},{a:'배반치',w:'부인치'}],
+   14:[{a:'연단한 금',w:'단련한 금'},{a:'흰 옷',w:'새 옷'},{a:'안약',w:'안경'}],
+   15:[{a:'내 음성',w:'내 말씀'},{a:'먹고',w:'마시고'}],
+   16:[{a:'내 보좌',w:'내 우편'},{a:'보좌',w:'우편'},{a:'앉은 것',w:'이긴 것'}],
+   17:[{a:'이십 사',w:'이십 팔'},{a:'보좌들',w:'장로들'},{a:'흰 옷',w:'새 옷'},{a:'금 면류관',w:'흰 면류관'}],
+   18:[{a:'유리 바다',w:'수정 바다'},{a:'네 생물',w:'여섯 생물'}],
+   19:[{a:'네 생물',w:'여섯 생물'},{a:'여섯 날개',w:'여덟 날개'},{a:'전에도',w:'이제도'},{a:'장차 오실 자',w:'장차 올 자'}],
+   20:[{a:'이십사 장로',w:'이십사 천사'},{a:'보좌',w:'우편'}]
+ },
+ '3-3':{
+   11:[{a:'힘 있는 천사',w:'힘 센 천사'},{a:'인',w:'봉인'}],
+   12:[{a:'울지',w:'슬퍼'},{a:'유대',w:'유다'},{a:'일곱 인',w:'일곱 봉인'}],
+   13:[{a:'새 노래',w:'옛 노래'},{a:'인봉',w:'봉인'},{a:'하나님',w:'아버지'}],
+   14:[{a:'능력',w:'권능'},{a:'지혜',w:'존귀'}],
+   15:[{a:'하늘',w:'공중'},{a:'바다',w:'강'},{a:'어린 양',w:'인자'}],
+   16:[{a:'흰 말',w:'붉은 말'},{a:'활',w:'칼'}],
+   17:[{a:'한 데나리온',w:'두 데나리온'},{a:'보리',w:'밀'}],
+   18:[{a:'청황색',w:'흑색'},{a:'사분 일',w:'삼분 일'},{a:'땅의 짐승',w:'들 짐승'}],
+   19:[{a:'여섯째 인',w:'일곱째 인'},{a:'달',w:'별'}],
+   20:[{a:'대풍',w:'강풍'},{a:'선 과실',w:'익은 과실'}]
+ },
+ '3-4':{
+   8:[{a:'하나님의 종들',w:'하나님의 백성'}],
+   9:[{a:'인맞은 자',w:'인맞은 종'},{a:'십 사만 사천',w:'십 이만 사천'}],
+   10:[{a:'이 일 후',w:'그 일 후'},{a:'흰 옷',w:'새 옷'},{a:'종려 가지',w:'감람 가지'},{a:'어린 양',w:'인자'}],
+   11:[{a:'큰 환난',w:'큰 고난'},{a:'어린양의 피',w:'어린양의 보혈'},{a:'희게',w:'깨끗케'}],
+   12:[{a:'불',w:'향불'},{a:'뇌성',w:'천둥'},{a:'번개',w:'우뢰'},{a:'지진',w:'우박'}],
+   13:[{a:'독수리',w:'사자'},{a:'나팔소리',w:'물소리'}]
+ },
+ '4-1':{
+   11:[{a:'장차 오실 이',w:'장차 오시는 이'},{a:'일곱 영',w:'일곱 등불'}],
+   12:[{a:'각인의 눈',w:'모든 눈'},{a:'그를 찌른 자들',w:'그를 죽인 자들'},{a:'땅에 있는 모든 족속',w:'땅에 있는 모든 민족'}],
+   13:[{a:'예수의 환난',w:'예수의 고난'},{a:'참음',w:'인내'},{a:'동참하는',w:'참예하는'}],
+   14:[{a:'흰 양털',w:'흰 양모'},{a:'눈',w:'서리'}],
+   15:[{a:'죽은 자',w:'주검'},{a:'두려워하지 말라',w:'무서워하지 말라'},{a:'처음이요 나중이니',w:'시작이요 마지막이니'}],
+   16:[{a:'죽었었노라',w:'죽었노라'},{a:'사망과 음부의 열쇠',w:'사망과 음부의 권세'}],
+   17:[{a:'에베소 교회',w:'서머나 교회'},{a:'오른손',w:'왼손'},{a:'일곱 별',w:'일곱 영'},{a:'일곱 금',w:'일곱 은'}],
+   18:[{a:'이기는 자',w:'이기는 그'},{a:'하나님의 낙원',w:'하나님의 나라'},{a:'생명나무',w:'선악나무'}],
+   19:[{a:'두려워하지',w:'무서워하지'},{a:'마귀',w:'원수'},{a:'열흘',w:'십일'},{a:'환난',w:'고난'},{a:'충성하라',w:'인내하라'},{a:'생명의 관',w:'영광의 관'},{a:'둘째 사망',w:'첫째 사망'}],
+   20:[{a:'사업',w:'행실'},{a:'사랑',w:'충성'},{a:'믿음',w:'신앙'},{a:'섬김',w:'헌신'}],
+   21:[{a:'철장',w:'철봉'},{a:'질그릇 깨뜨리는 것',w:'옹기그릇 깨뜨리는 것'}],
+   22:[{a:'빌라델비아 교회',w:'라오디게아 교회'},{a:'다윗의 열쇠',w:'다윗의 뿌리'}],
+   23:[{a:'인내의 말씀',w:'인내의 계명'},{a:'온 세상',w:'온 천하'},{a:'시험할',w:'연단할'}],
+   24:[{a:'연단한 금',w:'단련한 금'},{a:'부요',w:'부유'},{a:'흰 옷',w:'새 옷'},{a:'안약',w:'안경'}],
+   25:[{a:'보좌',w:'우편'},{a:'아버지 보좌',w:'아버지 우편'}]
+ },
+ '4-2':{
+   14:[{a:'성령',w:'성신'},{a:'앉으신 이',w:'서신 이'}],
+   15:[{a:'이십 사 보좌',w:'이십 사 장로'},{a:'이십 사 장로',w:'이십 사 천사'},{a:'흰 옷',w:'새 옷'},{a:'금 면류관',w:'흰 면류관'}],
+   16:[{a:'네 생물',w:'여섯 생물'}],
+   17:[{a:'네 생물',w:'여섯 생물'},{a:'여섯 날개',w:'여덟 날개'},{a:'전에도 계셨고',w:'이제도 계셨고'}],
+   18:[{a:'장로',w:'천사'},{a:'유다 지파의 사자',w:'유대 지파의 사자'},{a:'다윗의 뿌리',w:'다윗의 열쇠'},{a:'일곱 인',w:'일곱 봉인'}],
+   19:[{a:'일곱 뿔',w:'일곱 별'},{a:'일곱 눈',w:'일곱 영'},{a:'일곱 영',w:'일곱 별'}],
+   20:[{a:'새 노래',w:'옛 노래'},{a:'족속',w:'민족'},{a:'아버지',w:'하나님'}],
+   21:[{a:'제사장',w:'종'},{a:'왕노릇',w:'종노릇'}],
+   22:[{a:'일곱 인',w:'일곱 봉인'},{a:'첫째 생물',w:'둘째 생물'},{a:'우뢰 소리',w:'천둥 소리'}],
+   23:[{a:'다섯째 인',w:'여섯째 인'},{a:'증거',w:'계시'},{a:'목 베임',w:'죽임'},{a:'영혼들',w:'성도들'}],
+   24:[{a:'흰 두루마기',w:'흰 세마포'},{a:'잠시',w:'잠깐'},{a:'동무 종',w:'형제 종'}],
+   25:[{a:'땅의 임금들',w:'땅의 왕들'},{a:'귀인들',w:'대신들'},{a:'굴',w:'동굴'}]
+ },
+ '4-3':{
+   14:[{a:'능히 셀 수 없는 큰 무리',w:'능히 셀 수 없는 큰 떼'},{a:'흰 옷',w:'새 옷'},{a:'종려 가지',w:'감람 가지'}],
+   15:[{a:'주리지',w:'굶주리지'}],
+   16:[{a:'생명수 샘',w:'생명의 샘'}],
+   17:[{a:'천사',w:'사자'},{a:'금 향로',w:'금 화로'},{a:'기도들',w:'간구들'}],
+   18:[{a:'횃불 같이 타는 큰 별',w:'횃불 같이 타는 큰 산'},{a:'강들',w:'바다들'},{a:'물샘',w:'우물'}],
+   19:[{a:'많은 사람',w:'많은 백성'}],
+   20:[{a:'풀',w:'곡식'},{a:'하나님의 인',w:'하나님의 표'}],
+   21:[{a:'전쟁',w:'싸움'},{a:'사람의 얼굴',w:'사자의 얼굴'}],
+   22:[{a:'힘센 다른 천사',w:'힘센 다른 사자'},{a:'무지개',w:'광채'},{a:'불기둥',w:'불꽃'}],
+   23:[{a:'펴 놓인 책',w:'작은 책'}],
+   24:[{a:'하늘',w:'공중'},{a:'지체',w:'지연'}],
+   25:[{a:'펴 놓인 책',w:'작은 책'}]
+ },
+ '4-4':{
+   4:[{a:'무저갱',w:'지옥'},{a:'짐승',w:'용'},{a:'전쟁',w:'싸움'}],
+   5:[{a:'두 선지자',w:'두 사도'},{a:'예물',w:'선물'}],
+   6:[{a:'큰 지진',w:'큰 우박'},{a:'십분의 일',w:'십분의 삼'},{a:'칠천',w:'칠백'}]
+ }
+};
+SPOT['2-1']=SPOT['1-1'];
+
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function plain(s){ return s.replace(/\{([^}]+)\}/g,'$1'); }
 function norm(s){ return (s||'').trim().replace(/\s+/g,''); }
@@ -522,7 +716,7 @@ function getCS(s){
   return s.split('').map(ch=>{ const n=ch.charCodeAt(0)-44032; return(n>-1&&n<11172)?c[Math.floor(n/588)]:ch; }).join('');
 }
 
-let curExam=null, curKeys=null, allShown=false;
+let curExam=null, curKeys=null, curStage=null, allShown=false;
 
 (()=>{
   const s=new URLSearchParams(location.search).get('stage');
@@ -533,34 +727,38 @@ function showModal(){ document.getElementById('selModal').style.display='flex'; 
 function hideModal(){ document.getElementById('selModal').style.display='none'; }
 
 function selectExam(n){
-  curExam=n; curKeys=null;
+  curExam=n; curKeys=null; curStage=null;
   hideModal();
   document.getElementById('topBar').style.display='flex';
   document.getElementById('topBar2').style.display='none';
   renderStudy(n);
   renderExam(n);
+  renderSpotMulti([n]);
   setMode('study');
 }
 
 function selectStage(s){
   curKeys=['1','2','3','4'].map(n=>s+'-'+n).filter(k=>EXAMS[k]);
-  curExam=null;
+  curExam=null; curStage=s;
   if(!curKeys.length) return;
   hideModal();
   document.getElementById('topBar').style.display='flex';
   document.getElementById('topBar2').style.display='none';
   renderStudyMulti(curKeys);
   renderExamMulti(curKeys);
+  renderSpotMulti(curKeys);
   setMode('study');
 }
 
 function setMode(mode){
   document.getElementById('studyView').style.display=mode==='study'?'block':'none';
   document.getElementById('examView').style.display=mode==='exam'?'block':'none';
+  document.getElementById('spotView').style.display=mode==='spot'?'block':'none';
   document.getElementById('resultView').style.display=mode==='result'?'block':'none';
   document.getElementById('globalBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
+  document.getElementById('tabP').classList.toggle('active',mode==='spot');
   scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -771,6 +969,7 @@ function submitExam(){
       else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs});
     });
   });
+  saveHistItem({ts:Date.now(),mode:'exam',stage:curStage,score,total});
   showResult(score,total,wrongs);
 }
 
@@ -812,6 +1011,7 @@ function showResult(score,total,wrongs){
       wl.innerHTML+=`<div class="wrong-sec"><div class="wi">${inner}</div></div>`;
     });
   }
+  document.getElementById('rRecent').innerHTML=recentHtml('exam',curStage,5);
   setMode('result');
 }
 
@@ -869,6 +1069,164 @@ function toggleTheme(){
   const dark=document.documentElement.getAttribute('data-theme')==='dark';
   document.documentElement.setAttribute('data-theme',dark?'':'dark');
   localStorage.setItem('theme',dark?'light':'dark');
+}
+
+// ─── 틀린 부분 찾기 ─────────────────────────────────────────────────────────────
+function spotKeys(){ return curKeys||(curExam?[curExam]:[]); }
+
+// 절의 핵심 단어 중 오답 풀에 있는 것들에서 1~3개를 무작위로 골라 '심을' 위치 결정
+function choosePlants(raw,pool){
+  const map=new Map();
+  if(!pool||!pool.length) return map;
+  const keyWords=[]; const re=/\{([^}]+)\}/g; let m,i=0;
+  while((m=re.exec(raw))!==null){ keyWords.push({i:i++,w:m[1]}); }
+  const used=new Set(), cand=[];
+  pool.forEach(p=>{ const t=keyWords.find(k=>k.w===p.a&&!used.has(k.i)); if(t){ used.add(t.i); cand.push({i:t.i,a:p.a,w:p.w}); } });
+  if(!cand.length) return map;
+  const cap=Math.min(cand.length,3);
+  const n=1+Math.floor(Math.random()*cap);
+  cand.slice().sort(()=>Math.random()-0.5).slice(0,n).forEach(c=>map.set(c.i,c));
+  return map;
+}
+
+// 절 하나를 렌더 — 핵심 단어만 탭 가능한 토큰으로, 심어진 곳은 오답 단어로 표시
+function renderSpotVerse(d,pool){
+  const plant=choosePlants(d.raw,pool); let i=0;
+  return d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{
+    const idx=i++, p=plant.get(idx);
+    return `<span class="tk" data-a="${w}" data-err="${p?'1':'0'}" onclick="tapTk(this)">${p?p.w:w}</span>`;
+  });
+}
+
+function renderSpotMulti(keys){
+  const bodyEl=document.getElementById('sp-body');
+  const btn=document.getElementById('spSubmitBtn');
+  document.getElementById('sp-summary').innerHTML='';
+  let html='', any=false;
+  (keys||[]).forEach(key=>{
+    const ex=EXAMS[key]; if(!ex) return;
+    const pool=SPOT[key]||{};
+    const verses=ex.blankData.filter(d=>pool[d.num]&&pool[d.num].length);
+    if(!verses.length) return;
+    any=true;
+    html+=`<div class="sec-hd" style="margin-top:24px"><h2>▸ ${ex.label}</h2></div>`;
+    verses.forEach(d=>{
+      html+=`<div class="ecard" data-num="${d.num}"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="sp-body">${renderSpotVerse(d,pool[d.num])}</div></div>`;
+    });
+  });
+  if(!any){
+    bodyEl.innerHTML='<div class="ecard"><p style="text-align:center;color:var(--sub);margin:6px 0">이 단계의 「틀린 부분 찾기」 문제는 아직 준비 중입니다. 🛠️</p></div>';
+    btn.style.display='none';
+  }else{
+    bodyEl.innerHTML=html;
+    btn.style.display='block'; btn.textContent='🔍 채점하기';
+  }
+}
+
+function tapTk(el){ if(!el.classList.contains('locked')) el.classList.toggle('flag'); }
+
+function submitSpot(){
+  const cards=document.querySelectorAll('#sp-body .ecard[data-num]');
+  if(!cards.length) return;
+  let total=0,okVerses=0,foundErr=0,totalErr=0,falsePos=0;
+  cards.forEach(card=>{
+    total++; let verseOk=true;
+    card.querySelectorAll('.tk').forEach(tk=>{
+      tk.classList.add('locked');
+      const isErr=tk.dataset.err==='1', flagged=tk.classList.contains('flag');
+      const a=tk.dataset.a, shown=tk.textContent;
+      tk.classList.remove('flag');
+      if(isErr){
+        totalErr++;
+        if(flagged){ foundErr++; tk.classList.add('ok-correct'); tk.innerHTML=`<s>${shown}</s> ${a}`; }
+        else { verseOk=false; tk.classList.add('missed'); tk.innerHTML=`<s>${shown}</s> ${a}`; }
+      }else if(flagged){
+        falsePos++; verseOk=false; tk.classList.add('falsepos');
+        tk.innerHTML=`${a} <span class="corr-note">(정답)</span>`;
+      }
+    });
+    if(verseOk) okVerses++;
+  });
+  saveHistItem({ts:Date.now(),mode:'spot',stage:curStage,score:okVerses,total});
+  const perfect=okVerses===total;
+  const msg = perfect ? '🎉 완벽합니다! 숨은 오답을 모두 찾았어요.'
+            : (foundErr===totalErr&&falsePos) ? '👍 오답은 다 찾았지만 맞는 단어도 눌렀어요.'
+            : '💪 놓친 오답을 확인해 보세요.';
+  document.getElementById('sp-summary').innerHTML=
+    `<div class="sp-summary">
+       <div class="score-lbl">총 ${total}절 중</div>
+       <div class="big" style="color:${perfect?'#198754':'var(--p)'}">${okVerses} / ${total}</div>
+       <div class="score-lbl">숨은 오답 ${foundErr}/${totalErr}개 찾음${falsePos?` · 잘못 누름 ${falsePos}개`:''}</div>
+       <div style="margin:10px 0 4px;font-size:.95rem">${msg}</div>
+       <button class="btn-retry" onclick="retrySpot()">🔄 새 문제로 다시</button>
+       ${recentHtml('spot',curStage,5)}
+     </div>`;
+  document.getElementById('spSubmitBtn').style.display='none';
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+function retrySpot(){ renderSpotMulti(spotKeys()); scrollTo({top:0,behavior:'smooth'}); }
+
+// ─── 시험 기록 (localStorage) ───────────────────────────────────────────────────
+const HKEY='bj_history';
+function loadHist(){ try{ return JSON.parse(localStorage.getItem(HKEY))||[]; }catch(e){ return []; } }
+function saveHistItem(rec){
+  const h=loadHist(); h.push(rec);
+  if(h.length>200) h.splice(0,h.length-200);      // 최근 200개만 보관
+  try{ localStorage.setItem(HKEY,JSON.stringify(h)); }catch(e){}
+}
+function fmtTs(ms){
+  const d=new Date(ms), p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function scoreColor(r){
+  if(!r.total) return 'var(--sub)';
+  if(r.score===r.total) return '#198754';
+  return (r.score/r.total>=.7)?'var(--p)':'var(--red)';
+}
+function modeLabel(m){ return m==='exam'?'📝 모의고사':'🔍 틀린 부분'; }
+
+// 결과/채점 화면에 붙는 '최근 기록'(같은 단계·유형, 2회 이상일 때만)
+function recentHtml(mode,stage,n){
+  const h=loadHist().filter(r=>r.mode===mode&&r.stage===stage);
+  if(h.length<2) return '';
+  const rows=h.slice(-n).reverse().map((r,i)=>
+    `<div style="display:flex;justify-content:space-between;padding:5px 2px;border-top:1px solid var(--blank-bg);font-size:.85rem">
+       <span style="color:var(--sub)">${fmtTs(r.ts)}${i===0?' <b style="color:var(--p)">(방금)</b>':''}</span>
+       <b style="color:${scoreColor(r)}">${r.score}/${r.total}</b>
+     </div>`).join('');
+  return `<div style="margin-top:16px;text-align:left">
+    <div style="font-size:.85rem;font-weight:bold;color:var(--p);margin-bottom:2px">📊 최근 기록 (이 단계·유형)</div>${rows}</div>`;
+}
+
+// 전체 기록 모달
+function renderHist(){
+  const body=document.getElementById('histBody');
+  const h=loadHist();
+  if(!h.length){ body.innerHTML='<p style="text-align:center;color:var(--sub);margin:20px 0">아직 기록이 없습니다.</p>'; return; }
+  let html='<table style="width:100%;border-collapse:collapse;font-size:.85rem">'
+    +'<tr style="color:var(--sub);text-align:left">'
+    +'<th style="padding:4px 6px;font-weight:normal">일시</th>'
+    +'<th style="padding:4px 6px;font-weight:normal">유형</th>'
+    +'<th style="padding:4px 6px;font-weight:normal">단계</th>'
+    +'<th style="padding:4px 6px;font-weight:normal;text-align:right">점수</th></tr>';
+  h.slice().reverse().forEach(r=>{
+    html+=`<tr style="border-top:1px solid var(--blank-bg)">
+      <td style="padding:6px">${fmtTs(r.ts)}</td>
+      <td style="padding:6px">${modeLabel(r.mode)}</td>
+      <td style="padding:6px">${r.stage?r.stage+'단계':'-'}</td>
+      <td style="padding:6px;text-align:right;font-weight:bold;color:${scoreColor(r)}">${r.score}/${r.total}</td>
+    </tr>`;
+  });
+  html+='</table>';
+  body.innerHTML=html;
+}
+function showHist(){ renderHist(); document.getElementById('histModal').style.display='flex'; }
+function hideHist(){ document.getElementById('histModal').style.display='none'; }
+function clearHist(){
+  if(confirm('저장된 모든 시험 기록을 지울까요? (되돌릴 수 없습니다)')){
+    localStorage.removeItem(HKEY); renderHist();
+  }
 }
 </script>
 </body>

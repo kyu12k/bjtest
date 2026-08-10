@@ -96,6 +96,10 @@ button:active{transform:scale(.97)}
 .ans-box{font-size:.9rem;color:var(--ans-c);background:var(--ans-bg);border-radius:6px;padding:7px 10px;margin-top:4px;line-height:1.8}
 
 #topBtn{display:none;position:fixed;bottom:28px;left:28px;z-index:998;background:var(--p);color:#fff;border:none;cursor:pointer;padding:12px;border-radius:50%;width:48px;height:48px;font-size:1.1rem;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.sec-hd.collapsible{cursor:pointer;user-select:none;}
+.sec-hd.collapsible:hover{opacity:.82;}
+.sec-body.collapsed{display:none;}
+.caret{float:right;font-size:.85rem;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -613,30 +617,41 @@ function renderStudy(n){
   document.getElementById('s-blanks').innerHTML=bh;
 }
 
+function toggleSec(hd){
+  const body=hd.nextElementSibling;
+  if(!body||!body.classList.contains('sec-body'))return;
+  const c=body.classList.toggle('collapsed');
+  const caret=hd.querySelector('.caret');
+  if(caret)caret.textContent=c?'▸':'▾';
+}
+
 function renderStudyMulti(keys){
   let allTh='',allVh='',allBh='',gi=0;
   keys.forEach(key=>{
     const ex=EXAMS[key];
-    const divider=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
-    let th=divider+'<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
+    const div=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
+    let th=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>📌 1부 — 장 제목 기록 <span class="caret">▾</span></h2></div><div class="sec-body">';
     ex.titleData.forEach(d=>{
       const id='sa-'+(gi++);
       th+=`<div class="card"><div class="qlabel">${d.num}. ${d.q}</div><div class="ans-block" id="${id}">${d.a}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
     });
+    th+='</div>';
     allTh+=th;
-    let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>주어진 단어로 시작하는 절 전체를 기록하시오.</p></div>';
+    let vh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✍️ 2부 — 성구 기록 <span class="caret">▾</span></h2><p>주어진 단어로 시작하는 절 전체를 기록하시오.</p></div><div class="sec-body">';
     ex.verseData.forEach(d=>{
       const id='sa-'+(gi++);
       const hint=d.hint?`<div class="hint-ln">📌 <strong>${d.hint}···</strong></div>`:'';
       vh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div>${hint}<div class="ans-block" id="${id}">${d.full}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
     });
+    vh+='</div>';
     allVh+=vh;
-    let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오.</p></div>';
+    let bh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✏️ 3부 — 빈칸 채우기 <span class="caret">▾</span></h2><p>괄호 속에 들어갈 말을 기록하시오.</p></div><div class="sec-body">';
     ex.blankData.forEach(d=>{
       const cid='sb-'+(gi++);
       const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>`<span class="blank" style="min-width:${Math.max(3,w.length*.75)}em" data-a="${w}" data-cs="${getCS(w)}" onclick="toggleBlank(this)">${w}</span>`);
       bh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div><div class="qbody" id="${cid}">${body}</div><div class="card-ctrl"><button class="btn-hint" onclick="cardHint('${cid}',this)">초성 보기</button><button class="btn-ans" onclick="cardAns('${cid}',this)">정답 보기</button></div></div>`;
     });
+    bh+='</div>';
     allBh+=bh;
   });
   document.getElementById('s-titles').innerHTML=allTh;
@@ -648,24 +663,27 @@ function renderExamMulti(keys){
   let allTh='',allVh='',allBh='',ti=0,vi=0,qi=0;
   keys.forEach(key=>{
     const ex=EXAMS[key];
-    const divider=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
-    let th=divider+'<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
+    const div=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
+    let th=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>📌 1부 — 장 제목 기록 <span class="caret">▾</span></h2></div><div class="sec-body">';
     ex.titleData.forEach(d=>{
       th+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti++}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
     });
+    th+='</div>';
     allTh+=th;
-    let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>절 전체를 기록하시오.</p></div>';
+    let vh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✍️ 2부 — 성구 기록 <span class="caret">▾</span></h2><p>절 전체를 기록하시오.</p></div><div class="sec-body">';
     ex.verseData.forEach(d=>{
       const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
       vh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi++}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea></div>`;
     });
+    vh+='</div>';
     allVh+=vh;
-    let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div>';
+    let bh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✏️ 3부 — 빈칸 채우기 <span class="caret">▾</span></h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div><div class="sec-body">';
     ex.blankData.forEach(d=>{
       let bi=0; const myQi=qi++;
       const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`eb-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1})">`;});
       bh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
     });
+    bh+='</div>';
     allBh+=bh;
   });
   document.getElementById('e-titles').innerHTML=allTh;

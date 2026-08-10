@@ -111,7 +111,6 @@ button:active{transform:scale(.97)}
     <div class="ctrl-row">
       <button class="btn-dark" onclick="toggleTheme()">🌙</button>
       <button class="btn-gray" id="globalBtn" onclick="toggleAll()">👁️ 전체 보기</button>
-      <button class="btn-change" onclick="showModal()">🔄 문제지 변경</button>
     </div>
   </div>
   <div class="ctrl-row" id="topBar2">
@@ -125,31 +124,10 @@ button:active{transform:scale(.97)}
     <h2>📋 문제지 선택</h2>
     <p>풀고 싶은 모의고사를 선택하세요.</p>
     <div class="exam-btn-list">
-      <div class="stage-group">
-        <div class="stage-lbl">1단계</div>
-        <button class="exam-btn" onclick="selectExam('1-1')">1단계(1) · 계 1장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('1-2')">1단계(2) · 계 1~2장 · 20문항</button>
-      </div>
-      <div class="stage-group">
-        <div class="stage-lbl">2단계</div>
-        <button class="exam-btn" onclick="selectExam('2-1')">2단계(1) · 계 1장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('2-2')">2단계(2) · 계 2~3장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('2-3')">2단계(3) · 계 4~5장 · 20문항</button>
-      </div>
-      <div class="stage-group">
-        <div class="stage-lbl">3단계</div>
-        <button class="exam-btn" onclick="selectExam('3-1')">3단계(1) · 계 1~2장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('3-2')">3단계(2) · 계 3~4장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('3-3')">3단계(3) · 계 5~6장 · 20문항</button>
-        <button class="exam-btn" onclick="selectExam('3-4')">3단계(4) · 계 7~8장 · 12문항</button>
-      </div>
-      <div class="stage-group">
-        <div class="stage-lbl">4단계</div>
-        <button class="exam-btn" onclick="selectExam('4-1')">4단계(1) · 계 1~3장 · 25문항</button>
-        <button class="exam-btn" onclick="selectExam('4-2')">4단계(2) · 계 4~6장 · 25문항</button>
-        <button class="exam-btn" onclick="selectExam('4-3')">4단계(3) · 계 7~10장 · 25문항</button>
-        <button class="exam-btn" onclick="selectExam('4-4')">4단계(4) · 계 11장 · 6문항</button>
-      </div>
+      <button class="exam-btn" onclick="selectStage('1')">1단계 · 계 1~2장</button>
+      <button class="exam-btn" onclick="selectStage('2')">2단계 · 계 1~5장</button>
+      <button class="exam-btn" onclick="selectStage('3')">3단계 · 계 1~8장</button>
+      <button class="exam-btn" onclick="selectStage('4')">4단계 · 계 1~11장</button>
     </div>
   </div>
 </div>
@@ -540,28 +518,35 @@ function getCS(s){
   return s.split('').map(ch=>{ const n=ch.charCodeAt(0)-44032; return(n>-1&&n<11172)?c[Math.floor(n/588)]:ch; }).join('');
 }
 
-let curExam=null, allShown=false;
+let curExam=null, curKeys=null, allShown=false;
 
 (()=>{
   const s=new URLSearchParams(location.search).get('stage');
-  if(!s) return;
-  document.querySelectorAll('.stage-group').forEach(g=>{
-    const lbl=g.querySelector('.stage-lbl');
-    if(lbl&&!lbl.textContent.startsWith(s+'단계')) g.style.display='none';
-  });
-  if(EXAMS[s+'-1']) selectExam(s+'-1');
+  if(s) selectStage(s);
 })();
 
 function showModal(){ document.getElementById('selModal').style.display='flex'; }
 function hideModal(){ document.getElementById('selModal').style.display='none'; }
 
 function selectExam(n){
-  curExam=n;
+  curExam=n; curKeys=null;
   hideModal();
   document.getElementById('topBar').style.display='flex';
   document.getElementById('topBar2').style.display='none';
   renderStudy(n);
   renderExam(n);
+  setMode('study');
+}
+
+function selectStage(s){
+  curKeys=['1','2','3','4'].map(n=>s+'-'+n).filter(k=>EXAMS[k]);
+  curExam=null;
+  if(!curKeys.length) return;
+  hideModal();
+  document.getElementById('topBar').style.display='flex';
+  document.getElementById('topBar2').style.display='none';
+  renderStudyMulti(curKeys);
+  renderExamMulti(curKeys);
   setMode('study');
 }
 
@@ -628,6 +613,66 @@ function renderStudy(n){
   document.getElementById('s-blanks').innerHTML=bh;
 }
 
+function renderStudyMulti(keys){
+  let allTh='',allVh='',allBh='',gi=0;
+  keys.forEach(key=>{
+    const ex=EXAMS[key];
+    const divider=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
+    let th=divider+'<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
+    ex.titleData.forEach(d=>{
+      const id='sa-'+(gi++);
+      th+=`<div class="card"><div class="qlabel">${d.num}. ${d.q}</div><div class="ans-block" id="${id}">${d.a}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
+    });
+    allTh+=th;
+    let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>주어진 단어로 시작하는 절 전체를 기록하시오.</p></div>';
+    ex.verseData.forEach(d=>{
+      const id='sa-'+(gi++);
+      const hint=d.hint?`<div class="hint-ln">📌 <strong>${d.hint}···</strong></div>`:'';
+      vh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div>${hint}<div class="ans-block" id="${id}">${d.full}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
+    });
+    allVh+=vh;
+    let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오.</p></div>';
+    ex.blankData.forEach(d=>{
+      const cid='sb-'+(gi++);
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>`<span class="blank" style="min-width:${Math.max(3,w.length*.75)}em" data-a="${w}" data-cs="${getCS(w)}" onclick="toggleBlank(this)">${w}</span>`);
+      bh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div><div class="qbody" id="${cid}">${body}</div><div class="card-ctrl"><button class="btn-hint" onclick="cardHint('${cid}',this)">초성 보기</button><button class="btn-ans" onclick="cardAns('${cid}',this)">정답 보기</button></div></div>`;
+    });
+    allBh+=bh;
+  });
+  document.getElementById('s-titles').innerHTML=allTh;
+  document.getElementById('s-verses').innerHTML=allVh;
+  document.getElementById('s-blanks').innerHTML=allBh;
+}
+
+function renderExamMulti(keys){
+  let allTh='',allVh='',allBh='',ti=0,vi=0,qi=0;
+  keys.forEach(key=>{
+    const ex=EXAMS[key];
+    const divider=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
+    let th=divider+'<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
+    ex.titleData.forEach(d=>{
+      th+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti++}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
+    });
+    allTh+=th;
+    let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>절 전체를 기록하시오.</p></div>';
+    ex.verseData.forEach(d=>{
+      const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
+      vh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi++}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea></div>`;
+    });
+    allVh+=vh;
+    let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div>';
+    ex.blankData.forEach(d=>{
+      let bi=0; const myQi=qi++;
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`eb-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1})">`;});
+      bh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
+    });
+    allBh+=bh;
+  });
+  document.getElementById('e-titles').innerHTML=allTh;
+  document.getElementById('e-verses').innerHTML=allVh;
+  document.getElementById('e-blanks').innerHTML=allBh;
+}
+
 // ─── 모의고사 렌더링 ───────────────────────────────────────────────────────────
 function renderExam(n){
   const ex=EXAMS[n];
@@ -679,39 +724,36 @@ function bNav(e,el,qi,idx){
 
 // ─── 채점 ─────────────────────────────────────────────────────────────────────
 function submitExam(){
-  const ex=EXAMS[curExam];
-  let score=0; const wrongs=[];
-
-  // 1부
-  ex.titleData.forEach((d,i)=>{
-    const u=document.getElementById('et-'+i).value;
-    if(norm(u)===norm(d.a)){score++;}
-    else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u||'(미기재)'});
-  });
-
-  // 2부
-  ex.verseData.forEach((d,i)=>{
-    const u=document.getElementById('ev-'+i).value;
-    const ok=norm(u)===norm(d.full);
-    if(ok){score++;}
-    else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u||'(미기재)'});
-  });
-
-  // 3부
-  ex.blankData.forEach((d,qi)=>{
-    const inputs=document.querySelectorAll(`[id^="eb-${qi}-"]`);
-    let allOk=true;
-    const brs=[];
-    inputs.forEach(inp=>{
-      const ok=norm(inp.value)===norm(inp.dataset.a);
-      if(!ok)allOk=false;
-      brs.push({u:inp.value,a:inp.dataset.a,ok});
+  let score=0,wrongs=[],total=0;
+  const keys=curKeys||(curExam?[curExam]:[]);
+  let ti=0,vi=0,qi=0;
+  keys.forEach(key=>{
+    const ex=EXAMS[key];
+    total+=ex.total;
+    ex.titleData.forEach(d=>{
+      const u=document.getElementById('et-'+ti++).value;
+      if(norm(u)===norm(d.a)){score++;}
+      else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u||'(미기재)'});
     });
-    if(allOk){score++;}
-    else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs});
+    ex.verseData.forEach(d=>{
+      const u=document.getElementById('ev-'+vi++).value;
+      if(norm(u)===norm(d.full)){score++;}
+      else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u||'(미기재)'});
+    });
+    ex.blankData.forEach(d=>{
+      const myQi=qi++;
+      const inputs=document.querySelectorAll(`[id^="eb-${myQi}-"]`);
+      let allOk=true; const brs=[];
+      inputs.forEach(inp=>{
+        const ok=norm(inp.value)===norm(inp.dataset.a);
+        if(!ok)allOk=false;
+        brs.push({u:inp.value,a:inp.dataset.a,ok});
+      });
+      if(allOk){score++;}
+      else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs});
+    });
   });
-
-  showResult(score, ex.total, wrongs);
+  showResult(score,total,wrongs);
 }
 
 function showResult(score,total,wrongs){

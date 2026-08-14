@@ -174,9 +174,7 @@ button:active{transform:scale(.97)}
 
 <!-- ── 학습 ── -->
 <div id="studyView" style="display:none">
-  <div id="s-titles"></div>
-  <div id="s-verses"></div>
-  <div id="s-blanks"></div>
+  <div id="s-body"></div>
 </div>
 
 <!-- ── 모의고사 ── -->
@@ -770,51 +768,34 @@ function retryExam(){
 }
 
 // ─── 학습 렌더링 ───────────────────────────────────────────────────────────────
-function renderStudy(n){
-  const ex=EXAMS[n];
-
-  // 1부: 장 제목
-  let th='<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
+function buildStudyHtml(ex, gi){
+  let html='';
   ex.titleData.forEach(d=>{
-    th+=`<div class="card">
-      <div class="qlabel">${d.num}. ${d.q}</div>
-      <div class="ans-block" id="sa-${d.num}">${d.a}</div>
-      <div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('sa-${d.num}',this)">정답 보기</button></div>
-    </div>`;
+    const id='sa-'+(gi.v++);
+    html+=`<div class="card"><div class="qlabel">${d.num}. ${d.q}</div><div class="ans-block" id="${id}">${d.a}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
   });
-
-  // 2부: 성구 기록
-  let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>주어진 단어로 시작하는 절 전체를 기록하시오.</p></div>';
-  ex.verseData.forEach(d=>{
-    const hintHtml=d.hint?`<div class="hint-ln">📌 <strong>${d.hint}···</strong></div>`:'';
-    vh+=`<div class="card">
-      <div class="qlabel">${d.num}. ${d.ref}</div>
-      ${hintHtml}
-      <div class="ans-block" id="sa-${d.num}">${d.full}</div>
-      <div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('sa-${d.num}',this)">정답 보기</button></div>
-    </div>`;
-  });
-
-  // 3부: 빈칸
-  let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div>';
-  ex.blankData.forEach(d=>{
-    const bodyHtml=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{
-      const wid=Math.max(3,w.length*.75)+'em';
-      return `<span class="blank" style="min-width:${wid}" data-a="${w}" data-cs="${getCS(w)}" onclick="toggleBlank(this)">${w}</span>`;
+  if(ex.verseData.length){
+    html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
+    ex.verseData.forEach(d=>{
+      const id='sa-'+(gi.v++);
+      const hint=d.hint?`<div class="hint-ln">📌 <strong>${d.hint}···</strong></div>`:'';
+      html+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div>${hint}<div class="ans-block" id="${id}">${d.full}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
     });
-    bh+=`<div class="card">
-      <div class="qlabel">${d.num}. ${d.ref}</div>
-      <div class="qbody" id="sb-${d.num}">${bodyHtml}</div>
-      <div class="card-ctrl">
-        <button class="btn-hint" onclick="cardHint('sb-${d.num}',this)">초성 보기</button>
-        <button class="btn-ans" onclick="cardAns('sb-${d.num}',this)">정답 보기</button>
-      </div>
-    </div>`;
-  });
+  }
+  if(ex.blankData.length){
+    html+=`<div class="pdf-divider">* 다음 성구의 괄호 속에 들어갈 말을 기록하시오.</div>`;
+    ex.blankData.forEach(d=>{
+      const cid='sb-'+(gi.v++);
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>`<span class="blank" style="min-width:${Math.max(3,w.length*.75)}em" data-a="${w}" data-cs="${getCS(w)}" onclick="toggleBlank(this)">${w}</span>`);
+      html+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div><div class="qbody" id="${cid}">${body}</div><div class="card-ctrl"><button class="btn-hint" onclick="cardHint('${cid}',this)">초성 보기</button><button class="btn-ans" onclick="cardAns('${cid}',this)">정답 보기</button></div></div>`;
+    });
+  }
+  return html;
+}
 
-  document.getElementById('s-titles').innerHTML=th;
-  document.getElementById('s-verses').innerHTML=vh;
-  document.getElementById('s-blanks').innerHTML=bh;
+function renderStudy(n){
+  const gi={v:0};
+  document.getElementById('s-body').innerHTML=buildStudyHtml(EXAMS[n],gi);
 }
 
 function toggleSec(hd){
@@ -826,37 +807,15 @@ function toggleSec(hd){
 }
 
 function renderStudyMulti(keys){
-  let allTh='',allVh='',allBh='',gi=0;
-  keys.forEach(key=>{
+  const gi={v:0};
+  let html='';
+  keys.forEach((key,kidx)=>{
     const ex=EXAMS[key];
-    const div=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
-    let th=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>📌 1부 — 장 제목 기록 <span class="caret">▾</span></h2></div><div class="sec-body">';
-    ex.titleData.forEach(d=>{
-      const id='sa-'+(gi++);
-      th+=`<div class="card"><div class="qlabel">${d.num}. ${d.q}</div><div class="ans-block" id="${id}">${d.a}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
-    });
-    th+='</div>';
-    allTh+=th;
-    let vh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✍️ 2부 — 성구 기록 <span class="caret">▾</span></h2><p>주어진 단어로 시작하는 절 전체를 기록하시오.</p></div><div class="sec-body">';
-    ex.verseData.forEach(d=>{
-      const id='sa-'+(gi++);
-      const hint=d.hint?`<div class="hint-ln">📌 <strong>${d.hint}···</strong></div>`:'';
-      vh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div>${hint}<div class="ans-block" id="${id}">${d.full}</div><div class="card-ctrl"><button class="btn-ans" onclick="toggleRev('${id}',this)">정답 보기</button></div></div>`;
-    });
-    vh+='</div>';
-    allVh+=vh;
-    let bh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✏️ 3부 — 빈칸 채우기 <span class="caret">▾</span></h2><p>괄호 속에 들어갈 말을 기록하시오.</p></div><div class="sec-body">';
-    ex.blankData.forEach(d=>{
-      const cid='sb-'+(gi++);
-      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>`<span class="blank" style="min-width:${Math.max(3,w.length*.75)}em" data-a="${w}" data-cs="${getCS(w)}" onclick="toggleBlank(this)">${w}</span>`);
-      bh+=`<div class="card"><div class="qlabel">${d.num}. ${d.ref}</div><div class="qbody" id="${cid}">${body}</div><div class="card-ctrl"><button class="btn-hint" onclick="cardHint('${cid}',this)">초성 보기</button><button class="btn-ans" onclick="cardAns('${cid}',this)">정답 보기</button></div></div>`;
-    });
-    bh+='</div>';
-    allBh+=bh;
+    if(kidx>0) html+=`<div style="border-top:3px solid var(--p);margin:32px 0 20px"></div>`;
+    html+=`<div class="sec-hd" style="margin-bottom:14px"><h2>▸ ${ex.label}</h2></div>`;
+    html+=buildStudyHtml(ex,gi);
   });
-  document.getElementById('s-titles').innerHTML=allTh;
-  document.getElementById('s-verses').innerHTML=allVh;
-  document.getElementById('s-blanks').innerHTML=allBh;
+  document.getElementById('s-body').innerHTML=html;
 }
 
 function renderExamMulti(keys){

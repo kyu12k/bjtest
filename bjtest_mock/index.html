@@ -101,6 +101,8 @@ button:active{transform:scale(.97)}
 .sec-body.collapsed{display:none;}
 .caret{float:right;font-size:.85rem;margin-top:2px;}
 
+.pdf-divider{font-size:.88rem;color:var(--sub);margin:22px 0 10px;padding-top:14px;border-top:1px dashed var(--blank-bg)}
+
 /* ── 틀린 부분 찾기 ── */
 .sp-note{font-size:.88rem;color:var(--sub);margin:2px 0 14px;line-height:1.6}
 .sp-note b{color:var(--p)}
@@ -179,9 +181,7 @@ button:active{transform:scale(.97)}
 
 <!-- ── 모의고사 ── -->
 <div id="examView" style="display:none">
-  <div id="e-titles"></div>
-  <div id="e-verses"></div>
-  <div id="e-blanks"></div>
+  <div id="e-body"></div>
   <button class="btn-submit" onclick="submitExam()">📩 답안 제출</button>
 </div>
 
@@ -860,77 +860,44 @@ function renderStudyMulti(keys){
 }
 
 function renderExamMulti(keys){
-  let allTh='',allVh='',allBh='',ti=0,vi=0,qi=0;
-  keys.forEach(key=>{
+  const ti={v:0},vi={v:0},qi={v:0};
+  let html='';
+  keys.forEach((key,kidx)=>{
     const ex=EXAMS[key];
-    const div=`<div class="sec-hd" style="margin-top:28px"><h2>▸ ${ex.label}</h2></div>`;
-    let th=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>📌 1부 — 장 제목 기록 <span class="caret">▾</span></h2></div><div class="sec-body">';
-    ex.titleData.forEach(d=>{
-      th+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti++}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
-    });
-    th+='</div>';
-    allTh+=th;
-    let vh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✍️ 2부 — 성구 기록 <span class="caret">▾</span></h2><p>절 전체를 기록하시오.</p></div><div class="sec-body">';
-    ex.verseData.forEach(d=>{
-      const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-      vh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi++}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea></div>`;
-    });
-    vh+='</div>';
-    allVh+=vh;
-    let bh=div+'<div class="sec-hd collapsible" onclick="toggleSec(this)"><h2>✏️ 3부 — 빈칸 채우기 <span class="caret">▾</span></h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div><div class="sec-body">';
-    ex.blankData.forEach(d=>{
-      let bi=0; const myQi=qi++;
-      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`eb-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1})">`;});
-      bh+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
-    });
-    bh+='</div>';
-    allBh+=bh;
+    if(kidx>0) html+=`<div style="border-top:3px solid var(--p);margin:32px 0 20px"></div>`;
+    html+=`<div class="sec-hd" style="margin-bottom:14px"><h2>▸ ${ex.label}</h2></div>`;
+    html+=buildExamHtml(ex,ti,vi,qi);
   });
-  document.getElementById('e-titles').innerHTML=allTh;
-  document.getElementById('e-verses').innerHTML=allVh;
-  document.getElementById('e-blanks').innerHTML=allBh;
+  document.getElementById('e-body').innerHTML=html;
 }
 
 // ─── 모의고사 렌더링 ───────────────────────────────────────────────────────────
-function renderExam(n){
-  const ex=EXAMS[n];
-
-  let th='<div class="sec-hd"><h2>📌 1부 — 장 제목 기록</h2></div>';
-  ex.titleData.forEach((d,i)=>{
-    th+=`<div class="ecard">
-      <div class="eqlabel">${d.num}. ${d.q}</div>
-      <input type="text" class="line-inp" id="et-${i}" placeholder="장 제목을 입력하세요" autocomplete="off">
-    </div>`;
+function buildExamHtml(ex, ti, vi, qi){
+  let html='';
+  ex.titleData.forEach(d=>{
+    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti.v++}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
   });
-
-  let vh='<div class="sec-hd"><h2>✍️ 2부 — 성구 기록</h2><p>절 전체를 기록하시오.</p></div>';
-  ex.verseData.forEach((d,i)=>{
-    const hintHtml=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-    vh+=`<div class="ecard">
-      <div class="eqlabel">${d.num}. ${d.ref}</div>
-      ${hintHtml}
-      <textarea class="vtarea" id="ev-${i}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea>
-    </div>`;
-  });
-
-  let bh='<div class="sec-hd"><h2>✏️ 3부 — 빈칸 채우기</h2><p>괄호 속에 들어갈 말을 기록하시오. (부분점수 없음)</p></div>';
-  ex.blankData.forEach((d,qi)=>{
-    let bi=0;
-    const bodyHtml=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{
-      const wid=Math.max(3.5,w.length*.85)+'em';
-      const id=`eb-${qi}-${bi}`;
-      bi++;
-      return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${wid}" autocomplete="off" onkeydown="bNav(event,this,${qi},${bi-1})">`;
+  if(ex.verseData.length){
+    html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
+    ex.verseData.forEach(d=>{
+      const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea></div>`;
     });
-    bh+=`<div class="ecard">
-      <div class="eqlabel">${d.num}. ${d.ref}</div>
-      <div class="ev-body">${bodyHtml}</div>
-    </div>`;
-  });
+  }
+  if(ex.blankData.length){
+    html+=`<div class="pdf-divider">* 다음 성구의 괄호 속에 들어갈 말을 성경대로 쓰시오. (부분점수 없음)</div>`;
+    ex.blankData.forEach(d=>{
+      let bi=0; const myQi=qi.v++;
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`eb-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1})">`;});
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
+    });
+  }
+  return html;
+}
 
-  document.getElementById('e-titles').innerHTML=th;
-  document.getElementById('e-verses').innerHTML=vh;
-  document.getElementById('e-blanks').innerHTML=bh;
+function renderExam(n){
+  const ti={v:0},vi={v:0},qi={v:0};
+  document.getElementById('e-body').innerHTML=buildExamHtml(EXAMS[n],ti,vi,qi);
 }
 
 function bNav(e,el,qi,idx){

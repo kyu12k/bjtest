@@ -841,7 +841,7 @@ function buildExamHtml(ex, ti, vi, qi){
     html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
     ex.verseData.forEach(d=>{
       const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" rows="4" placeholder="여기에 성구를 기록하세요"></textarea></div>`;
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
     });
   }
   if(ex.blankData.length){

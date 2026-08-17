@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>천국고시 만점 클리닉 — 요한계시록 암송 대비</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap" rel="stylesheet">
     <meta name="theme-color" content="#3b5998">
     <style>
         :root {
@@ -81,25 +83,35 @@
         .gwageo-corner.br { bottom: 8px; right: 10px; }
 
         .gwageo-hanja {
-            font-size: .7rem;
+            font-size: .75rem;
             color: #8B1A1A;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            font-family: 'Batang', 'Gulim', serif;
-            opacity: .6;
+            letter-spacing: 5px;
+            margin-bottom: 6px;
+            font-family: 'Nanum Brush Script', 'Batang', cursive;
+            opacity: .55;
         }
         [data-theme="dark"] .gwageo-hanja { color: #c06040; }
 
         h1 {
-            font-family: 'Batang', 'Gulim', Georgia, serif;
+            font-family: 'Nanum Brush Script', 'Batang', cursive;
             color: #1A0808;
-            font-size: 2.3rem;
+            font-size: 3.2rem;
+            font-weight: 400;
             margin: 0 0 8px;
-            text-shadow: 1px 2px 3px rgba(139,26,26,.12);
-            letter-spacing: 2px;
+            text-shadow:
+                1px 1px 0 rgba(80,10,10,.25),
+                2px 2px 2px rgba(80,10,10,.15),
+                0 0 8px rgba(139,26,26,.08);
+            letter-spacing: 3px;
             word-break: keep-all;
         }
-        [data-theme="dark"] h1 { color: #f0d8b0; text-shadow: 1px 2px 6px rgba(0,0,0,.4); }
+        [data-theme="dark"] h1 {
+            color: #f0d8b0;
+            text-shadow:
+                1px 1px 0 rgba(0,0,0,.4),
+                2px 2px 4px rgba(0,0,0,.3),
+                0 0 12px rgba(200,140,50,.12);
+        }
 
         .gwageo-divider {
             color: #C8A035;
@@ -144,7 +156,7 @@
 
         @media (max-width: 600px) {
             .gwageo-frame { padding: 28px 72px 20px 20px; }
-            h1 { font-size: 1.7rem; letter-spacing: 1px; }
+            h1 { font-size: 2.2rem; letter-spacing: 2px; }
             .gwageo-stamp { right: 10px; width: 48px; height: 48px; font-size: 1rem; }
         }
 

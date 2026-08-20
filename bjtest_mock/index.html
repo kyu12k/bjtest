@@ -118,6 +118,114 @@ button:active{transform:scale(.97)}
 .corr-note{font-size:.8em;font-weight:bold}
 .sp-summary{background:var(--card);border-radius:16px;padding:24px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.1);margin-bottom:16px}
 .sp-summary .big{font-size:3rem;font-weight:bold;margin:10px 0}
+
+@media print {
+  @page { size: A4; margin: 18mm 20mm; }
+
+  /* UI 전체 숨김 */
+  header, #topBar, #topBar2, .modal,
+  #studyView, #spView, .btn-submit,
+  #topBtn, button { display: none !important; }
+
+  /* nav.js 처음으로 버튼 */
+  body > button, [style*="position:fixed"] { display: none !important; }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10pt;
+    padding: 0;
+    margin: 0;
+  }
+
+  #examView {
+    display: block !important;
+  }
+
+  /* 카드 */
+  .ecard {
+    background: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 6pt 0 8pt !important;
+    margin-bottom: 0 !important;
+    border-bottom: 0.5pt solid #ddd !important;
+    page-break-inside: avoid;
+  }
+
+  .eqlabel {
+    font-weight: bold;
+    font-size: 10pt;
+    color: #000 !important;
+    margin-bottom: 4pt;
+  }
+
+  .ev-body { line-height: 2.2; font-size: 10pt; }
+
+  /* 구분선 */
+  .pdf-divider {
+    color: #000 !important;
+    font-size: 9pt;
+    border-top: 0.5pt solid #aaa !important;
+    margin: 12pt 0 6pt !important;
+    padding-top: 8pt !important;
+  }
+
+  /* 단계 구분 헤더 */
+  .sec-hd {
+    background: #f2f2f2 !important;
+    border-left: 3pt solid #333 !important;
+    page-break-after: avoid;
+    margin: 10pt 0 6pt !important;
+  }
+  .sec-hd h2 { color: #000 !important; font-size: 11pt !important; }
+
+  /* 힌트 줄 */
+  .vhint { font-size: 9pt; color: #555 !important; }
+
+  /* 장 제목 입력 — 밑줄 */
+  .line-inp {
+    display: block !important;
+    border: none !important;
+    border-bottom: 0.8pt solid #000 !important;
+    background: transparent !important;
+    color: transparent !important;
+    width: 100% !important;
+    height: 16pt;
+    padding: 0 !important;
+    margin-top: 4pt;
+  }
+
+  /* 성구 기록 — 줄 쳐진 빈 공간 */
+  .vtarea {
+    display: block !important;
+    border: 0.5pt solid #bbb !important;
+    border-radius: 0 !important;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0pt, transparent 17pt,
+      #ccc 17pt, #ccc 18pt
+    ) !important;
+    color: rgba(0,0,0,.15) !important;
+    width: 100% !important;
+    min-height: 72pt !important;
+    resize: none !important;
+    box-sizing: border-box;
+    padding: 2pt 4pt !important;
+    font-size: 9pt;
+  }
+
+  /* 빈칸 인풋 — 밑줄 */
+  .binp {
+    display: inline-block !important;
+    border: none !important;
+    border-bottom: 0.8pt solid #000 !important;
+    background: transparent !important;
+    color: transparent !important;
+    font-size: 10pt;
+    vertical-align: middle;
+  }
+}
 </style>
 </head>
 <body>
@@ -137,6 +245,7 @@ button:active{transform:scale(.97)}
       <button class="btn-gray" id="globalBtn" onclick="toggleAll()">👁️ 전체 보기</button>
       <button class="btn-change" onclick="showHist()">📊 기록</button>
       <button class="btn-gray" onclick="location.reload()" title="새로고침 (최신 내용 받기)">🔄</button>
+      <button class="btn-gray" id="printBtn" onclick="window.print()" style="display:none" title="A4 인쇄">🖨️ 인쇄</button>
     </div>
   </div>
   <div class="ctrl-row" id="topBar2">
@@ -757,6 +866,7 @@ function setMode(mode){
   document.getElementById('spotView').style.display=mode==='spot'?'block':'none';
   document.getElementById('resultView').style.display=mode==='result'?'block':'none';
   document.getElementById('globalBtn').style.display=mode==='study'?'inline-block':'none';
+  document.getElementById('printBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
   document.getElementById('tabP').classList.toggle('active',mode==='spot');

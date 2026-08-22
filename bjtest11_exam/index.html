@@ -11,13 +11,14 @@
             --card-bg: #ffffff;
             --text-color: #333;
             --blank-bg: #e9ecef;
+            --blank-text: transparent;
             --hint-bg: #fff3cd;
             --hint-color: #888;
             --answer-bg: #d1e7dd;
             --answer-color: #0f5132;
+            --marker-color: #e83e8c;
             --modal-bg: rgba(0,0,0,0.7);
             --exam-color: #e53e3e;
-            --sub-color: #666;
         }
         [data-theme="dark"] {
             --primary-color: #8ab4f8;
@@ -29,74 +30,111 @@
             --hint-color: #e2b838;
             --answer-bg: #0c3b28;
             --answer-color: #8ab4f8;
+            --marker-color: #f783ac;
             --modal-bg: rgba(0,0,0,0.85);
             --exam-color: #fc8181;
-            --sub-color: #aaa;
         }
         body { font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif; background-color:var(--bg-color); color:var(--text-color); margin:0; padding:20px; line-height:1.6; transition:background-color 0.3s,color 0.3s; }
-        .container { max-width:800px; margin:0 auto; padding-bottom:60px; }
-        header { text-align:center; margin-bottom:24px; }
-        h1 { color:var(--primary-color); font-size:1.5rem; margin-bottom:4px; word-break:keep-all; }
-        .subtitle { font-size:0.9rem; color:var(--sub-color); margin:0 0 14px; }
-
-        /* 모달 */
         .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:var(--modal-bg); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(3px); transition:opacity 0.3s; }
-        .modal-content { background-color:var(--card-bg); padding:28px 24px; border-radius:16px; text-align:center; max-width:420px; width:85%; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .modal-content { background-color:var(--card-bg); padding:30px 25px; border-radius:16px; text-align:center; max-width:420px; width:85%; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
         @keyframes popIn { 0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1} }
-        .modal-content h2 { color:#d9534f; margin-top:0; font-size:1.3rem; }
-        .modal-content p { font-size:0.98rem; margin-bottom:20px; word-break:keep-all; line-height:1.7; }
-        .btn-amen { padding:12px 30px; font-size:1.1rem; background-color:var(--primary-color); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; transition:0.2s; }
+        .modal-content h2 { color:#d9534f; margin-top:0; font-size:1.4rem; }
+        .modal-content p { font-size:1.05rem; margin-bottom:25px; word-break:keep-all; line-height:1.5; }
+        .btn-amen { padding:12px 30px; font-size:1.2rem; background-color:var(--primary-color); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; transition:0.2s; }
         .btn-amen:disabled { background-color:#a0aec0; cursor:not-allowed; }
         .btn-amen:not(:disabled):hover { transform:scale(1.03); }
 
-        /* 컨트롤 */
-        .global-controls { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
-        button { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-family:inherit; transition:transform 0.1s; }
-        button:active { transform:scale(0.98); }
-        .btn-dark { background-color:#343a40; color:white; }
-        .btn-shuffle { background-color:#6f42c1; color:white; }
-        .btn-reveal { background-color:#198754; color:white; font-size:0.9rem; padding:7px 14px; margin-top:10px; }
+        .container { max-width:800px; margin:0 auto; padding-bottom:60px; }
+        header { text-align:center; margin-bottom:20px; }
+        h1 { color:var(--primary-color); font-size:1.6rem; margin-bottom:10px; }
 
-        /* 섹션 구분 */
-        .section-title { font-size:1rem; font-weight:bold; color:var(--primary-color); background:var(--blank-bg); padding:8px 16px; border-radius:10px; margin:8px 0 16px; text-align:center; }
+        .dashboard { display:flex; justify-content:center; gap:15px; margin-bottom:20px; flex-wrap:wrap; }
+        .stage-column { display:flex; flex-direction:column; gap:8px; align-items:center; flex:1; min-width:140px; }
+        .btn-stage { padding:10px 15px; width:100%; font-size:0.95rem; border:2px solid var(--blank-bg); border-radius:8px; background-color:var(--card-bg); color:var(--text-color); cursor:pointer; font-weight:bold; transition:all 0.2s; box-sizing:border-box; }
+        .btn-stage:hover { background-color:var(--blank-bg); }
+        .btn-stage.active { background-color:var(--primary-color); color:white; border-color:var(--primary-color); transform:scale(1.05); z-index:2; }
+        .btn-exam { padding:8px 10px; width:100%; font-size:0.85rem; border:2px dashed var(--exam-color); border-radius:8px; background-color:transparent; color:var(--exam-color); cursor:pointer; font-weight:bold; transition:all 0.2s; box-sizing:border-box; }
+        .btn-exam:hover { background-color:rgba(229,62,62,0.1); }
+        .btn-exam.active { background-color:var(--exam-color); color:white; border-style:solid; transform:scale(1.05); z-index:2; }
 
-        /* 빈칸 채우기 카드 */
-        .quiz-card { background:var(--card-bg); border-radius:12px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
-        .quiz-num { font-size:0.85rem; font-weight:bold; color:var(--sub-color); margin-bottom:6px; }
-        .quiz-ref { font-size:1rem; font-weight:800; color:var(--primary-color); margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--blank-bg); }
-        .verse-block { font-size:1.05rem; line-height:2.2; word-break:keep-all; }
-        .verse-num { font-weight:bold; color:var(--primary-color); margin-right:4px; }
+        .global-controls { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:20px; padding:15px; background:var(--card-bg); border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 빈칸 스팬 (학습 모드) */
-        .blank { display:inline-block; min-width:40px; padding:2px 6px; margin:1px 2px; border-bottom:2px solid var(--primary-color); background-color:var(--blank-bg); color:transparent; border-radius:4px; cursor:pointer; font-weight:bold; text-align:center; user-select:none; touch-action:manipulation; transition:0.15s; vertical-align:middle; }
+        /* 오디오 플레이어 */
+        .audio-player-box { display:flex; align-items:center; gap:15px; background:var(--card-bg); padding:15px 20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.15); margin-bottom:25px; width:100%; box-sizing:border-box; position:sticky; top:15px; z-index:100; }
+        .player-btn, .loop-btn { cursor:pointer; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .player-btn { background:var(--primary-color); color:white; border:none; width:45px; height:45px; font-size:1.4rem; transition:transform 0.2s; }
+        .loop-btn { background:transparent; border:2px solid var(--primary-color); color:var(--primary-color); width:38px; height:38px; font-size:1.1rem; transition:0.2s; }
+        .loop-btn.active { background:var(--primary-color); color:white; }
+        .collapse-btn { background:transparent; border:none; color:var(--primary-color); font-size:1.2rem; cursor:pointer; padding:5px 10px; flex-shrink:0; border-radius:6px; transition:0.2s; line-height:1; }
+        .collapse-btn:hover { background:var(--blank-bg); }
+        .audio-player-box.collapsed { padding:8px 20px; margin-bottom:10px; }
+        .audio-player-box.collapsed #playBtn,
+        .audio-player-box.collapsed .player-controls > div:not(.audio-title),
+        .audio-player-box.collapsed #loopBtn,
+        .audio-player-box.collapsed .audio-buttons-row { display:none; }
+        .audio-player-box.collapsed .audio-title { margin-bottom:0; }
+        .player-controls { flex-grow:1; display:flex; flex-direction:column; justify-content:center; }
+        .audio-title { font-size:0.95rem; font-weight:bold; color:var(--primary-color); margin-bottom:5px; }
+        .progress-container { position:relative; width:100%; margin:5px 0; display:flex; align-items:center; height:10px; }
+        input[type=range] { width:100%; cursor:pointer; accent-color:var(--primary-color); height:5px; margin:0; background:transparent; }
+        .time-display { font-size:0.8rem; color:#888; text-align:right; }
+
+        /* 퀴즈 카드 */
+        .quiz-card { background:var(--card-bg); border-radius:12px; padding:25px; margin-bottom:20px; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
+        .question-title { font-weight:bold; font-size:1.15rem; margin-bottom:15px; color:var(--primary-color); border-bottom:2px solid var(--blank-bg); padding-bottom:10px; }
+        .question-text { font-size:1.05rem; margin-bottom:20px; word-break:keep-all; line-height:2.2; }
+        .verse-num-inline { font-weight:bold; color:var(--primary-color); margin-right:4px; }
+
+        .blank { display:inline-block; min-width:40px; padding:2px 6px; margin:2px; border-bottom:2px solid var(--primary-color); color:var(--blank-text); background-color:var(--blank-bg); border-radius:4px; cursor:pointer; font-weight:bold; text-align:center; user-select:none; touch-action:manipulation; }
         .blank.hint-mode { color:var(--hint-color); background-color:var(--hint-bg); }
         .blank.answer-mode { color:var(--answer-color); background-color:var(--answer-bg); border-bottom-color:transparent; }
-        .controls { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+        .blank.stage2-blank { min-width:20px; color:var(--hint-color); background-color:var(--hint-bg); border-bottom:2px solid var(--hint-color); }
+        .blank.stage2-blank.answer-mode { color:var(--answer-color); background-color:var(--answer-bg); border-bottom-color:transparent; }
+
+        .controls { display:flex; gap:8px; justify-content:flex-end; }
+        button { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-family:inherit; transition:transform 0.1s; }
+        button:active { transform:scale(0.98); }
         .btn-hint { background-color:#ffc107; color:#333; }
         .btn-answer { background-color:#198754; color:white; }
+        .btn-toggle { background-color:#6c757d; color:white; }
+        .btn-dark { background-color:#343a40; color:white; }
         [data-theme="dark"] .btn-hint { background-color:#9c7b17; color:#eee; }
         [data-theme="dark"] .btn-answer { background-color:#125838; color:#eee; }
 
-        /* 주관식 카드 */
+        /* 모의고사 */
+        #exam-arena { display:none; }
+        .exam-header { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; background:var(--blank-bg); padding:15px; border-radius:12px; }
+        .exam-progress-text { font-weight:bold; color:var(--exam-color); font-size:1.3rem; margin-bottom:5px; }
+        .exam-notice { font-size:0.9rem; color:#666; text-align:center; }
+        [data-theme="dark"] .exam-notice { color:#aaa; }
+        .exam-input { border:none; border-bottom:2px solid var(--exam-color); background:transparent; color:var(--exam-color); font-size:1.1rem; font-weight:bold; text-align:center; outline:none; transition:0.2s; margin:4px 2px; padding:2px; font-family:inherit; }
+        .exam-input:focus { border-bottom:3px solid var(--primary-color); background-color:var(--hint-bg); }
+        .exam-input::placeholder { color:#ccc; font-weight:normal; }
+        [data-theme="dark"] .exam-input::placeholder { color:#666; }
+        .btn-next-exam { background-color:var(--exam-color); color:white; font-size:1.1rem; width:100%; padding:15px; margin-top:25px; border-radius:12px; }
+        .result-screen { text-align:center; padding:30px 10px; }
+        .score-display { font-size:4rem; font-weight:bold; color:var(--exam-color); margin:20px 0; text-shadow:2px 2px 4px rgba(0,0,0,0.1); }
+        .wrong-list { text-align:left; background:var(--blank-bg); padding:20px; border-radius:12px; margin-top:20px; font-size:1rem; }
+        .wrong-item { margin-bottom:15px; border-bottom:1px dashed #ccc; padding-bottom:15px; line-height:1.7; }
+        .wrong-item:last-child { border-bottom:none; }
+        .correct-ans { color:#198754; font-weight:bold; background:rgba(25,135,84,0.1); padding:0 4px; border-radius:4px; }
+        .wrong-ans { color:#d9534f; text-decoration:line-through; font-size:0.9em; margin-right:4px; }
+
+        /* 주관식 */
+        .section-title { font-size:1rem; font-weight:bold; color:var(--primary-color); background:var(--blank-bg); padding:8px 16px; border-radius:10px; margin:28px 0 16px; text-align:center; }
         .subj-card { background:var(--card-bg); border-radius:12px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
         .subj-q { font-size:1rem; font-weight:bold; line-height:1.7; word-break:keep-all; margin-bottom:6px; }
-        .subj-pts { font-size:0.82rem; color:var(--sub-color); }
+        .subj-num { font-size:1.1rem; font-weight:800; color:var(--primary-color); margin-bottom:8px; }
+        .subj-pts { font-size:0.82rem; color:#888; }
         .subj-area { width:100%; border:1.5px solid var(--blank-bg); border-radius:8px; background:var(--bg-color); color:var(--text-color); font-size:0.97rem; font-family:inherit; padding:9px 12px; outline:none; resize:vertical; line-height:1.8; transition:0.2s; margin-top:10px; box-sizing:border-box; min-height:70px; }
         .subj-area:focus { border-color:var(--primary-color); }
+        .btn-reveal { background-color:#198754; color:white; font-size:0.9rem; padding:7px 14px; margin-top:10px; }
         .answer-box { display:none; margin-top:10px; background:var(--answer-bg); color:var(--answer-color); border-radius:8px; padding:10px 14px; font-size:0.97rem; line-height:1.7; }
-        .answer-box .src { font-size:0.8rem; color:var(--sub-color); margin-top:4px; }
+        .answer-box .src { font-size:0.8rem; color:#888; margin-top:4px; }
 
-
-        #topBtn { display:none; position:fixed; bottom:28px; left:28px; z-index:998; background:var(--primary-color); color:#fff; border:none; cursor:pointer; padding:12px; border-radius:50%; width:48px; height:48px; font-size:1.1rem; box-shadow:0 4px 10px rgba(0,0,0,.2); }
-
-        @media(max-width:600px) {
-            h1 { font-size:1.2rem; }
-            .quiz-card, .subj-card { padding:14px; }
-            .verse-block { font-size:0.97rem; }
-        }
-        @media (pointer:coarse) {
-            .quiz-card, .subj-card { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
-        }
+        #topBtn { display:none; position:fixed; bottom:30px; left:30px; z-index:999; background-color:var(--primary-color); color:white; border:none; outline:none; cursor:pointer; padding:12px; border-radius:50%; width:50px; height:50px; font-size:1.2rem; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:transform 0.2s; }
+        #topBtn:hover { transform:scale(1.1); }
+        @media(pointer:coarse) { .quiz-card { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; } }
     </style>
 </head>
 <body>
@@ -104,11 +142,10 @@
 <div id="warningModal" class="modal-overlay">
     <div class="modal-content">
         <h2>📋 계 11장 인 맞음 확인 시험</h2>
-        <p>1~7번: 계 11:1~14 빈칸 채우기<br>
-        <strong>빈칸은 매번 무작위로 출제됩니다.</strong><br>
-        빈칸을 클릭하면 정답이 보입니다.<br>
-        <strong>[초성 보기]</strong> → <strong>[정답 보기]</strong>로 단계별 확인.<br><br>
-        8~10번: 주관식 — <strong>[정답 확인]</strong>으로 확인.</p>
+        <p>1~7번: 계 11:1~14 단계별 빈칸 채우기<br>
+        각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br>
+        <small>(*쉼표(,) 입력 유무는 자동 보정됩니다.)</small><br><br>
+        8~10번: 주관식 — <strong>[정답 확인]</strong>으로 확인하세요.</p>
         <button id="amenBtn" class="btn-amen" disabled>아멘 (3초 후 활성화)</button>
     </div>
 </div>
@@ -116,21 +153,72 @@
 <div class="container">
     <header>
         <h1>📋 계 11장 인 맞음 확인 시험</h1>
-        <p class="subtitle">신 43년 · 계시록 11장 전범위</p>
+
+        <div class="dashboard">
+            <div class="stage-column">
+                <button class="btn-stage active" id="btnStage1" onclick="setMode('stage',1)">🌱 1단계 (핵심)</button>
+                <button class="btn-exam" id="btnExam1" onclick="setMode('exam',1)">🏆 1단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage2" onclick="setMode('stage',2)">🔥 2단계 (초성)</button>
+                <button class="btn-exam" id="btnExam2" onclick="setMode('exam',2)">🏆 2단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage3" onclick="setMode('stage',3)">💪 3단계 (심화)</button>
+                <button class="btn-exam" id="btnExam3" onclick="setMode('exam',3)">🏆 3단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage4" onclick="setMode('stage',4)">👑 4단계 (전체)</button>
+                <button class="btn-exam" id="btnExam4" onclick="setMode('exam',4)">🏆 4단계 모의고사</button>
+            </div>
+        </div>
+
+        <div class="global-controls" id="globalControls">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-toggle" id="roundBtn" onclick="nextRound()" style="display:none;">다음 라운드 →</button>
+            <span id="roundDisplay" style="display:none; font-weight:bold; padding:6px 10px;">라운드 1/2</span>
+        </div>
     </header>
 
-    <div class="global-controls">
-        <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
-        <button class="btn-shuffle" onclick="reshuffle()">🔀 새 문제 만들기</button>
+    <div class="audio-player-box" id="audioPlayerBox">
+        <button id="playBtn" class="player-btn" onclick="togglePlayPause()">▶</button>
+        <div class="player-controls">
+            <div class="audio-title">🎵 계 11장 듣기</div>
+            <div class="progress-container">
+                <input type="range" id="progressBar" value="0" step="0.1" min="0">
+            </div>
+            <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+        </div>
+        <button id="loopBtn" class="loop-btn" onclick="toggleLoop()" title="반복 재생">🔁</button>
+        <button class="collapse-btn" id="collapseBtn" onclick="togglePlayer()" title="접기/펼치기">▲</button>
     </div>
 
-    <div id="quiz-area"></div>
+    <div id="quiz-list"></div>
 
+    <div id="exam-arena" class="quiz-card">
+        <div id="exam-play-area">
+            <div class="exam-header">
+                <div class="exam-progress-text" id="examProgressText">1 / 14 절</div>
+                <div class="exam-notice">💡 PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈 키</code>로 다음 칸 이동.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+            </div>
+            <div class="question-text" id="examVerseText" style="font-size:1.2rem; line-height:2.4;"></div>
+            <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
+        </div>
+        <div id="exam-result-area" class="result-screen" style="display:none;">
+            <h2>🎉 모의고사 결과 🎉</h2>
+            <div class="score-display" id="finalScore">0 / 14</div>
+            <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
+            <button class="btn-next-exam" onclick="retryCurrentExam()" style="width:auto;padding:12px 30px;">다시 도전하기</button>
+            <div id="wrongListContainer" class="wrong-list"></div>
+        </div>
+    </div>
+
+    <!-- 주관식 8~10번 -->
     <div class="section-title">✍️ 주관식 (8~10번)</div>
 
-    <!-- 8번 -->
     <div class="subj-card">
-        <div class="quiz-num">8번 <span class="subj-pts">[10점 · 소문항 당 5점]</span></div>
+        <div class="subj-num">8번 <span class="subj-pts">[10점 · 소문항 당 5점]</span></div>
         <div class="subj-q">계 11장에서 요한이 받은 갈대 지팡이의 역할 두 가지는 ①무엇이며, 계 11:15과 같은 성구는 ②무엇인가?</div>
         <textarea class="subj-area" placeholder="① &#10;② "></textarea>
         <br>
@@ -142,9 +230,8 @@
         </div>
     </div>
 
-    <!-- 9번 -->
     <div class="subj-card">
-        <div class="quiz-num">9번 <span class="subj-pts">[10점 · 소문항 당 5점]</span></div>
+        <div class="subj-num">9번 <span class="subj-pts">[10점 · 소문항 당 5점]</span></div>
         <div class="subj-q">계 11:15의 일곱째 나팔 소리의 ①정체와 그 ②사건은 무엇인가?</div>
         <textarea class="subj-area" placeholder="① &#10;② "></textarea>
         <br>
@@ -156,9 +243,8 @@
         </div>
     </div>
 
-    <!-- 10번 -->
     <div class="subj-card">
-        <div class="quiz-num">10번 <span class="subj-pts">[10점]</span></div>
+        <div class="subj-num">10번 <span class="subj-pts">[10점]</span></div>
         <div class="subj-q">성전 안에 있는 우박은 무엇인가?</div>
         <textarea class="subj-area" placeholder="답을 여기에 작성하세요"></textarea>
         <br>
@@ -168,60 +254,44 @@
             <div class="src">출처: 계시록 심화학습 문답</div>
         </div>
     </div>
-
 </div>
 
-<button id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
+<button id="topBtn" onclick="scrollToTop()">⬆️</button>
 
 <script>
 // ──────────── 데이터 ────────────
 const RAW_VERSES = [
-    {n:1,  ref:'계 11:1',  text:"또 내게 지팡이 같은 {갈대}를 주며 말하기를 일어나서 하나님의 {성전}과 {제단}과 그 안에서 경배하는 자들을 {척량하되}"},
-    {n:2,  ref:'계 11:2',  text:"{성전 밖 마당}은 척량하지 말고 그냥 두라 이것을 {이방인}에게 주었은즉 저희가 {거룩한 성}을 {마흔 두달} 동안 짓밟으리라"},
-    {n:3,  ref:'계 11:3',  text:"내가 나의 {두 증인}에게 {권세}를 주리니 저희가 {굵은 베옷}을 입고 {일천 이백 육십 일}을 예언하리라"},
-    {n:4,  ref:'계 11:4',  text:"이는 이 땅의 주 앞에 섰는 {두 감람나무}와 {두 촛대}니"},
-    {n:5,  ref:'계 11:5',  text:"만일 누구든지 저희를 해하고자 한즉 저희 {입}에서 {불}이 나서 그 원수를 {소멸할찌니} 누구든지 해하려 하면 반드시 이와 같이 죽임을 당하리라"},
-    {n:6,  ref:'계 11:6',  text:"저희가 권세를 가지고 {하늘}을 닫아 그 예언을 하는 날 동안 {비 오지 못하게} 하고 또 권세를 가지고 {물}을 변하여 {피} 되게 하고 아무 때든지 원하는 대로 여러가지 재앙으로 {땅을 치리로다}"},
-    {n:7,  ref:'계 11:7',  text:"저희가 그 {증거를 마칠 때에} {무저갱}으로부터 올라오는 {짐승}이 저희로 더불어 {전쟁}을 일으켜 저희를 이기고 {저희를 죽일터인즉}"},
-    {n:8,  ref:'계 11:8',  text:"저희 시체가 {큰 성길}에 있으리니 그 성은 영적으로 하면 {소돔}이라고도 하고 {애굽}이라고도 하니 곧 저희 주께서 {십자가}에 못 박히신 곳이니라"},
-    {n:9,  ref:'계 11:9',  text:"백성들과 족속과 방언과 나라 중에서 사람들이 그 시체를 {사흘 반} 동안을 목도하며 무덤에 {장사하지 못하게} 하리로다"},
-    {n:10, ref:'계 11:10', text:"이 두 선지자가 땅에 거하는 자들을 괴롭게 한고로 땅에 거하는 자들이 저희의 죽음을 {즐거워하고 기뻐하여} 서로 {예물}을 보내리라 하더라"},
-    {n:11, ref:'계 11:11', text:"{삼일 반} 후에 하나님께로부터 {생기}가 저희 속에 들어가매 저희가 발로 일어서니 구경하는 자들이 {크게 두려워하더라}"},
-    {n:12, ref:'계 11:12', text:"{하늘}로부터 큰 음성이 있어 {이리로 올라오라} 함을 저희가 듣고 {구름}을 타고 하늘로 올라가니 저희 원수들도 {구경하더라}"},
-    {n:13, ref:'계 11:13', text:"그 시에 {큰 지진}이 나서 성 {십분의 일}이 무너지고 지진에 죽은 사람이 {칠천}이라 그 남은 자들이 두려워하여 {영광}을 하늘의 하나님께 돌리더라"},
-    {n:14, ref:'계 11:14', text:"{둘째 화}는 지나갔으나 보라 {세째 화}가 속히 이르는도다"}
+    {n:1,  ref:'계 11:1',  raw:"또 내게 지팡이 같은 {갈대}를 주며 말하기를 일어나서 하나님의 {성전}과 {제단}과 그 안에서 경배하는 자들을 {척량하되}"},
+    {n:2,  ref:'계 11:2',  raw:"{성전 밖 마당}은 척량하지 말고 그냥 두라 이것을 {이방인}에게 주었은즉 저희가 {거룩한 성}을 {마흔 두달} 동안 짓밟으리라"},
+    {n:3,  ref:'계 11:3',  raw:"내가 나의 {두 증인}에게 {권세}를 주리니 저희가 {굵은 베옷}을 입고 {일천 이백 육십 일}을 예언하리라"},
+    {n:4,  ref:'계 11:4',  raw:"이는 이 땅의 주 앞에 섰는 {두 감람나무}와 {두 촛대}니"},
+    {n:5,  ref:'계 11:5',  raw:"만일 누구든지 저희를 해하고자 한즉 저희 {입}에서 {불}이 나서 그 원수를 {소멸할찌니} 누구든지 해하려 하면 반드시 이와 같이 죽임을 당하리라"},
+    {n:6,  ref:'계 11:6',  raw:"저희가 권세를 가지고 {하늘}을 닫아 그 예언을 하는 날 동안 {비 오지 못하게} 하고 또 권세를 가지고 {물}을 변하여 {피} 되게 하고 아무 때든지 원하는 대로 여러가지 재앙으로 {땅을 치리로다}"},
+    {n:7,  ref:'계 11:7',  raw:"저희가 그 {증거를 마칠 때에} {무저갱}으로부터 올라오는 {짐승}이 저희로 더불어 {전쟁}을 일으켜 저희를 이기고 {저희를 죽일터인즉}"},
+    {n:8,  ref:'계 11:8',  raw:"저희 시체가 {큰 성길}에 있으리니 그 성은 영적으로 하면 {소돔}이라고도 하고 {애굽}이라고도 하니 곧 저희 주께서 {십자가}에 못 박히신 곳이니라"},
+    {n:9,  ref:'계 11:9',  raw:"백성들과 족속과 방언과 나라 중에서 사람들이 그 시체를 {사흘 반} 동안을 목도하며 무덤에 {장사하지 못하게} 하리로다"},
+    {n:10, ref:'계 11:10', raw:"이 두 선지자가 땅에 거하는 자들을 괴롭게 한고로 땅에 거하는 자들이 저희의 죽음을 {즐거워하고 기뻐하여} 서로 {예물}을 보내리라 하더라"},
+    {n:11, ref:'계 11:11', raw:"{삼일 반} 후에 하나님께로부터 {생기}가 저희 속에 들어가매 저희가 발로 일어서니 구경하는 자들이 {크게 두려워하더라}"},
+    {n:12, ref:'계 11:12', raw:"{하늘}로부터 큰 음성이 있어 {이리로 올라오라} 함을 저희가 듣고 {구름}을 타고 하늘로 올라가니 저희 원수들도 {구경하더라}"},
+    {n:13, ref:'계 11:13', raw:"그 시에 {큰 지진}이 나서 성 {십분의 일}이 무너지고 지진에 죽은 사람이 {칠천}이라 그 남은 자들이 두려워하여 {영광}을 하늘의 하나님께 돌리더라"},
+    {n:14, ref:'계 11:14', raw:"{둘째 화}는 지나갔으나 보라 {세째 화}가 속히 이르는도다"}
 ];
 
-// 2절씩 7문제
 const GROUPS = [
-    {label:'계 11:1~2',  idx:[0,1]},
-    {label:'계 11:3~4',  idx:[2,3]},
-    {label:'계 11:5~6',  idx:[4,5]},
-    {label:'계 11:7~8',  idx:[6,7]},
-    {label:'계 11:9~10', idx:[8,9]},
-    {label:'계 11:11~12',idx:[10,11]},
-    {label:'계 11:13~14',idx:[12,13]}
+    {label:'계 11:1~2',   idx:[0,1]},
+    {label:'계 11:3~4',   idx:[2,3]},
+    {label:'계 11:5~6',   idx:[4,5]},
+    {label:'계 11:7~8',   idx:[6,7]},
+    {label:'계 11:9~10',  idx:[8,9]},
+    {label:'계 11:11~12', idx:[10,11]},
+    {label:'계 11:13~14', idx:[12,13]}
 ];
 
-// ──────────── 무작위 빈칸 생성 ────────────
-function pickBlanks(text, ratio=0.6) {
-    const keys = [];
-    text.replace(/\{([^}]+)\}/g, (_,w) => keys.push(w));
-    if (!keys.length) return {text, blanks: new Set()};
-    const n = Math.max(1, Math.ceil(keys.length * ratio));
-    const shuffled = [...keys].sort(() => Math.random()-0.5);
-    return {text, blanks: new Set(shuffled.slice(0, n))};
-}
-
-let activeGroups = [];
-
-function buildGroups() {
-    activeGroups = GROUPS.map((g,gi) => ({
-        ...g,
-        verses: g.idx.map(i => pickBlanks(RAW_VERSES[i].text, 0.6))
-                      .map((r,vi) => ({...RAW_VERSES[g.idx[vi]], ...r}))
-    }));
-}
+const TOTAL_ROUNDS = 2;
+let currentMode = 'stage';
+let activeLevel = 1;
+let currentRound = 1;
+let isAllAnswersShown = false;
 
 // ──────────── 초성 추출 ────────────
 function getChosung(str) {
@@ -234,92 +304,250 @@ function getChosung(str) {
     return r;
 }
 
-// ──────────── 렌더링 ────────────
-function renderQuiz() {
-    const area = document.getElementById('quiz-area');
-    area.innerHTML = '';
+// ──────────── 모드 전환 ────────────
+function setMode(mode, level) {
+    scrollToTop();
+    currentMode = mode; activeLevel = level;
+    document.querySelectorAll('.btn-stage, .btn-exam').forEach(b => b.classList.remove('active'));
 
-    activeGroups.forEach((g, gi) => {
+    if (mode === 'stage') {
+        document.getElementById('btnStage' + level).classList.add('active');
+        document.getElementById('quiz-list').style.display = 'block';
+        document.getElementById('exam-arena').style.display = 'none';
+        document.getElementById('globalControls').style.display = 'flex';
+        const showRound = level === 3;
+        document.getElementById('roundBtn').style.display = showRound ? 'inline-block' : 'none';
+        document.getElementById('roundDisplay').style.display = showRound ? 'inline-block' : 'none';
+        if (showRound) { currentRound = 1; document.getElementById('roundDisplay').innerText = `라운드 1/${TOTAL_ROUNDS}`; }
+        renderQuizzes();
+    } else {
+        document.getElementById('btnExam' + level).classList.add('active');
+        document.getElementById('quiz-list').style.display = 'none';
+        document.getElementById('exam-arena').style.display = 'block';
+        document.getElementById('globalControls').style.display = 'none';
+        startExam();
+    }
+}
+
+// ──────────── 학습 모드 렌더링 ────────────
+function renderQuizzes() {
+    const list = document.getElementById('quiz-list');
+    list.innerHTML = ''; isAllAnswersShown = false;
+
+    GROUPS.forEach((g, gi) => {
         const card = document.createElement('div');
         card.className = 'quiz-card';
 
-        let html = `<div class="quiz-num">${gi+1}번</div><div class="quiz-ref">${g.label}</div><div class="verse-block" id="vb-${gi}">`;
+        let htmlContent = '', controlsHtml = '';
+        let qText = '';
 
-        g.verses.forEach(v => {
-            html += `<div><span class="verse-num">${v.n}</span>`;
-            const parts = v.text.split(/\{([^}]+)\}/g);
-            parts.forEach((part, pi) => {
-                if (pi % 2 === 0) {
-                    html += part;
-                } else {
-                    const w = part;
-                    if (v.blanks.has(w)) {
-                        html += `<span class="blank" data-answer="${w}" data-chosung="${getChosung(w)}" onclick="toggleSingleBlank(this)">${w}</span>`;
-                    } else {
-                        html += w;
-                    }
-                }
-            });
-            html += '</div>';
+        g.idx.forEach(vi => {
+            const v = RAW_VERSES[vi];
+            qText += `<span class="verse-num-inline">${v.n}</span>`;
+
+            if (activeLevel === 1) {
+                qText += v.raw.replace(/\{([^}]+)\}/g, (_, ans) =>
+                    `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`
+                );
+            } else if (activeLevel === 2) {
+                const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
+                qText += plain.split(' ').map(word => {
+                    if (!word) return '';
+                    return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                }).join(' ');
+            } else if (activeLevel === 3) {
+                const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
+                let wi = 0;
+                qText += plain.split(' ').map(word => {
+                    if (!word) return '';
+                    const isBlank = (wi++ % TOTAL_ROUNDS) === (currentRound - 1);
+                    if (isBlank) return `<span class="blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                    return word;
+                }).join(' ');
+            } else {
+                const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
+                qText += plain.split(' ').map(word => {
+                    if (!word) return '';
+                    return `<span class="blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                }).join(' ');
+            }
+            qText += ' ';
         });
 
-        html += `</div><div class="controls"><button class="btn-hint" onclick="toggleHint(${gi},this)">초성 보기</button><button class="btn-answer" onclick="toggleAnswer(${gi},this)">정답 보기</button></div>`;
-        card.innerHTML = html;
-        area.appendChild(card);
+        if (activeLevel === 1) {
+            controlsHtml = `<button class="btn-hint" onclick="toggleHint(${gi},this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${gi},this)">정답 보기</button>`;
+        } else if (activeLevel === 2 || activeLevel === 4) {
+            controlsHtml = `<button class="btn-answer" onclick="toggleAnswer(${gi},this)">전체 정답 보기</button>`;
+        } else {
+            controlsHtml = `<button class="btn-hint" onclick="toggleHint(${gi},this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${gi},this)">정답 보기</button>`;
+        }
+
+        htmlContent = `<div class="question-text" id="q-${gi}">${qText}</div>`;
+        card.innerHTML = `<div class="question-title">${gi+1}번 · ${g.label}</div>${htmlContent}<div class="controls">${controlsHtml}</div>`;
+        list.appendChild(card);
     });
 }
 
-function reshuffle() {
-    buildGroups();
-    renderQuiz();
-    document.querySelectorAll('.answer-box').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.btn-reveal').forEach(btn => { btn.textContent = '정답 확인'; btn.style.backgroundColor = ''; });
-    window.scrollTo({top:0, behavior:'smooth'});
-}
-
-// ──────────── 빈칸 토글 (학습 모드) ────────────
 function toggleSingleBlank(el) {
     if (el.classList.contains('answer-mode')) {
         el.classList.remove('answer-mode');
-        el.classList.contains('hint-mode') ? el.textContent = el.dataset.chosung : el.textContent = el.dataset.answer;
+        el.textContent = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer;
     } else {
         el.classList.add('answer-mode');
         el.textContent = el.dataset.answer;
     }
 }
+function toggleStage2Word(el) {
+    if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.textContent = el.dataset.chosung; }
+    else { el.className = 'blank stage2-blank answer-mode'; el.textContent = el.dataset.answer; }
+}
 
 function toggleHint(gi, btn) {
-    const blanks = document.getElementById(`vb-${gi}`).querySelectorAll('.blank');
+    const blanks = document.getElementById(`q-${gi}`).querySelectorAll('.blank');
     const isActive = btn.classList.contains('active');
-    btn.nextElementSibling.classList.remove('active');
-    btn.nextElementSibling.textContent = '정답 보기';
+    btn.nextElementSibling.classList.remove('active'); btn.nextElementSibling.innerText = '정답 보기';
     if (!isActive) {
-        btn.classList.add('active'); btn.textContent = '초성 끄기';
+        btn.classList.add('active'); btn.innerText = '초성 끄기';
         blanks.forEach(b => { b.textContent = b.dataset.chosung; b.className = 'blank hint-mode'; });
     } else {
-        btn.classList.remove('active'); btn.textContent = '초성 보기';
+        btn.classList.remove('active'); btn.innerText = '초성 보기';
         blanks.forEach(b => { b.textContent = b.dataset.answer; b.className = 'blank'; });
     }
 }
-
 function toggleAnswer(gi, btn) {
-    const blanks = document.getElementById(`vb-${gi}`).querySelectorAll('.blank');
+    const blanks = document.getElementById(`q-${gi}`).querySelectorAll('.blank');
     const isActive = btn.classList.contains('active');
-    if (btn.previousElementSibling) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.textContent = '초성 보기'; }
+    if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) {
+        btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = '초성 보기';
+    }
     if (!isActive) {
-        btn.classList.add('active'); btn.textContent = '정답 가리기';
+        btn.classList.add('active'); btn.innerText = '정답 가리기';
         blanks.forEach(b => { b.textContent = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); });
     } else {
-        btn.classList.remove('active'); btn.textContent = '정답 보기';
-        blanks.forEach(b => { b.textContent = b.dataset.answer; b.className = 'blank'; });
+        btn.classList.remove('active');
+        btn.innerText = (activeLevel === 2 || activeLevel === 4) ? '전체 정답 보기' : '정답 보기';
+        blanks.forEach(b => {
+            if (b.classList.contains('stage2-blank')) b.textContent = b.dataset.chosung;
+            else b.textContent = b.dataset.answer;
+            b.classList.remove('answer-mode');
+        });
+    }
+}
+function toggleAll() {
+    const btns = document.querySelectorAll('.btn-answer');
+    isAllAnswersShown = !isAllAnswersShown;
+    btns.forEach((btn, i) => {
+        const isActive = btn.classList.contains('active');
+        if (isAllAnswersShown && !isActive) toggleAnswer(i, btn);
+        else if (!isAllAnswersShown && isActive) toggleAnswer(i, btn);
+    });
+}
+function nextRound() {
+    currentRound = (currentRound % TOTAL_ROUNDS) + 1;
+    document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`;
+    renderQuizzes();
+}
+
+// ──────────── 모의고사 ────────────
+let currentExamIndex = 0, examScore = 0, examWrongData = [];
+const totalVerses = RAW_VERSES.length;
+
+function startExam() {
+    currentExamIndex = 0; examScore = 0; examWrongData = [];
+    document.getElementById('exam-play-area').style.display = 'block';
+    document.getElementById('exam-result-area').style.display = 'none';
+    renderExamVerse();
+}
+function retryCurrentExam() { setMode('exam', activeLevel); }
+
+function renderExamVerse() {
+    document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절`;
+    const v = RAW_VERSES[currentExamIndex];
+    let html = `<span style="font-weight:bold;color:var(--primary-color);margin-right:6px;">${v.n}</span>`;
+
+    if (activeLevel === 1) {
+        html += v.raw.replace(/\{([^}]+)\}/g, (_, ans) => {
+            const w = (ans.length * 1.5) + 1;
+            return `<input type="text" class="exam-input" style="width:${w}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event,this)">`;
+        });
+    } else if (activeLevel === 3) {
+        const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
+        let wi = 0;
+        html += plain.split(' ').map(word => {
+            if (!word) return '';
+            const isBlank = (wi++ % TOTAL_ROUNDS) === 0;
+            if (isBlank) { const w = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width:${w}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event,this)">`; }
+            return word;
+        }).join(' ');
+    } else {
+        const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
+        html += plain.split(' ').map(word => {
+            if (!word) return '';
+            const w = (word.length * 1.2) + 1;
+            const ph = activeLevel === 2 ? getChosung(word) : '';
+            return `<input type="text" class="exam-input" style="width:${w}em;" placeholder="${ph}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event,this)">`;
+        }).join(' ');
+    }
+
+    document.getElementById('examVerseText').innerHTML = html;
+    setTimeout(() => { const fi = document.querySelector('.exam-input'); if (fi) fi.focus(); }, 100);
+}
+
+function handleExamInput(e, cur) {
+    if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
+        e.preventDefault();
+        const inputs = document.querySelectorAll('.exam-input');
+        const idx = Array.from(inputs).indexOf(cur);
+        if (idx < inputs.length - 1) {
+            setTimeout(() => { inputs[idx+1].focus(); inputs[idx+1].scrollIntoView({behavior:'smooth',block:'center'}); }, 0);
+        } else submitExamVerse();
+    }
+}
+
+function submitExamVerse() {
+    const inputs = document.querySelectorAll('.exam-input');
+    let ok = true; let log = [];
+    inputs.forEach(inp => {
+        const u = inp.value.trim().replace(/,/g,'');
+        const a = inp.dataset.answer.trim().replace(/,/g,'');
+        if (u !== a) { ok = false; log.push({correct: inp.dataset.answer, wrong: inp.value || '(빈칸)'}); }
+    });
+    if (ok) examScore++;
+    else examWrongData.push({verseNum: currentExamIndex+1, fullVerse: RAW_VERSES[currentExamIndex].raw, errors: log});
+    currentExamIndex++;
+    if (currentExamIndex >= totalVerses) showExamResult();
+    else renderExamVerse();
+}
+
+function showExamResult() {
+    document.getElementById('exam-play-area').style.display = 'none';
+    document.getElementById('exam-result-area').style.display = 'block';
+    scrollToTop();
+    const sc = document.getElementById('finalScore');
+    sc.innerText = `${examScore} / ${totalVerses}`;
+    sc.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
+    document.getElementById('examResultMessage').innerText =
+        examScore === totalVerses ? '🎉 완벽합니다! 다음 단계에 도전하세요!' : '한 절에 하나라도 틀리면 오답 처리되었습니다.';
+    const wc = document.getElementById('wrongListContainer');
+    wc.innerHTML = '';
+    if (examWrongData.length > 0) {
+        let h = '<h3>📝 오답 노트</h3>';
+        examWrongData.forEach(item => {
+            const vd = activeLevel === 1
+                ? item.fullVerse.replace(/\{([^}]+)\}/g, '<span class="correct-ans">$1</span>')
+                : item.fullVerse.replace(/\{([^}]+)\}/g, '$1');
+            const ed = item.errors.map(e => `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${e.wrong}</span>]`).join(', ');
+            h += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${vd}<br><span style="font-size:0.9em;color:#666;">❌ 틀린 부분: ${ed}</span></div>`;
+        });
+        wc.innerHTML = h;
     }
 }
 
 // ──────────── 주관식 정답 토글 ────────────
 function toggleSubjAnswer(btn) {
-    const ansBox = btn.nextElementSibling;
-    const shown = ansBox.style.display === 'block';
-    ansBox.style.display = shown ? 'none' : 'block';
+    const box = btn.nextElementSibling;
+    const shown = box.style.display === 'block';
+    box.style.display = shown ? 'none' : 'block';
     btn.textContent = shown ? '정답 확인' : '정답 가리기';
     btn.style.backgroundColor = shown ? '' : '#6c757d';
 }
@@ -335,20 +563,38 @@ function toggleTheme() {
 if (localStorage.getItem('theme') === 'dark') {
     document.body.setAttribute('data-theme','dark');
     document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.querySelector('.btn-dark');
-        if (btn) btn.textContent = '☀️ 라이트 모드';
+        const b = document.querySelector('.btn-dark'); if (b) b.textContent = '☀️ 라이트 모드';
     });
 }
 
-// ──────────── 스크롤 버튼 ────────────
-window.onscroll = () => {
-    document.getElementById('topBtn').style.display = scrollY > 300 ? 'block' : 'none';
-};
+// ──────────── 스크롤 ────────────
+function scrollToTop() { window.scrollTo({top:0, behavior:'smooth'}); }
+window.onscroll = () => { document.getElementById('topBtn').style.display = scrollY > 300 ? 'block' : 'none'; };
 
-// ──────────── 모달 ────────────
+// ──────────── 오디오 플레이어 ────────────
+const globalAudio = new Audio('../bjtest11/mp3/11.mp3');
+const playBtn = document.getElementById('playBtn');
+const loopBtn = document.getElementById('loopBtn');
+const progressBar = document.getElementById('progressBar');
+const timeDisplay = document.getElementById('timeDisplay');
+let isLooping = false;
+function fmt(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+function updateTimeText(t) { timeDisplay.innerText = `${fmt(t||globalAudio.currentTime)} / ${fmt(globalAudio.duration||0)}`; }
+globalAudio.addEventListener('loadedmetadata', () => { progressBar.max = globalAudio.duration; updateTimeText(); });
+globalAudio.addEventListener('timeupdate', () => { if (!isDragging) { progressBar.value = globalAudio.currentTime; updateTimeText(); } });
+let isDragging = false;
+progressBar.addEventListener('input', () => { isDragging = true; updateTimeText(progressBar.value); });
+progressBar.addEventListener('change', () => { globalAudio.currentTime = progressBar.value; isDragging = false; });
+function togglePlayPause() { if (globalAudio.paused) { globalAudio.play(); playBtn.innerText = '⏸'; } else { globalAudio.pause(); playBtn.innerText = '▶'; } }
+function toggleLoop() { isLooping = !isLooping; globalAudio.loop = isLooping; isLooping ? loopBtn.classList.add('active') : loopBtn.classList.remove('active'); }
+function togglePlayer() {
+    const box = document.getElementById('audioPlayerBox');
+    const btn = document.getElementById('collapseBtn');
+    box.classList.toggle('collapsed'); btn.textContent = box.classList.contains('collapsed') ? '▼' : '▲';
+}
+
+// ──────────── 모달 초기화 ────────────
 document.addEventListener('DOMContentLoaded', () => {
-    buildGroups();
-
     const modal = document.getElementById('warningModal');
     const amenBtn = document.getElementById('amenBtn');
     document.body.style.overflow = 'hidden';
@@ -360,11 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
     amenBtn.addEventListener('click', () => {
         modal.style.opacity = '0';
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            renderQuiz();
-        }, 300);
+        setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = 'auto'; setMode('stage', 1); }, 300);
     });
 });
 </script>

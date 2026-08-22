@@ -176,6 +176,7 @@
         <div class="global-controls" id="globalControls">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-toggle" id="shuffleBtn" onclick="reshuffleStage1()" style="display:none;">🔀 새 문제 만들기</button>
             <button class="btn-toggle" id="roundBtn" onclick="nextRound()" style="display:none;">다음 라운드 →</button>
             <span id="roundDisplay" style="display:none; font-weight:bold; padding:6px 10px;">라운드 1/2</span>
         </div>
@@ -287,6 +288,19 @@ let currentMode = 'stage';
 let activeLevel = 1;
 let currentRound = 1;
 let isAllAnswersShown = false;
+let stage1Blanks = []; // 1단계 무작위 빈칸 집합 (그룹별 Set)
+
+function pickStage1Blanks() {
+    stage1Blanks = GROUPS.map(g => {
+        const words = [];
+        g.idx.forEach(vi => {
+            [...RAW_VERSES[vi].raw.matchAll(/\{([^}]+)\}/g)].forEach(m => words.push(m[1]));
+        });
+        const n = Math.max(1, Math.ceil(words.length * 0.6));
+        const shuffled = [...words].sort(() => Math.random() - 0.5);
+        return new Set(shuffled.slice(0, n));
+    });
+}
 
 // ──────────── 초성 추출 ────────────
 function getChosung(str) {
@@ -311,9 +325,11 @@ function setMode(mode, level) {
         document.getElementById('exam-arena').style.display = 'none';
         document.getElementById('globalControls').style.display = 'flex';
         const showRound = level === 3;
+        document.getElementById('shuffleBtn').style.display = level === 1 ? 'inline-block' : 'none';
         document.getElementById('roundBtn').style.display = showRound ? 'inline-block' : 'none';
         document.getElementById('roundDisplay').style.display = showRound ? 'inline-block' : 'none';
         if (showRound) { currentRound = 1; document.getElementById('roundDisplay').innerText = `라운드 1/${TOTAL_ROUNDS}`; }
+        if (level === 1) pickStage1Blanks();
         renderQuizzes();
     } else {
         document.getElementById('btnExam' + level).classList.add('active');
@@ -341,8 +357,11 @@ function renderQuizzes() {
             qText += `<span class="verse-num-inline">${v.n}</span>`;
 
             if (activeLevel === 1) {
+                const blanks = stage1Blanks[gi];
                 qText += v.raw.replace(/\{([^}]+)\}/g, (_, ans) =>
-                    `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`
+                    blanks.has(ans)
+                        ? `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`
+                        : ans
                 );
             } else if (activeLevel === 2) {
                 const plain = v.raw.replace(/\{([^}]+)\}/g, '$1');
@@ -437,6 +456,8 @@ function toggleAll() {
         else if (!isAllAnswersShown && isActive) toggleAnswer(i, btn);
     });
 }
+function reshuffleStage1() { pickStage1Blanks(); renderQuizzes(); }
+
 function nextRound() {
     currentRound = (currentRound % TOTAL_ROUNDS) + 1;
     document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`;
@@ -461,7 +482,11 @@ function renderExamVerse() {
     let html = `<span style="font-weight:bold;color:var(--primary-color);margin-right:6px;">${v.n}</span>`;
 
     if (activeLevel === 1) {
+        const words = [...v.raw.matchAll(/\{([^}]+)\}/g)].map(m => m[1]);
+        const n = Math.max(1, Math.ceil(words.length * 0.6));
+        const examBlanks = new Set([...words].sort(() => Math.random() - 0.5).slice(0, n));
         html += v.raw.replace(/\{([^}]+)\}/g, (_, ans) => {
+            if (!examBlanks.has(ans)) return ans;
             const w = (ans.length * 1.5) + 1;
             return `<input type="text" class="exam-input" style="width:${w}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event,this)">`;
         });

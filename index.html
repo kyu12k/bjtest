@@ -370,6 +370,7 @@
         </div>
         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button id="updateBtn" class="btn-dark" onclick="checkUpdate()" style="background-color:#0077cc;">🔄 최신버전 불러오기</button>
             <button id="installBtn" class="btn-dark" style="display:none; background-color: #28a745;">📲 앱 설치</button>
             <button class="btn-dark" onclick="showManual()" style="background-color: #ffc107; color: #000;">💡 설치 안내</button>
             
@@ -455,6 +456,43 @@
         
         stageList.appendChild(card);
     });
+
+    async function checkUpdate() {
+        const btn = document.getElementById('updateBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳ 확인 중…';
+        if ('serviceWorker' in navigator) {
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    let foundUpdate = false;
+                    const onFound = () => { foundUpdate = true; };
+                    reg.addEventListener('updatefound', onFound);
+                    await reg.update();
+                    await new Promise(r => setTimeout(r, 1200));
+                    reg.removeEventListener('updatefound', onFound);
+                    if (foundUpdate || reg.waiting) {
+                        btn.textContent = '🆕 새 버전 발견! 새로고침합니다…';
+                        setTimeout(() => location.reload(true), 700);
+                        return;
+                    } else {
+                        showUpToDate(btn);
+                        return;
+                    }
+                }
+            } catch(e) {}
+        }
+        location.reload(true);
+    }
+    function showUpToDate(btn) {
+        btn.textContent = '✅ 이미 최신버전입니다';
+        btn.style.backgroundColor = '#198754';
+        setTimeout(() => {
+            btn.textContent = '🔄 최신버전 불러오기';
+            btn.style.backgroundColor = '#0077cc';
+            btn.disabled = false;
+        }, 3000);
+    }
 
     // 🌙 다크 모드 로직
     function toggleTheme() {

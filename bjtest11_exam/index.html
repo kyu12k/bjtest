@@ -55,7 +55,6 @@
         button:active { transform:scale(0.98); }
         .btn-dark { background-color:#343a40; color:white; }
         .btn-shuffle { background-color:#6f42c1; color:white; }
-        .btn-submit { background-color:var(--primary-color); color:white; font-size:1.05rem; width:100%; padding:14px; border-radius:12px; margin-top:24px; }
         .btn-reveal { background-color:#198754; color:white; font-size:0.9rem; padding:7px 14px; margin-top:10px; }
 
         /* 섹션 구분 */
@@ -68,11 +67,15 @@
         .verse-block { font-size:1.05rem; line-height:2.2; word-break:keep-all; }
         .verse-num { font-weight:bold; color:var(--primary-color); margin-right:4px; }
 
-        /* 빈칸 인풋 */
-        .binp { border:none; border-bottom:2px solid var(--exam-color); background:transparent; color:var(--exam-color); font-size:1rem; font-weight:bold; text-align:center; outline:none; padding:1px 4px; margin:1px 2px; vertical-align:middle; font-family:inherit; transition:0.2s; }
-        .binp:focus { border-bottom:3px solid var(--primary-color); background-color:var(--hint-bg); border-radius:3px 3px 0 0; }
-        .binp.correct { color:#198754; border-bottom-color:#198754; }
-        .binp.wrong { color:#d9534f; border-bottom-color:#d9534f; }
+        /* 빈칸 스팬 (학습 모드) */
+        .blank { display:inline-block; min-width:40px; padding:2px 6px; margin:1px 2px; border-bottom:2px solid var(--primary-color); background-color:var(--blank-bg); color:transparent; border-radius:4px; cursor:pointer; font-weight:bold; text-align:center; user-select:none; touch-action:manipulation; transition:0.15s; vertical-align:middle; }
+        .blank.hint-mode { color:var(--hint-color); background-color:var(--hint-bg); }
+        .blank.answer-mode { color:var(--answer-color); background-color:var(--answer-bg); border-bottom-color:transparent; }
+        .controls { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+        .btn-hint { background-color:#ffc107; color:#333; }
+        .btn-answer { background-color:#198754; color:white; }
+        [data-theme="dark"] .btn-hint { background-color:#9c7b17; color:#eee; }
+        [data-theme="dark"] .btn-answer { background-color:#125838; color:#eee; }
 
         /* 주관식 카드 */
         .subj-card { background:var(--card-bg); border-radius:12px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
@@ -83,15 +86,6 @@
         .answer-box { display:none; margin-top:10px; background:var(--answer-bg); color:var(--answer-color); border-radius:8px; padding:10px 14px; font-size:0.97rem; line-height:1.7; }
         .answer-box .src { font-size:0.8rem; color:var(--sub-color); margin-top:4px; }
 
-        /* 결과 */
-        .result-box { display:none; background:var(--card-bg); border-radius:12px; padding:24px; text-align:center; margin-top:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-        .result-score { font-size:3rem; font-weight:bold; color:var(--exam-color); margin:10px 0; }
-        .wrong-list { text-align:left; background:var(--blank-bg); padding:16px; border-radius:10px; margin-top:16px; font-size:0.95rem; }
-        .wrong-item { margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed #ccc; line-height:1.8; }
-        .wrong-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
-        .cor { color:#198754; font-weight:bold; }
-        .wrg { color:#d9534f; text-decoration:line-through; font-size:0.9em; margin-right:4px; }
-        .btn-retry { background-color:var(--exam-color); color:white; font-size:1rem; padding:12px 28px; margin-top:16px; border-radius:10px; }
 
         #topBtn { display:none; position:fixed; bottom:28px; left:28px; z-index:998; background:var(--primary-color); color:#fff; border:none; cursor:pointer; padding:12px; border-radius:50%; width:48px; height:48px; font-size:1.1rem; box-shadow:0 4px 10px rgba(0,0,0,.2); }
 
@@ -111,10 +105,10 @@
     <div class="modal-content">
         <h2>📋 계 11장 인 맞음 확인 시험</h2>
         <p>1~7번: 계 11:1~14 빈칸 채우기<br>
-        <strong>빈칸은 매번 무작위로 출제됩니다.</strong><br><br>
-        8~10번: 주관식 문제<br>
-        답을 작성 후 <strong>[정답 확인]</strong>으로 채점하세요.<br><br>
-        ⚠️ 성경대로 정확히 기록하세요.</p>
+        <strong>빈칸은 매번 무작위로 출제됩니다.</strong><br>
+        빈칸을 클릭하면 정답이 보입니다.<br>
+        <strong>[초성 보기]</strong> → <strong>[정답 보기]</strong>로 단계별 확인.<br><br>
+        8~10번: 주관식 — <strong>[정답 확인]</strong>으로 확인.</p>
         <button id="amenBtn" class="btn-amen" disabled>아멘 (3초 후 활성화)</button>
     </div>
 </div>
@@ -140,7 +134,7 @@
         <div class="subj-q">계 11장에서 요한이 받은 갈대 지팡이의 역할 두 가지는 ①무엇이며, 계 11:15과 같은 성구는 ②무엇인가?</div>
         <textarea class="subj-area" placeholder="① &#10;② "></textarea>
         <br>
-        <button class="btn-reveal" onclick="toggleAnswer(this)">정답 확인</button>
+        <button class="btn-reveal" onclick="toggleSubjAnswer(this)">정답 확인</button>
         <div class="answer-box">
             ① 의지, 척량<br>
             ② 계 12:11
@@ -154,7 +148,7 @@
         <div class="subj-q">계 11:15의 일곱째 나팔 소리의 ①정체와 그 ②사건은 무엇인가?</div>
         <textarea class="subj-area" placeholder="① &#10;② "></textarea>
         <br>
-        <button class="btn-reveal" onclick="toggleAnswer(this)">정답 확인</button>
+        <button class="btn-reveal" onclick="toggleSubjAnswer(this)">정답 확인</button>
         <div class="answer-box">
             ① 세상 나라가 하나님의 나라가 되는 승리의 소리<br>
             ② 구원의 역사가 시작되는 사건
@@ -168,22 +162,13 @@
         <div class="subj-q">성전 안에 있는 우박은 무엇인가?</div>
         <textarea class="subj-area" placeholder="답을 여기에 작성하세요"></textarea>
         <br>
-        <button class="btn-reveal" onclick="toggleAnswer(this)">정답 확인</button>
+        <button class="btn-reveal" onclick="toggleSubjAnswer(this)">정답 확인</button>
         <div class="answer-box">
             진노의 말씀과 진노의 말씀을 받은 목자
             <div class="src">출처: 계시록 심화학습 문답</div>
         </div>
     </div>
 
-    <button class="btn-submit" onclick="submitExam()">📩 1~7번 답안 제출</button>
-
-    <div class="result-box" id="resultBox">
-        <h2>📝 채점 결과 (1~7번)</h2>
-        <div class="result-score" id="resultScore"></div>
-        <p id="resultMsg"></p>
-        <div class="wrong-list" id="wrongList" style="display:none"></div>
-        <button class="btn-retry" onclick="reshuffle()">🔀 새 문제로 다시 도전</button>
-    </div>
 </div>
 
 <button id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
@@ -238,6 +223,17 @@ function buildGroups() {
     }));
 }
 
+// ──────────── 초성 추출 ────────────
+function getChosung(str) {
+    const cs = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+    let r = '';
+    for (let i = 0; i < str.length; i++) {
+        const c = str.charCodeAt(i) - 44032;
+        r += (c > -1 && c < 11172) ? cs[Math.floor(c / 588)] : str[i];
+    }
+    return r;
+}
+
 // ──────────── 렌더링 ────────────
 function renderQuiz() {
     const area = document.getElementById('quiz-area');
@@ -247,11 +243,10 @@ function renderQuiz() {
         const card = document.createElement('div');
         card.className = 'quiz-card';
 
-        let html = `<div class="quiz-num">${gi+1}번</div><div class="quiz-ref">${g.label}</div><div class="verse-block">`;
+        let html = `<div class="quiz-num">${gi+1}번</div><div class="quiz-ref">${g.label}</div><div class="verse-block" id="vb-${gi}">`;
 
         g.verses.forEach(v => {
             html += `<div><span class="verse-num">${v.n}</span>`;
-            let bi = 0;
             const parts = v.text.split(/\{([^}]+)\}/g);
             parts.forEach((part, pi) => {
                 if (pi % 2 === 0) {
@@ -259,9 +254,7 @@ function renderQuiz() {
                 } else {
                     const w = part;
                     if (v.blanks.has(w)) {
-                        const id = `b-${gi}-${v.n}-${bi}`;
-                        html += `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3, w.length*0.9)}em" autocomplete="off">`;
-                        bi++;
+                        html += `<span class="blank" data-answer="${w}" data-chosung="${getChosung(w)}" onclick="toggleSingleBlank(this)">${w}</span>`;
                     } else {
                         html += w;
                     }
@@ -270,21 +263,8 @@ function renderQuiz() {
             html += '</div>';
         });
 
-        html += '</div>';
+        html += `</div><div class="controls"><button class="btn-hint" onclick="toggleHint(${gi},this)">초성 보기</button><button class="btn-answer" onclick="toggleAnswer(${gi},this)">정답 보기</button></div>`;
         card.innerHTML = html;
-
-        // 엔터키로 다음 칸 이동
-        card.querySelectorAll('.binp').forEach((inp, idx, all) => {
-            inp.addEventListener('keydown', e => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const allInputs = document.querySelectorAll('#quiz-area .binp');
-                    const globalIdx = Array.from(allInputs).indexOf(inp);
-                    if (globalIdx < allInputs.length - 1) allInputs[globalIdx+1].focus();
-                }
-            });
-        });
-
         area.appendChild(card);
     });
 }
@@ -292,56 +272,51 @@ function renderQuiz() {
 function reshuffle() {
     buildGroups();
     renderQuiz();
-    document.getElementById('resultBox').style.display = 'none';
     document.querySelectorAll('.answer-box').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.btn-reveal').forEach(btn => { btn.textContent = '정답 확인'; btn.style.backgroundColor = ''; });
     window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// ──────────── 채점 (1~7번) ────────────
-function norm(s) { return s.replace(/\s/g,''); }
-
-function submitExam() {
-    let total = 0, correct = 0;
-    const wrongs = [];
-
-    document.querySelectorAll('#quiz-area .binp').forEach(inp => {
-        total++;
-        const user = norm(inp.value);
-        const ans  = norm(inp.dataset.a);
-        if (user === ans) {
-            inp.classList.add('correct'); inp.classList.remove('wrong');
-            correct++;
-        } else {
-            inp.classList.add('wrong'); inp.classList.remove('correct');
-            wrongs.push({ans: inp.dataset.a, user: inp.value || '(빈칸)'});
-        }
-    });
-
-    const box = document.getElementById('resultBox');
-    const scoreEl = document.getElementById('resultScore');
-    const msgEl = document.getElementById('resultMsg');
-    const wrongEl = document.getElementById('wrongList');
-
-    box.style.display = 'block';
-    scoreEl.textContent = `${correct} / ${total}`;
-    scoreEl.style.color = correct === total ? '#198754' : 'var(--exam-color)';
-    msgEl.textContent = correct === total ? '🎉 빈칸 전부 정답입니다!' : `${total - correct}개 오답입니다. 틀린 칸을 확인하세요.`;
-
-    if (wrongs.length) {
-        wrongEl.style.display = 'block';
-        wrongEl.innerHTML = '<strong>오답 목록</strong>' + wrongs.map(w =>
-            `<div class="wrong-item">정답: <span class="cor">${w.ans}</span> / 입력: <span class="wrg">${w.user}</span></div>`
-        ).join('');
+// ──────────── 빈칸 토글 (학습 모드) ────────────
+function toggleSingleBlank(el) {
+    if (el.classList.contains('answer-mode')) {
+        el.classList.remove('answer-mode');
+        el.classList.contains('hint-mode') ? el.textContent = el.dataset.chosung : el.textContent = el.dataset.answer;
     } else {
-        wrongEl.style.display = 'none';
+        el.classList.add('answer-mode');
+        el.textContent = el.dataset.answer;
     }
+}
 
-    box.scrollIntoView({behavior:'smooth', block:'start'});
+function toggleHint(gi, btn) {
+    const blanks = document.getElementById(`vb-${gi}`).querySelectorAll('.blank');
+    const isActive = btn.classList.contains('active');
+    btn.nextElementSibling.classList.remove('active');
+    btn.nextElementSibling.textContent = '정답 보기';
+    if (!isActive) {
+        btn.classList.add('active'); btn.textContent = '초성 끄기';
+        blanks.forEach(b => { b.textContent = b.dataset.chosung; b.className = 'blank hint-mode'; });
+    } else {
+        btn.classList.remove('active'); btn.textContent = '초성 보기';
+        blanks.forEach(b => { b.textContent = b.dataset.answer; b.className = 'blank'; });
+    }
+}
+
+function toggleAnswer(gi, btn) {
+    const blanks = document.getElementById(`vb-${gi}`).querySelectorAll('.blank');
+    const isActive = btn.classList.contains('active');
+    if (btn.previousElementSibling) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.textContent = '초성 보기'; }
+    if (!isActive) {
+        btn.classList.add('active'); btn.textContent = '정답 가리기';
+        blanks.forEach(b => { b.textContent = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); });
+    } else {
+        btn.classList.remove('active'); btn.textContent = '정답 보기';
+        blanks.forEach(b => { b.textContent = b.dataset.answer; b.className = 'blank'; });
+    }
 }
 
 // ──────────── 주관식 정답 토글 ────────────
-function toggleAnswer(btn) {
+function toggleSubjAnswer(btn) {
     const ansBox = btn.nextElementSibling;
     const shown = ansBox.style.display === 'block';
     ansBox.style.display = shown ? 'none' : 'block';

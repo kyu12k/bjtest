@@ -225,6 +225,17 @@ button:active{transform:scale(.97)}
     font-size: 10pt;
     vertical-align: middle;
   }
+
+  /* 정답 포함 인쇄 */
+  body.print-with-answers .binp {
+    color: #c00 !important;
+    font-weight: bold !important;
+  }
+  body.print-with-answers .vtarea {
+    color: #c00 !important;
+    background: none !important;
+    border: 0.5pt solid #bbb !important;
+  }
 }
 </style>
 </head>
@@ -245,7 +256,8 @@ button:active{transform:scale(.97)}
       <button class="btn-gray" id="globalBtn" onclick="toggleAll()">👁️ 전체 보기</button>
       <button class="btn-change" onclick="showHist()">📊 기록</button>
       <button class="btn-gray" onclick="location.reload()" title="새로고침 (최신 내용 받기)">🔄</button>
-      <button class="btn-gray" id="printBtn" onclick="window.print()" style="display:none" title="A4 인쇄">🖨️ 인쇄</button>
+      <button class="btn-gray" id="printBtn" onclick="window.print()" style="display:none" title="A4 인쇄 (정답 없음)">🖨️ 인쇄</button>
+      <button class="btn-gray" id="printAnsBtn" onclick="printWithAnswers()" style="display:none;background:#c0392b;color:#fff;" title="A4 인쇄 (정답 포함)">🖨️ 정답포함</button>
     </div>
   </div>
   <div class="ctrl-row" id="topBar2">
@@ -867,6 +879,7 @@ function setMode(mode){
   document.getElementById('resultView').style.display=mode==='result'?'block':'none';
   document.getElementById('globalBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('printBtn').style.display=mode==='exam'?'inline-block':'none';
+  document.getElementById('printAnsBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
   document.getElementById('tabP').classList.toggle('active',mode==='spot');
@@ -1102,6 +1115,16 @@ function toggleAll(){
     b.textContent=b.dataset.a;
   });
   document.getElementById('globalBtn').textContent=allOn?'👁️ 전체 숨기기':'👁️ 전체 보기';
+}
+
+function printWithAnswers(){
+  const inputs = document.querySelectorAll('#examView .binp');
+  const origVals = [];
+  inputs.forEach(inp => { origVals.push(inp.value); inp.value = inp.dataset.a || ''; });
+  document.body.classList.add('print-with-answers');
+  window.print();
+  document.body.classList.remove('print-with-answers');
+  inputs.forEach((inp, i) => { inp.value = origVals[i]; });
 }
 
 function toggleTheme(){

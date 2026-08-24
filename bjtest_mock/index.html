@@ -1184,9 +1184,16 @@ function printWithAnswers(){
   const origVals = [];
   els.forEach(el => { origVals.push(el.value); el.value = el.dataset.a || ''; });
   document.body.classList.add('print-with-answers');
-  window.print();
-  document.body.classList.remove('print-with-answers');
-  els.forEach((el, i) => { el.value = origVals[i]; });
+
+  function restore(){
+    document.body.classList.remove('print-with-answers');
+    els.forEach((el, i) => { el.value = origVals[i]; });
+    window.removeEventListener('afterprint', restore);
+  }
+  window.addEventListener('afterprint', restore);
+
+  // 렌더링 반영 후 인쇄 (모바일 비동기 대응)
+  setTimeout(() => window.print(), 150);
 }
 
 function toggleTheme(){

@@ -128,7 +128,7 @@ button:active{transform:scale(.97)}
   #topBtn, button { display: none !important; }
 
   /* nav.js 처음으로 버튼 */
-  body > button, [style*="position:fixed"] { display: none !important; }
+  body > button, [style*="position:fixed"], #partialBtn { display: none !important; }
 
   body {
     background: #fff !important;
@@ -310,7 +310,6 @@ button:active{transform:scale(.97)}
 <div id="examView" style="display:none">
   <div id="e-body"></div>
   <button class="btn-submit" onclick="submitExam()">📩 답안 제출</button>
-  <button class="btn-submit" onclick="submitPartial()" style="background:var(--p);margin-top:8px;">📊 푼 문제만 채점하기</button>
 </div>
 
 <!-- ── 틀린 부분 찾기 ── -->
@@ -335,6 +334,7 @@ button:active{transform:scale(.97)}
 </div>
 </div>
 <button id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
+<button id="partialBtn" onclick="submitPartial()" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9998;background:#3b5998;color:#fff;border:none;cursor:pointer;padding:12px 22px;border-radius:24px;font-size:.9rem;font-weight:bold;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.28);white-space:nowrap;">📊 푼 문제만 채점하기</button>
 
 <script>
 window.onscroll=()=>{ document.getElementById('topBtn').style.display=(scrollY>300?'block':'none'); };
@@ -889,6 +889,7 @@ function setMode(mode){
   document.getElementById('globalBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('printBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('printAnsBtn').style.display=mode==='exam'?'inline-block':'none';
+  document.getElementById('partialBtn').style.display=mode==='exam'?'block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
   document.getElementById('tabP').classList.toggle('active',mode==='spot');

@@ -231,6 +231,10 @@ button:active{transform:scale(.97)}
     color: #c00 !important;
     font-weight: bold !important;
   }
+  body.print-with-answers .line-inp {
+    color: #c00 !important;
+    font-weight: bold !important;
+  }
   body.print-with-answers .vtarea {
     color: #c00 !important;
     background: none !important;
@@ -958,13 +962,13 @@ function renderExamMulti(keys){
 function buildExamHtml(ex, ti, vi, qi){
   let html='';
   ex.titleData.forEach(d=>{
-    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti.v++}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
+    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti.v++}" data-a="${d.a||''}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
   });
   if(ex.verseData.length){
     html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
     ex.verseData.forEach(d=>{
       const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" data-a="${d.full||''}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
     });
   }
   if(ex.blankData.length){
@@ -1118,13 +1122,13 @@ function toggleAll(){
 }
 
 function printWithAnswers(){
-  const inputs = document.querySelectorAll('#examView .binp');
+  const els = document.querySelectorAll('#examView .binp, #examView .line-inp, #examView .vtarea');
   const origVals = [];
-  inputs.forEach(inp => { origVals.push(inp.value); inp.value = inp.dataset.a || ''; });
+  els.forEach(el => { origVals.push(el.value); el.value = el.dataset.a || ''; });
   document.body.classList.add('print-with-answers');
   window.print();
   document.body.classList.remove('print-with-answers');
-  inputs.forEach((inp, i) => { inp.value = origVals[i]; });
+  els.forEach((el, i) => { el.value = origVals[i]; });
 }
 
 function toggleTheme(){

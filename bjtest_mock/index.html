@@ -226,6 +226,43 @@ button:active{transform:scale(.97)}
     vertical-align: middle;
   }
 
+  /* ── 학습 탭 인쇄 ── */
+  body.print-study #studyView { display: block !important; }
+  body.print-study #examView  { display: none !important; }
+
+  body.print-study .card {
+    background: #fff !important; box-shadow: none !important;
+    border-radius: 0 !important; padding: 6pt 0 8pt !important;
+    margin-bottom: 0 !important; border-bottom: 0.5pt solid #ddd !important;
+    page-break-inside: avoid;
+  }
+  body.print-study .qlabel { font-weight: bold; font-size: 10pt; color: #000 !important; margin-bottom: 4pt; }
+  body.print-study .card-ctrl { display: none !important; }
+  body.print-study .hint-ln { font-size: 9pt; color: #555 !important; }
+  body.print-study .pdf-divider { color: #000 !important; font-size: 9pt; border-top: 0.5pt solid #aaa !important; margin: 12pt 0 6pt !important; padding-top: 8pt !important; }
+  body.print-study .sec-hd { background: #f2f2f2 !important; border-left: 3pt solid #333 !important; page-break-after: avoid; margin: 10pt 0 6pt !important; }
+  body.print-study .sec-hd h2 { color: #000 !important; font-size: 11pt !important; }
+
+  /* 정답 없이: ans-block을 빈 줄 공간으로 */
+  body.print-study .ans-block {
+    display: block !important;
+    color: transparent !important;
+    background: repeating-linear-gradient(to bottom, transparent 0pt, transparent 17pt, #ccc 17pt, #ccc 18pt) !important;
+    border: 0.5pt solid #bbb !important; border-radius: 0 !important;
+    min-height: 54pt !important; margin-bottom: 6pt !important;
+  }
+  body.print-study .blank { color: transparent !important; }
+
+  /* 정답 포함: ans-block과 blank 텍스트 빨간색으로 표시 */
+  body.print-study.print-with-answers .ans-block {
+    color: #c00 !important; background: #fdecea !important;
+    border: 0.5pt solid #e8b4b0 !important; min-height: 0 !important;
+  }
+  body.print-study.print-with-answers .blank {
+    color: #c00 !important; background: #fdecea !important;
+    border-bottom-color: transparent !important;
+  }
+
   /* 정답 포함 인쇄 */
   body.print-with-answers .binp {
     color: #c00 !important;
@@ -264,6 +301,8 @@ button:active{transform:scale(.97)}
       <button class="btn-gray" onclick="location.reload()" title="새로고침 (최신 내용 받기)">🔄</button>
       <button class="btn-gray" id="printBtn" onclick="window.print()" style="display:none" title="A4 인쇄 (정답 없음)">🖨️ 인쇄</button>
       <button class="btn-gray" id="printAnsBtn" onclick="printWithAnswers()" style="display:none;background:#c0392b;color:#fff;" title="A4 인쇄 (정답 포함)">🖨️ 정답포함</button>
+      <button class="btn-gray" id="studyPrintBtn" onclick="printStudy()" style="display:none" title="학습 인쇄 (정답 없음)">🖨️ 인쇄</button>
+      <button class="btn-gray" id="studyPrintAnsBtn" onclick="printStudyWithAnswers()" style="display:none;background:#c0392b;color:#fff;" title="학습 인쇄 (정답 포함)">🖨️ 정답포함</button>
     </div>
   </div>
   <div class="ctrl-row" id="topBar2">
@@ -899,6 +938,8 @@ function setMode(mode){
   document.getElementById('printBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('printAnsBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('partialBtn').style.display=mode==='exam'?'block':'none';
+  document.getElementById('studyPrintBtn').style.display=mode==='study'?'inline-block':'none';
+  document.getElementById('studyPrintAnsBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
   document.getElementById('tabP').classList.toggle('active',mode==='spot');
@@ -1192,6 +1233,34 @@ function printWithAnswers(){
   window.addEventListener('afterprint', restore);
 
   // 렌더링 반영 후 인쇄 (모바일 비동기 대응)
+  setTimeout(() => window.print(), 150);
+}
+
+function printStudy(){
+  document.body.classList.add('print-study');
+  function restore(){
+    document.body.classList.remove('print-study');
+    window.removeEventListener('afterprint', restore);
+  }
+  window.addEventListener('afterprint', restore);
+  setTimeout(() => window.print(), 150);
+}
+
+function printStudyWithAnswers(){
+  // ans-block에 show 클래스, blank에 ans 클래스를 일시 추가해 텍스트 노출
+  const ansBlocks = document.querySelectorAll('#studyView .ans-block');
+  const blanks = document.querySelectorAll('#studyView .blank');
+  ansBlocks.forEach(el => el.classList.add('show'));
+  blanks.forEach(el => el.classList.add('ans'));
+  document.body.classList.add('print-study', 'print-with-answers');
+
+  function restore(){
+    document.body.classList.remove('print-study', 'print-with-answers');
+    ansBlocks.forEach(el => el.classList.remove('show'));
+    blanks.forEach(el => el.classList.remove('ans'));
+    window.removeEventListener('afterprint', restore);
+  }
+  window.addEventListener('afterprint', restore);
   setTimeout(() => window.print(), 150);
 }
 

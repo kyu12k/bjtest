@@ -338,6 +338,16 @@ button:active{transform:scale(.97)}
 
 <script>
 window.onscroll=()=>{ document.getElementById('topBtn').style.display=(scrollY>300?'block':'none'); };
+
+// 모바일 키보드 올라올 때 플로팅 채점 버튼 숨기기
+document.addEventListener('focusin', e=>{
+  if(e.target.matches('.binp,.vtarea,.line-inp'))
+    document.getElementById('partialBtn').style.visibility='hidden';
+});
+document.addEventListener('focusout', e=>{
+  if(e.target.matches('.binp,.vtarea,.line-inp'))
+    document.getElementById('partialBtn').style.visibility='visible';
+});
 if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
 
 // ─── 데이터 ───────────────────────────────────────────────────────────────────

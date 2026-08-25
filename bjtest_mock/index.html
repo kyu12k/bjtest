@@ -1099,8 +1099,9 @@ function submitPartial(){
       else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u});
     });
     ex.verseData.forEach(d=>{
-      const u=document.getElementById('ev-'+vi++).value;
-      if(!u.trim()) return; // 미입력 건너뜀
+      const u=document.getElementById('ev-'+vi++).value.trim();
+      const hint=(d.hint||'').trim();
+      if(!u||u===hint) return; // 미입력 또는 힌트만 남아있는 경우 건너뜀
       total++;
       if(norm(u)===norm(d.full)){score++;}
       else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u});

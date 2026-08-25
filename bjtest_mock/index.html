@@ -1108,8 +1108,8 @@ function submitPartial(){
     ex.blankData.forEach(d=>{
       const myQi=qi++;
       const inputs=document.querySelectorAll(`[id^="eb-${myQi}-"]`);
-      const anyFilled=[...inputs].some(inp=>inp.value.trim());
-      if(!anyFilled) return; // 하나도 안 채웠으면 건너뜀
+      const allFilled=[...inputs].every(inp=>inp.value.trim());
+      if(!allFilled) return; // 하나라도 비어 있으면 건너뜀
       total++;
       let allOk=true; const brs=[];
       inputs.forEach(inp=>{

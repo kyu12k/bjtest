@@ -1205,6 +1205,8 @@ function showResult(score,total,wrongs,mode){
       }
       wl.innerHTML+=`<div class="wrong-sec"><div class="wi">${inner}</div></div>`;
     });
+    // 오답 목록 맨 아래에도 재도전 버튼 추가
+    if(wrongs.length) wl.innerHTML+=`<div style="text-align:center;margin:18px 0 6px"><button class="btn-retry" onclick="retryWrongs()" style="background:#c0392b">❌ 오답만 다시 풀기</button></div>`;
   }
   document.getElementById('rRecent').innerHTML=recentHtml('exam',curStage,5);
   setMode('result');

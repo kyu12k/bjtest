@@ -1340,19 +1340,22 @@ function showResult(score,total,wrongs,mode){
     wrongs.forEach(w=>{
       let inner='';
       if(w.type==='title'){
-        inner=`<div class="wlabel">❌ ${w.label}</div>
-          <div style="font-size:.88em">내 답: ${diffHtml(w.user,w.correct)}</div>
+        const skip=!w.user;
+        inner=`<div class="wlabel">${skip?'⬜':'❌'} ${w.label}</div>
+          <div style="font-size:.88em">내 답: ${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</div>
           <div>정답: <span class="corr">${w.correct}</span></div>`;
       } else if(w.type==='verse'){
-        inner=`<div class="wlabel">❌ ${w.label}</div>
-          <div style="margin-bottom:4px;font-size:.88em;line-height:1.7">내 답: ${diffHtml(w.user,w.correct)}</div>
+        const skip=!w.user||w.user.trim()===(w.data?.hint||'').trim();
+        inner=`<div class="wlabel">${skip?'⬜':'❌'} ${w.label}</div>
+          <div style="margin-bottom:4px;font-size:.88em;line-height:1.7">내 답: ${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</div>
           <div class="ans-box">${w.correct}</div>`;
       } else {
         const bHtml=w.brs.map(b=>b.ok?
           `<span class="ok-b">${b.a}</span>`:
-          `${diffHtml(b.u,b.a)} → <span class="corr">${b.a}</span>`
+          `${!b.u?'<em style="color:#aaa">(미응답)</em>':diffHtml(b.u,b.a)} → <span class="corr">${b.a}</span>`
         ).join(' / ');
-        inner=`<div class="wlabel">❌ ${w.label}</div><div style="font-size:.9rem;line-height:2">${bHtml}</div>`;
+        const allSkip=w.brs.filter(b=>!b.ok).every(b=>!b.u);
+        inner=`<div class="wlabel">${allSkip?'⬜':'❌'} ${w.label}</div><div style="font-size:.9rem;line-height:2">${bHtml}</div>`;
       }
       wl.innerHTML+=`<div class="wrong-sec"><div class="wi">${inner}</div></div>`;
     });

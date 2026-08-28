@@ -889,7 +889,7 @@ SPOT['2-1']=SPOT['1-1'];
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function plain(s){ return s.replace(/\{([^}]+)\}/g,'$1'); }
-function norm(s){ return (s||'').trim().replace(/[\s·,.、。]+/g,''); }
+function norm(s){ return (s||'').trim().replace(/[\s·⋅,.、。]+/g,''); }
 function getCS(s){
   const c=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
   return s.split('').map(ch=>{ const n=ch.charCodeAt(0)-44032; return(n>-1&&n<11172)?c[Math.floor(n/588)]:ch; }).join('');

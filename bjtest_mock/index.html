@@ -409,6 +409,18 @@ document.addEventListener('focusout', e=>{
     document.getElementById('poolPartialBtn').style.visibility='visible';
   }
 });
+// Enter 키 → 다음 입력 칸으로 이동
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  const t=e.target;
+  if(!t.matches('.line-inp,.vtarea,.binp')) return;
+  e.preventDefault();
+  const body=t.closest('#e-body,#pool-body');
+  if(!body) return;
+  const all=[...body.querySelectorAll('.line-inp,.vtarea,.binp')];
+  const i=all.indexOf(t);
+  if(i>=0&&i<all.length-1) all[i+1].focus();
+});
 if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
 
 // ─── 데이터 ───────────────────────────────────────────────────────────────────
@@ -1219,7 +1231,7 @@ function buildExamHtml(ex, ti, vi, qi, pfx='e'){
     html+=`<div class="pdf-divider">* 다음 성구의 괄호 속에 들어갈 말을 성경대로 쓰시오. (부분점수 없음)</div>`;
     ex.blankData.forEach(d=>{
       let bi=0; const myQi=qi.v++;
-      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`${pfx}b-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1},'${pfx}')">`;});
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`${pfx}b-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off">`;});
       html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
     });
   }

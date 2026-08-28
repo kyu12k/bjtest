@@ -294,6 +294,7 @@ button:active{transform:scale(.97)}
     <div class="mode-tabs">
       <button class="tab active" id="tabS" onclick="setMode('study')">📖 학습</button>
       <button class="tab" id="tabE" onclick="setMode('exam')">📝 모의고사</button>
+      <button class="tab" id="tabPool" onclick="setMode('pool')">📋 모아 풀기</button>
       <button class="tab" id="tabP" onclick="setMode('spot')">🔍 틀린 부분 찾기</button>
     </div>
     <div class="ctrl-row">
@@ -352,6 +353,19 @@ button:active{transform:scale(.97)}
   <button class="btn-submit" onclick="submitExam()">📩 답안 제출</button>
 </div>
 
+<!-- ── 모아 풀기 ── -->
+<div id="poolView" style="display:none">
+  <div class="ctrl-row" style="gap:8px;margin-bottom:18px;justify-content:center">
+    <button id="poolBtnT" class="btn-change" onclick="selectPoolType('title')" style="min-width:80px">📌 제목만</button>
+    <button id="poolBtnV" class="btn-change" onclick="selectPoolType('verse')" style="min-width:80px">📖 성구만</button>
+    <button id="poolBtnB" class="btn-change" onclick="selectPoolType('blank')" style="min-width:80px">📝 빈칸만</button>
+  </div>
+  <div id="pool-body"></div>
+  <div id="pool-actions" style="display:none;text-align:center;margin:18px 0">
+    <button class="btn-submit" onclick="submitPool()">📩 답안 제출</button>
+  </div>
+</div>
+
 <!-- ── 틀린 부분 찾기 ── -->
 <div id="spotView" style="display:none">
   <div id="sp-summary"></div>
@@ -367,8 +381,8 @@ button:active{transform:scale(.97)}
     <div class="score-big" id="rScore"></div>
     <div id="rMsg" style="margin-bottom:6px"></div>
     <div id="rPartialNote" style="font-size:0.82rem;color:#888;margin-bottom:14px"></div>
-    <button class="btn-retry" onclick="retryExam()">🔄 다시 도전</button>
-    <button class="btn-retry" id="retryWrongsBtn" onclick="retryWrongs()" style="display:none;background:#c0392b">❌ 오답만 다시 풀기</button>
+    <button class="btn-retry" id="retryBtn" onclick="retryFromResult()">🔄 다시 도전</button>
+    <button class="btn-retry" id="retryWrongsBtn" onclick="retryWrongsFromResult()" style="display:none;background:#c0392b">❌ 오답만 다시 풀기</button>
   </div>
   <div id="rRecent"></div>
   <div id="wrongList"></div>
@@ -376,18 +390,23 @@ button:active{transform:scale(.97)}
 </div>
 <button id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
 <button id="partialBtn" onclick="submitPartial()" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9998;background:#3b5998;color:#fff;border:none;cursor:pointer;padding:12px 22px;border-radius:24px;font-size:.9rem;font-weight:bold;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.28);white-space:nowrap;">📊 푼 문제만 채점하기</button>
+<button id="poolPartialBtn" onclick="submitPoolPartial()" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9998;background:#3b5998;color:#fff;border:none;cursor:pointer;padding:12px 22px;border-radius:24px;font-size:.9rem;font-weight:bold;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.28);white-space:nowrap;">📊 푼 문제만 채점하기</button>
 
 <script>
 window.onscroll=()=>{ document.getElementById('topBtn').style.display=(scrollY>300?'block':'none'); };
 
 // 모바일 키보드 올라올 때 플로팅 채점 버튼 숨기기
 document.addEventListener('focusin', e=>{
-  if(e.target.matches('.binp,.vtarea,.line-inp'))
+  if(e.target.matches('.binp,.vtarea,.line-inp')){
     document.getElementById('partialBtn').style.visibility='hidden';
+    document.getElementById('poolPartialBtn').style.visibility='hidden';
+  }
 });
 document.addEventListener('focusout', e=>{
-  if(e.target.matches('.binp,.vtarea,.line-inp'))
+  if(e.target.matches('.binp,.vtarea,.line-inp')){
     document.getElementById('partialBtn').style.visibility='visible';
+    document.getElementById('poolPartialBtn').style.visibility='visible';
+  }
 });
 if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
 
@@ -920,6 +939,7 @@ function getCS(s){
 }
 
 let curExam=null, curKeys=null, curStage=null, allShown=false, wrongPool=[];
+let poolSourceKeys=[], poolType=null, poolWrongPool=[], lastResultCtx='exam';
 
 (()=>{
   const s=new URLSearchParams(location.search).get('stage');
@@ -931,6 +951,7 @@ function hideModal(){ document.getElementById('selModal').style.display='none'; 
 
 function selectExam(n){
   curExam=n; curKeys=null; curStage=null;
+  poolSourceKeys=[n]; poolType=null;
   hideModal();
   document.getElementById('topBar').style.display='flex';
   document.getElementById('topBar2').style.display='none';
@@ -943,6 +964,7 @@ function selectExam(n){
 function selectStage(s){
   curKeys=['1','2','3','4'].map(n=>s+'-'+n).filter(k=>EXAMS[k]);
   curExam=null; curStage=s;
+  poolSourceKeys=[...curKeys]; poolType=null;
   if(!curKeys.length) return;
   hideModal();
   document.getElementById('topBar').style.display='flex';
@@ -956,23 +978,150 @@ function selectStage(s){
 function setMode(mode){
   document.getElementById('studyView').style.display=mode==='study'?'block':'none';
   document.getElementById('examView').style.display=mode==='exam'?'block':'none';
+  document.getElementById('poolView').style.display=mode==='pool'?'block':'none';
   document.getElementById('spotView').style.display=mode==='spot'?'block':'none';
   document.getElementById('resultView').style.display=mode==='result'?'block':'none';
   document.getElementById('globalBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('printBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('printAnsBtn').style.display=mode==='exam'?'inline-block':'none';
   document.getElementById('partialBtn').style.display=mode==='exam'?'block':'none';
+  document.getElementById('poolPartialBtn').style.display=mode==='pool'?'block':'none';
   document.getElementById('studyPrintBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('studyPrintAnsBtn').style.display=mode==='study'?'inline-block':'none';
   document.getElementById('tabS').classList.toggle('active',mode==='study');
   document.getElementById('tabE').classList.toggle('active',mode==='exam');
+  document.getElementById('tabPool').classList.toggle('active',mode==='pool');
   document.getElementById('tabP').classList.toggle('active',mode==='spot');
   scrollTo({top:0,behavior:'smooth'});
 }
 
 function retryExam(){
-  document.querySelectorAll('.line-inp,.vtarea,.binp').forEach(el=>el.value='');
+  document.querySelectorAll('#e-body .line-inp,#e-body .vtarea,#e-body .binp').forEach(el=>el.value='');
   setMode('exam');
+}
+
+function retryFromResult(){
+  if(lastResultCtx==='pool') retryPool(); else retryExam();
+}
+function retryWrongsFromResult(){
+  if(lastResultCtx==='pool') retryPoolWrongs(); else retryWrongs();
+}
+
+// ─── 모아 풀기 ────────────────────────────────────────────────────────────────
+function buildPoolExam(type, keys){
+  const tD=[],vD=[],bD=[];
+  keys.forEach(k=>{ const ex=EXAMS[k]; if(!ex) return;
+    tD.push(...ex.titleData); vD.push(...ex.verseData); bD.push(...ex.blankData);
+  });
+  return {
+    label:'모아 풀기',
+    titleData: type==='title'?tD:[],
+    verseData:  type==='verse'?vD:[],
+    blankData:  type==='blank'?bD:[],
+    get total(){ return this.titleData.length+this.verseData.length+this.blankData.length; }
+  };
+}
+
+function selectPoolType(type){
+  poolType=type;
+  ['title','verse','blank'].forEach(t=>
+    document.getElementById(`poolBtn${t[0].toUpperCase()}`).classList.toggle('active',t===type)
+  );
+  // poolSourceKeys: 현재 선택된 단계/단일 시험
+  const keys= poolSourceKeys.length ? poolSourceKeys
+             : curKeys||(curExam&&curExam!=='__pool__'&&curExam!=='__retry__'?[curExam]:[]);
+  EXAMS['__pool__']=buildPoolExam(type, keys);
+  if(!EXAMS['__pool__'].total){
+    document.getElementById('pool-body').innerHTML='<p style="text-align:center;color:#888;padding:24px">해당 유형의 문제가 없습니다.</p>';
+    document.getElementById('pool-actions').style.display='none';
+    return;
+  }
+  const ti={v:0},vi={v:0},qi={v:0};
+  document.getElementById('pool-body').innerHTML=buildExamHtml(EXAMS['__pool__'],ti,vi,qi,'p');
+  document.getElementById('pool-actions').style.display='block';
+}
+
+function submitPool(){
+  const ex=EXAMS['__pool__']; if(!ex) return;
+  let score=0,wrongs=[],total=ex.total;
+  let ti=0,vi=0,qi=0;
+  ex.titleData.forEach(d=>{
+    const u=document.getElementById('pt-'+ti++).value;
+    if(norm(u)===norm(d.a)) score++;
+    else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u||'(미기재)',data:d});
+  });
+  ex.verseData.forEach(d=>{
+    const u=document.getElementById('pv-'+vi++).value;
+    if(norm(u)===norm(d.full)) score++;
+    else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u||'(미기재)',data:d});
+  });
+  ex.blankData.forEach(d=>{
+    const myQi=qi++;
+    const inputs=document.querySelectorAll(`[id^="pb-${myQi}-"]`);
+    let allOk=true; const brs=[];
+    inputs.forEach(inp=>{ const ok=norm(inp.value)===norm(inp.dataset.a); if(!ok)allOk=false; brs.push({u:inp.value,a:inp.dataset.a,ok}); });
+    if(allOk) score++;
+    else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs,data:d});
+  });
+  poolWrongPool=wrongs;
+  lastResultCtx='pool';
+  showResult(score,total,wrongs);
+}
+
+function submitPoolPartial(){
+  const ex=EXAMS['__pool__']; if(!ex) return;
+  let score=0,wrongs=[],total=0;
+  let ti=0,vi=0,qi=0;
+  ex.titleData.forEach(d=>{
+    const u=document.getElementById('pt-'+ti++).value;
+    if(!u.trim()) return;
+    total++;
+    if(norm(u)===norm(d.a)) score++;
+    else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u,data:d});
+  });
+  ex.verseData.forEach(d=>{
+    const u=document.getElementById('pv-'+vi++).value.trim();
+    const hint=(d.hint||'').trim();
+    if(!u||u===hint) return;
+    total++;
+    if(norm(u)===norm(d.full)) score++;
+    else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u,data:d});
+  });
+  ex.blankData.forEach(d=>{
+    const myQi=qi++;
+    const inputs=document.querySelectorAll(`[id^="pb-${myQi}-"]`);
+    const allFilled=[...inputs].every(inp=>inp.value.trim());
+    if(!allFilled) return;
+    total++;
+    let allOk=true; const brs=[];
+    inputs.forEach(inp=>{ const ok=norm(inp.value)===norm(inp.dataset.a); if(!ok)allOk=false; brs.push({u:inp.value,a:inp.dataset.a,ok}); });
+    if(allOk) score++;
+    else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs,data:d});
+  });
+  if(total===0){alert('아직 입력한 답이 없습니다.'); return;}
+  poolWrongPool=wrongs;
+  lastResultCtx='pool';
+  showResult(score,total,wrongs,'partial');
+}
+
+function retryPool(){
+  document.querySelectorAll('#pool-body .line-inp,#pool-body .vtarea,#pool-body .binp').forEach(el=>el.value='');
+  setMode('pool');
+}
+
+function retryPoolWrongs(){
+  if(!poolWrongPool||!poolWrongPool.length) return;
+  EXAMS['__pool__']={
+    label:'오답 재도전 (모아 풀기)',
+    titleData: poolWrongPool.filter(w=>w.type==='title').map(w=>w.data),
+    verseData:  poolWrongPool.filter(w=>w.type==='verse').map(w=>w.data),
+    blankData:  poolWrongPool.filter(w=>w.type==='blank').map(w=>w.data),
+    get total(){ return this.titleData.length+this.verseData.length+this.blankData.length; }
+  };
+  const ti={v:0},vi={v:0},qi={v:0};
+  document.getElementById('pool-body').innerHTML=buildExamHtml(EXAMS['__pool__'],ti,vi,qi,'p');
+  document.getElementById('pool-actions').style.display='block';
+  setMode('pool');
 }
 
 function retryWrongs(){
@@ -1053,23 +1202,23 @@ function renderExamMulti(keys){
 }
 
 // ─── 모의고사 렌더링 ───────────────────────────────────────────────────────────
-function buildExamHtml(ex, ti, vi, qi){
+function buildExamHtml(ex, ti, vi, qi, pfx='e'){
   let html='';
   ex.titleData.forEach(d=>{
-    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="et-${ti.v++}" data-a="${d.a||''}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
+    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="${pfx}t-${ti.v++}" data-a="${d.a||''}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
   });
   if(ex.verseData.length){
     html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
     ex.verseData.forEach(d=>{
       const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="ev-${vi.v++}" data-a="${d.full||''}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="${pfx}v-${vi.v++}" data-a="${d.full||''}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
     });
   }
   if(ex.blankData.length){
     html+=`<div class="pdf-divider">* 다음 성구의 괄호 속에 들어갈 말을 성경대로 쓰시오. (부분점수 없음)</div>`;
     ex.blankData.forEach(d=>{
       let bi=0; const myQi=qi.v++;
-      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`eb-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1})">`;});
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`${pfx}b-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(3.5,w.length*.85)}em" autocomplete="off" onkeydown="bNav(event,this,${myQi},${bi-1},'${pfx}')">`;});
       html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
     });
   }
@@ -1078,13 +1227,13 @@ function buildExamHtml(ex, ti, vi, qi){
 
 function renderExam(n){
   const ti={v:0},vi={v:0},qi={v:0};
-  document.getElementById('e-body').innerHTML=buildExamHtml(EXAMS[n],ti,vi,qi);
+  document.getElementById('e-body').innerHTML=buildExamHtml(EXAMS[n],ti,vi,qi,'e');
 }
 
-function bNav(e,el,qi,idx){
+function bNav(e,el,qi,idx,pfx='e'){
   if(e.key!=='Enter')return;
   e.preventDefault();
-  const nx=document.getElementById(`eb-${qi}-${idx+1}`);
+  const nx=document.getElementById(`${pfx}b-${qi}-${idx+1}`);
   if(nx)nx.focus();
 }
 
@@ -1120,6 +1269,7 @@ function submitExam(){
     });
   });
   if(curExam!=='__retry__') saveHistItem({ts:Date.now(),mode:'exam',stage:curStage,score,total});
+  lastResultCtx='exam';
   showResult(score,total,wrongs);
 }
 
@@ -1161,11 +1311,12 @@ function submitPartial(){
     });
   });
   if(total===0){alert('아직 입력한 답이 없습니다.'); return;}
+  lastResultCtx='exam';
   showResult(score,total,wrongs,'partial');
 }
 
 function showResult(score,total,wrongs,mode){
-  wrongPool=wrongs;
+  if(lastResultCtx==='exam') wrongPool=wrongs; else poolWrongPool=wrongs;
   document.getElementById('retryWrongsBtn').style.display=wrongs.length?'inline-block':'none';
   const sb=document.getElementById('rScore');
   document.getElementById('rTotal').textContent=total;
@@ -1206,7 +1357,7 @@ function showResult(score,total,wrongs,mode){
       wl.innerHTML+=`<div class="wrong-sec"><div class="wi">${inner}</div></div>`;
     });
     // 오답 목록 맨 아래에도 재도전 버튼 추가
-    if(wrongs.length) wl.innerHTML+=`<div style="text-align:center;margin:18px 0 6px"><button class="btn-retry" onclick="retryWrongs()" style="background:#c0392b">❌ 오답만 다시 풀기</button></div>`;
+    if(wrongs.length) wl.innerHTML+=`<div style="text-align:center;margin:18px 0 6px"><button class="btn-retry" onclick="retryWrongsFromResult()" style="background:#c0392b">❌ 오답만 다시 풀기</button></div>`;
   }
   document.getElementById('rRecent').innerHTML=recentHtml('exam',curStage,5);
   setMode('result');

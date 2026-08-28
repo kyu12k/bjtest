@@ -396,11 +396,14 @@ button:active{transform:scale(.97)}
 <script>
 window.onscroll=()=>{ document.getElementById('topBtn').style.display=(scrollY>300?'block':'none'); };
 
-// 모바일 키보드 올라올 때 플로팅 채점 버튼 숨기기
+// 모바일 키보드 올라올 때 플로팅 채점 버튼 숨기기 + 커서 끝으로 이동
 document.addEventListener('focusin', e=>{
-  if(e.target.matches('.binp,.vtarea,.line-inp')){
+  const t=e.target;
+  if(t.matches('.binp,.vtarea,.line-inp')){
     document.getElementById('partialBtn').style.visibility='hidden';
     document.getElementById('poolPartialBtn').style.visibility='hidden';
+    // 터치로 포커스 시 커서 끝으로 (브라우저가 탭 위치 보정하므로 setTimeout 사용)
+    setTimeout(()=>{ const l=t.value.length; try{t.setSelectionRange(l,l);}catch(_){} }, 0);
   }
 });
 document.addEventListener('focusout', e=>{
@@ -419,7 +422,10 @@ document.addEventListener('keydown', e=>{
   if(!body) return;
   const all=[...body.querySelectorAll('.line-inp,.vtarea,.binp')];
   const i=all.indexOf(t);
-  if(i>=0&&i<all.length-1) all[i+1].focus();
+  if(i>=0&&i<all.length-1){
+    const nx=all[i+1]; nx.focus();
+    const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}
+  }
 });
 if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
 

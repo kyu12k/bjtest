@@ -911,7 +911,7 @@ SPOT['2-1']=SPOT['1-1'];
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function plain(s){ return s.replace(/\{([^}]+)\}/g,'$1'); }
-function norm(s){ return (s||'').trim().replace(/[\s·⋅,.、。]+/g,''); }
+function norm(s){ return (s||'').normalize('NFC').trim().replace(/[\s\u200b\u200c\u200d\u2060\ufeff\u00b7\u22c5,.\u3001\u3002]+/g,''); }
 function diffHtml(u, c){
   const nu=norm(u), nc=norm(c);
   if(!nu) return '<span class="diff-wrong">(미입력)</span>';

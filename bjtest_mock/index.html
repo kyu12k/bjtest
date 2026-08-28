@@ -93,6 +93,7 @@ button:active{transform:scale(.97)}
 .fail-b{display:inline-block;background:rgba(229,62,62,.1);color:var(--red);border-radius:5px;padding:1px 7px;font-size:.82rem;font-weight:bold}
 .corr{color:#198754;font-weight:bold;background:rgba(25,135,84,.1);padding:1px 5px;border-radius:4px}
 .wrong-ans{color:#d9534f;text-decoration:line-through;font-size:.88em}
+.diff-wrong{color:#d9534f;font-weight:bold;text-decoration:underline wavy #d9534f}
 .ans-box{font-size:.9rem;color:var(--ans-c);background:var(--ans-bg);border-radius:6px;padding:7px 10px;margin-top:4px;line-height:1.8}
 
 #topBtn{display:none;position:fixed;bottom:28px;left:28px;z-index:998;background:var(--p);color:#fff;border:none;cursor:pointer;padding:12px;border-radius:50%;width:48px;height:48px;font-size:1.1rem;box-shadow:0 4px 10px rgba(0,0,0,.2)}
@@ -890,6 +891,23 @@ SPOT['2-1']=SPOT['1-1'];
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function plain(s){ return s.replace(/\{([^}]+)\}/g,'$1'); }
 function norm(s){ return (s||'').trim().replace(/[\s·⋅,.、。]+/g,''); }
+function diffHtml(u, c){
+  const nu=norm(u), nc=norm(c);
+  if(!nu) return '';
+  const m=nu.length, n=nc.length;
+  // LCS dp
+  const dp=Array.from({length:m+1},()=>new Int32Array(n+1));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=nu[i-1]===nc[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  // 역추적: nu에서 매칭된 인덱스 수집
+  const ok=new Set(); let i=m,j=n;
+  while(i>0&&j>0){
+    if(nu[i-1]===nc[j-1]){ok.add(i-1);i--;j--;}
+    else if(dp[i-1][j]>=dp[i][j-1])i--;
+    else j--;
+  }
+  return nu.split('').map((ch,idx)=>ok.has(idx)?ch:`<span class="diff-wrong">${ch}</span>`).join('');
+}
 function getCS(s){
   const c=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
   return s.split('').map(ch=>{ const n=ch.charCodeAt(0)-44032; return(n>-1&&n<11172)?c[Math.floor(n/588)]:ch; }).join('');
@@ -1150,16 +1168,16 @@ function showResult(score,total,wrongs,mode){
       let inner='';
       if(w.type==='title'){
         inner=`<div class="wlabel">❌ ${w.label}</div>
-          <div>내 답: <span class="wrong-ans">${w.user}</span></div>
+          <div>내 답: <span class="wrong-ans" style="text-decoration:none">${diffHtml(w.user,w.correct)}</span></div>
           <div>정답: <span class="corr">${w.correct}</span></div>`;
       } else if(w.type==='verse'){
         inner=`<div class="wlabel">❌ ${w.label}</div>
-          <div style="margin-bottom:4px">내 답: <span class="wrong-ans" style="text-decoration:none">${w.user}</span></div>
+          <div style="margin-bottom:4px">내 답: <span class="wrong-ans" style="text-decoration:none">${diffHtml(w.user,w.correct)}</span></div>
           <div class="ans-box">${w.correct}</div>`;
       } else {
         const bHtml=w.brs.map(b=>b.ok?
           `<span class="ok-b">${b.a}</span>`:
-          `<span class="wrong-ans">${b.u||'(빈칸)'}</span> → <span class="corr">${b.a}</span>`
+          `<span class="wrong-ans" style="text-decoration:none">${diffHtml(b.u,b.a)}</span> → <span class="corr">${b.a}</span>`
         ).join(' / ');
         inner=`<div class="wlabel">❌ ${w.label}</div><div style="font-size:.9rem;line-height:2">${bHtml}</div>`;
       }

@@ -367,6 +367,7 @@ button:active{transform:scale(.97)}
     <div id="rMsg" style="margin-bottom:6px"></div>
     <div id="rPartialNote" style="font-size:0.82rem;color:#888;margin-bottom:14px"></div>
     <button class="btn-retry" onclick="retryExam()">🔄 다시 도전</button>
+    <button class="btn-retry" id="retryWrongsBtn" onclick="retryWrongs()" style="display:none;background:#c0392b">❌ 오답만 다시 풀기</button>
   </div>
   <div id="rRecent"></div>
   <div id="wrongList"></div>
@@ -913,7 +914,7 @@ function getCS(s){
   return s.split('').map(ch=>{ const n=ch.charCodeAt(0)-44032; return(n>-1&&n<11172)?c[Math.floor(n/588)]:ch; }).join('');
 }
 
-let curExam=null, curKeys=null, curStage=null, allShown=false;
+let curExam=null, curKeys=null, curStage=null, allShown=false, wrongPool=[];
 
 (()=>{
   const s=new URLSearchParams(location.search).get('stage');
@@ -966,6 +967,20 @@ function setMode(mode){
 
 function retryExam(){
   document.querySelectorAll('.line-inp,.vtarea,.binp').forEach(el=>el.value='');
+  setMode('exam');
+}
+
+function retryWrongs(){
+  if(!wrongPool||!wrongPool.length) return;
+  EXAMS['__retry__']={
+    label:'오답 재도전',
+    titleData: wrongPool.filter(w=>w.type==='title').map(w=>w.data),
+    verseData:  wrongPool.filter(w=>w.type==='verse').map(w=>w.data),
+    blankData:  wrongPool.filter(w=>w.type==='blank').map(w=>w.data),
+    get total(){ return this.titleData.length+this.verseData.length+this.blankData.length; }
+  };
+  curExam='__retry__'; curKeys=null; curStage=null;
+  renderExam('__retry__');
   setMode('exam');
 }
 
@@ -1079,12 +1094,12 @@ function submitExam(){
     ex.titleData.forEach(d=>{
       const u=document.getElementById('et-'+ti++).value;
       if(norm(u)===norm(d.a)){score++;}
-      else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u||'(미기재)'});
+      else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u||'(미기재)',data:d});
     });
     ex.verseData.forEach(d=>{
       const u=document.getElementById('ev-'+vi++).value;
       if(norm(u)===norm(d.full)){score++;}
-      else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u||'(미기재)'});
+      else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u||'(미기재)',data:d});
     });
     ex.blankData.forEach(d=>{
       const myQi=qi++;
@@ -1096,10 +1111,10 @@ function submitExam(){
         brs.push({u:inp.value,a:inp.dataset.a,ok});
       });
       if(allOk){score++;}
-      else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs});
+      else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs,data:d});
     });
   });
-  saveHistItem({ts:Date.now(),mode:'exam',stage:curStage,score,total});
+  if(curExam!=='__retry__') saveHistItem({ts:Date.now(),mode:'exam',stage:curStage,score,total});
   showResult(score,total,wrongs);
 }
 
@@ -1114,7 +1129,7 @@ function submitPartial(){
       if(!u.trim()) return; // 미입력 건너뜀
       total++;
       if(norm(u)===norm(d.a)){score++;}
-      else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u});
+      else wrongs.push({type:'title',label:`${d.num}. ${d.q}`,correct:d.a,user:u,data:d});
     });
     ex.verseData.forEach(d=>{
       const u=document.getElementById('ev-'+vi++).value.trim();
@@ -1122,7 +1137,7 @@ function submitPartial(){
       if(!u||u===hint) return; // 미입력 또는 힌트만 남아있는 경우 건너뜀
       total++;
       if(norm(u)===norm(d.full)){score++;}
-      else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u});
+      else wrongs.push({type:'verse',label:`${d.num}. ${d.ref}`,correct:d.full,user:u,data:d});
     });
     ex.blankData.forEach(d=>{
       const myQi=qi++;
@@ -1137,7 +1152,7 @@ function submitPartial(){
         brs.push({u:inp.value,a:inp.dataset.a,ok});
       });
       if(allOk){score++;}
-      else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs});
+      else wrongs.push({type:'blank',label:`${d.num}. ${d.ref}`,brs,data:d});
     });
   });
   if(total===0){alert('아직 입력한 답이 없습니다.'); return;}
@@ -1145,6 +1160,8 @@ function submitPartial(){
 }
 
 function showResult(score,total,wrongs,mode){
+  wrongPool=wrongs;
+  document.getElementById('retryWrongsBtn').style.display=wrongs.length?'inline-block':'none';
   const sb=document.getElementById('rScore');
   document.getElementById('rTotal').textContent=total;
   sb.textContent=score+' / '+total;

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>핵심 5구절 시험 대비 (계 3·12·15·18·22장)</title>
+    <style>
+        :root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --blank-bg: #e9ecef;
+            --blank-text: transparent;
+            --hint-bg: #fff3cd;
+            --hint-color: #888;
+            --answer-bg: #d1e7dd;
+            --answer-color: #0f5132;
+            --marker-color: #e83e8c;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+            --exam-color: #e53e3e;
+        }
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --blank-bg: #5f6368;
+            --hint-bg: #423805;
+            --hint-color: #e2b838;
+            --answer-bg: #0c3b28;
+            --answer-color: #8ab4f8;
+            --marker-color: #f783ac;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --exam-color: #fc8181;
+        }
+        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.6; transition: background-color 0.3s, color 0.3s; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); transition: opacity 0.3s; }
+        .modal-content { background-color: var(--card-bg); padding: 30px 25px; border-radius: 16px; text-align: center; max-width: 420px; width: 85%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #d9534f; margin-top: 0; font-size: 1.4rem; }
+        .modal-content p { font-size: 1.05rem; margin-bottom: 25px; word-break: keep-all; line-height: 1.5; }
+        .btn-amen { padding: 12px 30px; font-size: 1.2rem; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-amen:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .btn-amen:not(:disabled):hover { transform: scale(1.03); }
+
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); font-size: 1.6rem; margin-bottom: 10px; }
+
+        .dashboard { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stage-column { display: flex; flex-direction: column; gap: 8px; align-items: center; flex: 1; min-width: 140px; }
+        .btn-stage { padding: 10px 15px; width: 100%; font-size: 0.95rem; border: 2px solid var(--blank-bg); border-radius: 8px; background-color: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-stage:hover { background-color: var(--blank-bg); }
+        .btn-stage.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); transform: scale(1.05); z-index: 2; }
+        .btn-exam { padding: 8px 10px; width: 100%; font-size: 0.85rem; border: 2px dashed var(--exam-color); border-radius: 8px; background-color: transparent; color: var(--exam-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-exam:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .btn-exam.active { background-color: var(--exam-color); color: white; border-style: solid; transform: scale(1.05); z-index: 2; }
+
+        .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .question-title { font-weight: bold; font-size: 1.15rem; margin-bottom: 15px; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 10px; }
+        .question-text { font-size: 1.05rem; margin-bottom: 20px; word-break: keep-all; line-height: 1.8; }
+
+        .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; touch-action: manipulation; }
+        .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
+        .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+        .blank.stage2-blank { min-width: 20px; color: var(--hint-color); background-color: var(--hint-bg); border-bottom: 2px solid var(--hint-color); }
+        .blank.stage2-blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+
+        .controls { display: flex; gap: 8px; justify-content: flex-end; }
+        button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-hint { background-color: #ffc107; color: #333; }
+        .btn-answer { background-color: #198754; color: white; }
+        .btn-toggle { background-color: #6c757d; color: white; }
+        .btn-dark { background-color: #343a40; color: white; }
+        [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
+        [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
+
+        #exam-arena { display: none; }
+        .exam-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: var(--blank-bg); padding: 15px; border-radius: 12px; }
+        .exam-progress-text { font-weight: bold; color: var(--exam-color); font-size: 1.3rem; margin-bottom: 5px; }
+        .exam-notice { font-size: 0.9rem; color: #666; text-align: center; }
+        [data-theme="dark"] .exam-notice { color: #aaa; }
+
+        .exam-input { border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--exam-color); font-size: 1.1rem; font-weight: bold; text-align: center; outline: none; transition: 0.2s; margin: 4px 2px; padding: 2px; font-family: inherit; }
+        .exam-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); }
+        .exam-input::placeholder { color: #ccc; font-weight: normal; }
+        [data-theme="dark"] .exam-input::placeholder { color: #666; }
+
+        .btn-next-exam { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 15px; margin-top: 25px; border-radius: 12px; }
+
+        .result-screen { text-align: center; padding: 30px 10px; }
+        .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .wrong-list { text-align: left; background: var(--blank-bg); padding: 20px; border-radius: 12px; margin-top: 20px; font-size: 1rem; }
+        .wrong-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; line-height: 1.7; }
+        .wrong-item:last-child { border-bottom: none; }
+        .correct-ans { color: #198754; font-weight: bold; background: rgba(25,135,84,0.1); padding: 0 4px; border-radius: 4px; }
+        .wrong-ans { color: #d9534f; text-decoration: line-through; font-size: 0.9em; margin-right: 4px; }
+
+        #topBtn { display: none; position: fixed; bottom: 80px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; outline: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        #topBtn:hover { transform: scale(1.1); }
+
+        @media (pointer: coarse) { .quiz-card { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; } }
+    </style>
+</head>
+<body>
+
+<div id="warningModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>⚠️ 모의고사 안내</h2>
+        <p>핵심 5구절 시험 대비 시뮬레이터입니다.<br><br>각 단계별 <strong>[🏆 모의고사]</strong>는 한 단어라도 틀리면 해당 절이 오답 처리됩니다.<br><small>(*쉼표(,) 입력 유무는 자동으로 보정됩니다.)</small><br><br>만점을 향해 도전하세요!</p>
+        <button id="amenBtn" class="btn-amen" disabled>아멘 (2초 후 활성화)</button>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>📖 핵심 5구절 시험 대비</h1>
+        <p style="color:var(--hint-color);font-size:.95rem;margin:0 0 16px">계 3:12~13 · 계 12:10~11 · 계 15:4~5 · 계 18:7~8 · 계 22:15~16</p>
+
+        <div class="dashboard">
+            <div class="stage-column">
+                <button class="btn-stage active" id="btnStage1" onclick="setMode('stage', 1)">🌱 1단계 (핵심)</button>
+                <button class="btn-exam" id="btnExam1" onclick="setMode('exam', 1)">🏆 1단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage2" onclick="setMode('stage', 2)">🔥 2단계 (초성)</button>
+                <button class="btn-exam" id="btnExam2" onclick="setMode('exam', 2)">🏆 2단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage3" onclick="setMode('stage', 3)">💪 3단계 (심화)</button>
+                <button class="btn-exam" id="btnExam3" onclick="setMode('exam', 3)">🏆 3단계 모의고사</button>
+            </div>
+            <div class="stage-column">
+                <button class="btn-stage" id="btnStage4" onclick="setMode('stage', 4)">👑 4단계 (전체)</button>
+                <button class="btn-exam" id="btnExam4" onclick="setMode('exam', 4)">🏆 4단계 모의고사</button>
+            </div>
+        </div>
+
+        <div class="global-controls" id="globalControls">
+            <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
+            <button class="btn-toggle" onclick="toggleAll()">👁️ 전체 정답 보기/숨기기</button>
+            <button class="btn-toggle" id="roundBtn" onclick="nextRound()" style="display:none;">다음 라운드 →</button>
+            <span id="roundDisplay" style="display:none; font-weight:bold; padding:6px 10px;">라운드 1/2</span>
+        </div>
+    </header>
+
+    <div id="quiz-list"></div>
+
+    <div id="exam-arena" class="quiz-card">
+        <div id="exam-play-area">
+            <div class="exam-header">
+                <div class="exam-progress-text" id="examProgressText">1 / 10 절</div>
+                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+            </div>
+            <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
+            <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
+        </div>
+        <div id="exam-result-area" class="result-screen" style="display: none;">
+            <h2>🎉 모의고사 결과 🎉</h2>
+            <div class="score-display" id="finalScore">0 / 10</div>
+            <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
+            <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
+            <div id="wrongListContainer" class="wrong-list"></div>
+        </div>
+    </div>
+</div>
+
+<button id="topBtn" onclick="scrollToTop()" title="맨 위로 가기">⬆️</button>
+
+<script>
+    window.onscroll = function() {
+        document.getElementById("topBtn").style.display =
+            (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
+    };
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById('warningModal');
+        const amenBtn = document.getElementById('amenBtn');
+        let timeLeft = 2;
+        document.body.style.overflow = 'hidden';
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) amenBtn.innerText = `아멘 (${timeLeft}초 후 활성화)`;
+            else { clearInterval(timer); amenBtn.disabled = false; amenBtn.innerText = "아멘 🙏"; }
+        }, 1000);
+        amenBtn.addEventListener('click', () => {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }, 300);
+        });
+        setMode('stage', 1);
+    });
+
+    // 📖 핵심 5구절 원문 데이터 (개역한글)
+    const verses = [
+        // 계 3:12~13
+        "12 {이기는 자}는 내 하나님 성전에 {기둥}이 되게 하리니 그가 결코 다시 나가지 아니하리라 내가 하나님의 이름과 하나님의 성 곧 하늘에서 내 하나님께로부터 내려 오는 새 {예루살렘}의 이름과 나의 {새 이름}을 그이 위에 기록하리라",
+        "13 {귀 있는 자}는 {성령}이 교회들에게 하시는 말씀을 {들을찌어다}",
+        // 계 12:10~11
+        "10 내가 또 들으니 하늘에 큰 {음성}이 있어 가로되 이제 우리 하나님의 {구원}과 {능력}과 {나라}와 또 그의 그리스도의 {권세}가 이루었으니 우리 형제들을 {참소하던 자} 곧 우리 하나님 앞에서 밤낮 참소하던 자가 {쫓겨 났고}",
+        "11 또 여러 형제가 {어린 양의 피}와 자기의 {증거하는 말}을 인하여 저를 {이기었으니} 그들은 죽기까지 자기 생명을 {아끼지} 아니하였도다",
+        // 계 15:4~5
+        "4 주여 누가 주의 이름을 두려워하지 아니하며 {영화롭게} 하지 아니하오리이까 오직 주만 {거룩하시니이다} 주의 {의로우신 일}이 나타났으매 {만국}이 와서 주께 {경배하리이다} 하더라",
+        "5 또 이 일 후에 내가 보니 하늘에 {증거 장막의 성전}이 열리며",
+        // 계 18:7~8
+        "7 그가 어떻게 자기를 {영화롭게} 하였으며 {사치}하였든지 그만큼 {고난과 애통}으로 갚아 주라 그가 마음에 말하기를 나는 {여황}으로 앉은 자요 {과부}가 아니라 결단코 애통을 당하지 아니하리라 하니",
+        "8 그러므로 {하루 동안}에 그 재앙들이 이르리니 곧 {사망과 애통과 흉년}이라 그가 또한 {불에 살라지리니} 그를 심판하신 주 하나님은 {강하신 자}이심이니라",
+        // 계 22:15~16
+        "15 개들과 술객들과 행음자들과 살인자들과 우상 숭배자들과 및 {거짓말을 좋아하며 지어내는 자}마다 {성밖에 있으리라}",
+        "16 나 예수는 {교회들을 위하여} 내 사자를 보내어 이것들을 너희에게 증거하게 하였노라 나는 {다윗의 뿌리요 자손}이니 곧 {광명한 새벽별}이라 하시더라"
+    ];
+
+    const quizData = [
+        { title: "1. 계 3:12~13", content: verses[0] + "<br>" + verses[1] },
+        { title: "2. 계 12:10~11", content: verses[2] + "<br>" + verses[3] },
+        { title: "3. 계 15:4~5",  content: verses[4] + "<br>" + verses[5] },
+        { title: "4. 계 18:7~8",  content: verses[6] + "<br>" + verses[7] },
+        { title: "5. 계 22:15~16", content: verses[8] + "<br>" + verses[9] }
+    ];
+
+    function getChosung(str) {
+        const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i) - 44032;
+            if (code > -1 && code < 11172) result += chosung[Math.floor(code / 588)];
+            else result += str.charAt(i);
+        }
+        return result;
+    }
+
+    let currentMode = 'stage';
+    let activeLevel = 1;
+    let currentRound = 1;
+    const TOTAL_ROUNDS = 2;
+
+    function setMode(mode, level) {
+        scrollToTop();
+        currentMode = mode; activeLevel = level;
+        document.querySelectorAll('.btn-stage, .btn-exam').forEach(btn => btn.classList.remove('active'));
+        if (mode === 'stage') {
+            document.getElementById('btnStage' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'block';
+            document.getElementById('exam-arena').style.display = 'none';
+            document.getElementById('globalControls').style.display = 'flex';
+            const showRound = level === 3;
+            document.getElementById('roundBtn').style.display = showRound ? 'inline-block' : 'none';
+            document.getElementById('roundDisplay').style.display = showRound ? 'inline-block' : 'none';
+            if (showRound) { currentRound = 1; document.getElementById('roundDisplay').innerText = `라운드 1/${TOTAL_ROUNDS}`; }
+            renderQuizzes();
+        } else if (mode === 'exam') {
+            document.getElementById('btnExam' + level).classList.add('active');
+            document.getElementById('quiz-list').style.display = 'none';
+            document.getElementById('exam-arena').style.display = 'block';
+            document.getElementById('globalControls').style.display = 'none';
+            startExam();
+        }
+    }
+
+    function renderQuizzes() {
+        const quizList = document.getElementById('quiz-list');
+        quizList.innerHTML = ''; isAllAnswersShown = false;
+        quizData.forEach((item, index) => {
+            const card = document.createElement('div'); card.className = 'quiz-card';
+            let htmlContent = '', controlsHtml = '';
+            if (activeLevel === 1) {
+                htmlContent = item.content.replace(/\{([^}]+)\}/g, (match, ans) =>
+                    `<span class="blank" data-answer="${ans}" data-chosung="${getChosung(ans)}" onclick="toggleSingleBlank(this)">${ans}</span>`);
+                controlsHtml = `<button class="btn-hint" onclick="toggleHint(${index}, this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${index}, this)">정답 보기</button>`;
+            } else if (activeLevel === 2) {
+                let lines = item.content.replace(/\{|\}/g, '').split('<br>');
+                htmlContent = lines.map(line =>
+                    line.split(' ').map((word, i) => {
+                        if (!word) return '';
+                        if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`;
+                        return `<span class="blank stage2-blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleStage2Word(this)">${getChosung(word)}</span>`;
+                    }).join(' ')
+                ).join('<br>');
+                controlsHtml = `<button class="btn-answer" onclick="toggleAnswer(${index}, this)">전체 정답 보기</button>`;
+            } else if (activeLevel === 3) {
+                let lines = item.content.replace(/\{|\}/g, '').split('<br>');
+                htmlContent = lines.map(line => {
+                    let wordIdx = 0;
+                    return line.split(' ').map(word => {
+                        if (!word) return '';
+                        if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`; }
+                        const isBlank = (wordIdx % TOTAL_ROUNDS) === (currentRound - 1);
+                        wordIdx++;
+                        if (isBlank) return `<span class="blank" data-answer="${word}" data-chosung="${getChosung(word)}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                        return word;
+                    }).join(' ');
+                }).join('<br>');
+                controlsHtml = `<button class="btn-hint" onclick="toggleHint(${index}, this)">초성 보기</button> <button class="btn-answer" onclick="toggleAnswer(${index}, this)">정답 보기</button>`;
+            } else if (activeLevel === 4) {
+                let lines = item.content.replace(/\{|\}/g, '').split('<br>');
+                htmlContent = lines.map(line =>
+                    line.split(' ').map((word, i) => {
+                        if (!word) return '';
+                        if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`;
+                        return `<span class="blank stage3-blank" data-answer="${word}" onclick="toggleSingleBlank(this)">${word}</span>`;
+                    }).join(' ')
+                ).join('<br>');
+                controlsHtml = `<button class="btn-answer" onclick="toggleAnswer(${index}, this)">전체 정답 보기</button>`;
+            }
+            card.innerHTML = `<div class="question-title">${item.title}</div><div class="question-text" id="q-${index}">${htmlContent}</div><div class="controls">${controlsHtml}</div>`;
+            quizList.appendChild(card);
+        });
+    }
+
+    function toggleSingleBlank(el) {
+        if (el.classList.contains('answer-mode')) { el.classList.remove('answer-mode'); el.innerText = el.classList.contains('hint-mode') ? el.dataset.chosung : el.dataset.answer; }
+        else { el.classList.add('answer-mode'); el.innerText = el.dataset.answer; }
+    }
+    function toggleStage2Word(el) {
+        if (el.classList.contains('answer-mode')) { el.className = 'blank stage2-blank'; el.innerText = el.dataset.chosung; }
+        else { el.className = 'blank stage2-blank answer-mode'; el.innerText = el.dataset.answer; }
+    }
+    let isAllAnswersShown = false;
+    function toggleHint(index, btn) {
+        const blanks = document.getElementById(`q-${index}`).querySelectorAll('.blank');
+        const isActive = btn.classList.contains('active');
+        btn.nextElementSibling.classList.remove('active'); btn.nextElementSibling.innerText = "정답 보기";
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "초성 끄기"; blanks.forEach(b => { b.innerText = b.dataset.chosung; b.className = 'blank hint-mode'; }); }
+        else { btn.classList.remove('active'); btn.innerText = "초성 보기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.className = 'blank'; }); }
+    }
+    function toggleAnswer(index, btn) {
+        const blanks = document.getElementById(`q-${index}`).querySelectorAll('.blank');
+        const isActive = btn.classList.contains('active');
+        if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('btn-hint')) { btn.previousElementSibling.classList.remove('active'); btn.previousElementSibling.innerText = "초성 보기"; }
+        if (!isActive) { btn.classList.add('active'); btn.innerText = "정답 가리기"; blanks.forEach(b => { b.innerText = b.dataset.answer; b.classList.add('answer-mode'); b.classList.remove('hint-mode'); }); }
+        else { btn.classList.remove('active'); btn.innerText = (activeLevel === 2 || activeLevel === 4) ? "전체 정답 보기" : "정답 보기"; blanks.forEach(b => { if (b.classList.contains('stage2-blank')) b.innerText = b.dataset.chosung; else b.innerText = b.dataset.answer; b.classList.remove('answer-mode'); }); }
+    }
+    function toggleAll() {
+        const btns = document.querySelectorAll('.btn-answer');
+        isAllAnswersShown = !isAllAnswersShown;
+        btns.forEach((btn, index) => { const isActive = btn.classList.contains('active'); if (isAllAnswersShown && !isActive) toggleAnswer(index, btn); else if (!isAllAnswersShown && isActive) toggleAnswer(index, btn); });
+    }
+    function nextRound() { currentRound = (currentRound % TOTAL_ROUNDS) + 1; document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`; renderQuizzes(); }
+
+    // 🏆 모의고사
+    let currentExamIndex = 0;
+    let examScore = 0;
+    let examWrongData = [];
+    const totalVerses = verses.length; // 10
+
+    function startExam() {
+        currentExamIndex = 0; examScore = 0; examWrongData = [];
+        document.getElementById('exam-play-area').style.display = 'block';
+        document.getElementById('exam-result-area').style.display = 'none';
+        renderExamVerse();
+    }
+    function retryCurrentExam() { setMode('exam', activeLevel); }
+
+    function renderExamVerse() {
+        document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절`;
+        const verseStr = verses[currentExamIndex];
+        let htmlStr = "";
+        if (activeLevel === 1) {
+            htmlStr = verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
+                let width = (ans.length * 1.5) + 1;
+                return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            });
+        } else if (activeLevel === 3) {
+            let words = verseStr.replace(/\{|\}/g, '').split(' ');
+            let wordIdx = 0;
+            htmlStr = words.map(word => {
+                if (!word) return '';
+                if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`; }
+                const isBlank = (wordIdx % TOTAL_ROUNDS) === 0;
+                wordIdx++;
+                if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
+                return word;
+            }).join(' ');
+        } else {
+            let words = verseStr.replace(/\{|\}/g, '').split(' ');
+            htmlStr = words.map((word, i) => {
+                if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`;
+                let width = (word.length * 1.2) + 1;
+                let placeholder = activeLevel === 2 ? getChosung(word) : "";
+                return `<input type="text" class="exam-input" style="width:${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            }).join(' ');
+        }
+        document.getElementById('examVerseText').innerHTML = htmlStr;
+        setTimeout(() => { const fi = document.querySelector('.exam-input'); if (fi) fi.focus(); }, 100);
+    }
+
+    function handleExamInput(e, currentInput) {
+        if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
+            e.preventDefault();
+            const inputs = document.querySelectorAll('.exam-input');
+            const idx = Array.from(inputs).indexOf(currentInput);
+            if (idx > -1 && idx < inputs.length - 1) {
+                setTimeout(() => { inputs[idx + 1].focus(); inputs[idx + 1].scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
+            } else if (idx === inputs.length - 1) {
+                submitExamVerse();
+            }
+        }
+    }
+
+    function submitExamVerse() {
+        const inputs = document.querySelectorAll('.exam-input');
+        let isVerseAllCorrect = true;
+        let verseLog = [];
+        inputs.forEach(input => {
+            const cleanUser = input.value.trim().replace(/,/g, '');
+            const cleanCorrect = input.dataset.answer.trim().replace(/,/g, '');
+            if (cleanUser !== cleanCorrect) {
+                isVerseAllCorrect = false;
+                verseLog.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
+            }
+        });
+        if (isVerseAllCorrect) examScore++;
+        else examWrongData.push({ verseNum: currentExamIndex + 1, fullVerse: verses[currentExamIndex], errors: verseLog });
+        currentExamIndex++;
+        if (currentExamIndex >= totalVerses) showExamResult();
+        else renderExamVerse();
+    }
+
+    function showExamResult() {
+        document.getElementById('exam-play-area').style.display = 'none';
+        document.getElementById('exam-result-area').style.display = 'block';
+        scrollToTop();
+        const scoreBox = document.getElementById('finalScore');
+        scoreBox.innerText = `${examScore} / ${totalVerses}`;
+        scoreBox.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
+        document.getElementById('examResultMessage').innerText =
+            examScore === totalVerses ? "🎉 완벽합니다! 5구절 완전 정복!" : "한 절에 하나라도 틀리면 오답 처리되었습니다.";
+        const wl = document.getElementById('wrongListContainer');
+        wl.innerHTML = '';
+        if (examWrongData.length > 0) {
+            let html = `<h3>📝 오답 노트</h3>`;
+            examWrongData.forEach(item => {
+                let verseDisplay = activeLevel === 1
+                    ? item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
+                    : item.fullVerse.replace(/\{|\}/g, '');
+                let errorDetails = item.errors.map(err =>
+                    `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`
+                ).join(', ');
+                html += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${verseDisplay}<br><span style="display:inline-block;margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${errorDetails}</span></div>`;
+            });
+            wl.innerHTML = html;
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.btn-dark');
+        if (body.getAttribute('data-theme') === 'dark') { body.setAttribute('data-theme', 'light'); btn.innerText = "🌙 다크 모드"; }
+        else { body.setAttribute('data-theme', 'dark'); btn.innerText = "☀️ 라이트 모드"; }
+    }
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        document.querySelector('.btn-dark').innerText = "☀️ 라이트 모드";
+    }
+</script>
+
+<script src="/nav.js"></script>
+</body>
+</html>

@@ -216,6 +216,8 @@
         "16 나 예수는 {교회들을 위하여} 내 사자를 보내어 이것들을 너희에게 증거하게 하였노라 나는 {다윗의 뿌리요 자손}이니 곧 {광명한 새벽별}이라 하시더라"
     ];
 
+    const verseRefs = ["계 3:12", "계 3:13", "계 12:10", "계 12:11", "계 15:4", "계 15:5", "계 18:7", "계 18:8", "계 22:15", "계 22:16"];
+
     const quizData = [
         { title: "1. 계 3:12~13", content: verses[0] + "<br>" + verses[1] },
         { title: "2. 계 12:10~11", content: verses[2] + "<br>" + verses[3] },
@@ -358,7 +360,7 @@
     function retryCurrentExam() { setMode('exam', activeLevel); }
 
     function renderExamVerse() {
-        document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절`;
+        document.getElementById('examProgressText').innerHTML = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절 &nbsp;<span style="font-size:.75em;font-weight:normal;opacity:.85">(${verseRefs[currentExamIndex]})</span>`;
         const verseStr = verses[currentExamIndex];
         let htmlStr = "";
         if (activeLevel === 1) {

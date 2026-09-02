@@ -81,6 +81,7 @@
         [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
 
         #exam-arena { display: none; }
+        #exam-play-area { padding-bottom: 120px; }
         .exam-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: var(--blank-bg); padding: 15px; border-radius: 12px; }
         .exam-progress-text { font-weight: bold; color: var(--exam-color); font-size: 1.3rem; margin-bottom: 5px; }
         .exam-notice { font-size: 0.9rem; color: #666; text-align: center; }
@@ -91,7 +92,7 @@
         .exam-input::placeholder { color: #ccc; font-weight: normal; }
         [data-theme="dark"] .exam-input::placeholder { color: #666; }
 
-        .btn-next-exam { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 15px; margin-top: 25px; border-radius: 12px; }
+        .btn-next-exam { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 760px; background-color: var(--exam-color); color: white; font-size: 1.1rem; padding: 15px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 200; }
 
         .result-screen { text-align: center; padding: 30px 10px; }
         .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }

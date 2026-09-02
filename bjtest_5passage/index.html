@@ -156,6 +156,10 @@
         <div id="exam-play-area">
             <div class="exam-header">
                 <div class="exam-progress-text" id="examProgressText">1 / 10 절</div>
+                <div id="hardModeToggleRow" style="display:none;margin:8px 0;">
+                    <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
+                    <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 절 전체를 통으로 입력 (띄어쓰기 오류 허용)</span>
+                </div>
                 <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
             </div>
             <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
@@ -261,6 +265,9 @@
             document.getElementById('quiz-list').style.display = 'none';
             document.getElementById('exam-arena').style.display = 'block';
             document.getElementById('globalControls').style.display = 'none';
+            if (level !== 4) { hardMode4 = false; }
+            const btn = document.getElementById('hardModeBtn');
+            if (btn) { btn.style.background = 'transparent'; btn.style.color = '#e67e00'; btn.textContent = '🔒 심화 모드 OFF'; }
             startExam();
         }
     }
@@ -350,9 +357,21 @@
     let examScore = 0;
     let examWrongData = [];
     const totalVerses = verses.length; // 10
+    let hardMode4 = false;
+
+    function toggleHardMode() {
+        hardMode4 = !hardMode4;
+        const btn = document.getElementById('hardModeBtn');
+        btn.style.background = hardMode4 ? '#e67e00' : 'transparent';
+        btn.style.color = hardMode4 ? '#fff' : '#e67e00';
+        btn.textContent = hardMode4 ? '🔓 심화 모드 ON' : '🔒 심화 모드 OFF';
+        startExam();
+    }
 
     function startExam() {
         currentExamIndex = 0; examScore = 0; examWrongData = [];
+        const toggleRow = document.getElementById('hardModeToggleRow');
+        if (toggleRow) toggleRow.style.display = activeLevel === 4 ? 'block' : 'none';
         document.getElementById('exam-play-area').style.display = 'block';
         document.getElementById('exam-result-area').style.display = 'none';
         renderExamVerse();
@@ -379,7 +398,7 @@
                 if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
                 return word;
             }).join(' ');
-        } else if (activeLevel === 4) {
+        } else if (activeLevel === 4 && hardMode4) {
             let verseClean = verseStr.replace(/\{|\}/g, '');
             let words = verseClean.split(' ');
             let verseNum = words[0] && !isNaN(words[0]) ? words[0] : null;
@@ -421,7 +440,7 @@
 
     function submitExamVerse() {
         const inputs = document.querySelectorAll('.exam-input');
-        const spaceIgnore = activeLevel === 4;
+        const spaceIgnore = activeLevel === 4 && hardMode4;
         let isVerseAllCorrect = true;
         let verseLog = [];
         inputs.forEach(input => {
@@ -457,7 +476,7 @@
                     ? item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
                     : item.fullVerse.replace(/\{|\}/g, '');
                 let errorDetails;
-                if (activeLevel === 4) {
+                if (activeLevel === 4 && hardMode4) {
                     const err = item.errors[0];
                     const userTxt = err ? (err.wrong || '(빈칸)') : '(빈칸)';
                     errorDetails = `<div style="margin-top:6px;font-size:.88em;color:#666;">내가 쓴 것: <span class="wrong-ans" style="text-decoration:none;">${userTxt.replace(/\n/g,'↵')}</span></div>`;

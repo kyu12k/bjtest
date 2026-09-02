@@ -379,6 +379,13 @@
                 if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
                 return word;
             }).join(' ');
+        } else if (activeLevel === 4) {
+            let verseClean = verseStr.replace(/\{|\}/g, '');
+            let words = verseClean.split(' ');
+            let verseNum = words[0] && !isNaN(words[0]) ? words[0] : null;
+            let verseContent = verseNum ? words.slice(1).join(' ') : verseClean;
+            let numHtml = verseNum ? `<span style="font-weight:bold;color:var(--primary-color);font-size:1.15em;margin-right:6px;flex-shrink:0;">${verseNum}</span>` : '';
+            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${verseContent}" rows="4" style="flex:1;font-size:1rem;padding:10px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.8;" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
         } else {
             let words = verseStr.replace(/\{|\}/g, '').split(' ');
             htmlStr = words.map((word, i) => {
@@ -405,13 +412,21 @@
         }
     }
 
+    function normGrade(s, ignoreSpace) {
+        let r = (s || '').replace(/,/g, '');
+        if (ignoreSpace) r = r.replace(/\s+/g, '');
+        else r = r.trim();
+        return r;
+    }
+
     function submitExamVerse() {
         const inputs = document.querySelectorAll('.exam-input');
+        const spaceIgnore = activeLevel === 4;
         let isVerseAllCorrect = true;
         let verseLog = [];
         inputs.forEach(input => {
-            const cleanUser = input.value.trim().replace(/,/g, '');
-            const cleanCorrect = input.dataset.answer.trim().replace(/,/g, '');
+            const cleanUser = normGrade(input.value, spaceIgnore);
+            const cleanCorrect = normGrade(input.dataset.answer, spaceIgnore);
             if (cleanUser !== cleanCorrect) {
                 isVerseAllCorrect = false;
                 verseLog.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
@@ -441,10 +456,17 @@
                 let verseDisplay = activeLevel === 1
                     ? item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
                     : item.fullVerse.replace(/\{|\}/g, '');
-                let errorDetails = item.errors.map(err =>
-                    `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`
-                ).join(', ');
-                html += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${verseDisplay}<br><span style="display:inline-block;margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${errorDetails}</span></div>`;
+                let errorDetails;
+                if (activeLevel === 4) {
+                    const err = item.errors[0];
+                    const userTxt = err ? (err.wrong || '(빈칸)') : '(빈칸)';
+                    errorDetails = `<div style="margin-top:6px;font-size:.88em;color:#666;">내가 쓴 것: <span class="wrong-ans" style="text-decoration:none;">${userTxt.replace(/\n/g,'↵')}</span></div>`;
+                } else {
+                    errorDetails = `<span style="display:inline-block;margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${item.errors.map(err =>
+                        `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`
+                    ).join(', ')}</span>`;
+                }
+                html += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${verseDisplay}${errorDetails}</div>`;
             });
             wl.innerHTML = html;
         }

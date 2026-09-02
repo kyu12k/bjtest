@@ -93,6 +93,7 @@
         [data-theme="dark"] .exam-input::placeholder { color: #666; }
 
         .btn-next-exam { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 760px; background-color: var(--exam-color); color: white; font-size: 1.1rem; padding: 15px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 200; }
+        .btn-retry { background-color: var(--exam-color); color: white; font-size: 1.1rem; padding: 12px 30px; border-radius: 12px; }
 
         .result-screen { text-align: center; padding: 30px 10px; }
         .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
@@ -159,21 +160,21 @@
     <div id="exam-arena" class="quiz-card">
         <div id="exam-play-area">
             <div class="exam-header">
-                <div class="exam-progress-text" id="examProgressText">1 / 10 절</div>
+                <div class="exam-progress-text" id="examProgressText"></div>
                 <div id="hardModeToggleRow" style="display:none;margin:8px 0;">
                     <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
                     <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 절 전체를 통으로 입력 (띄어쓰기 오류 허용)</span>
                 </div>
                 <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
             </div>
-            <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
-            <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
+            <div id="exam-verses-area"></div>
+            <button class="btn-next-exam" onclick="gradeAll()">채점하기 ✅</button>
         </div>
         <div id="exam-result-area" class="result-screen" style="display: none;">
             <h2>🎉 모의고사 결과 🎉</h2>
             <div class="score-display" id="finalScore">0 / 10</div>
             <p id="examResultMessage">한 절에 하나라도 틀리면 오답 처리되었습니다.</p>
-            <button class="btn-next-exam" onclick="retryCurrentExam()" style="width: auto; padding: 12px 30px;">다시 도전하기</button>
+            <button class="btn-retry" onclick="retryCurrentExam()">다시 도전하기</button>
             <div id="wrongListContainer" class="wrong-list"></div>
         </div>
     </div>
@@ -357,11 +358,17 @@
     function nextRound() { currentRound = (currentRound % TOTAL_ROUNDS) + 1; document.getElementById('roundDisplay').innerText = `라운드 ${currentRound}/${TOTAL_ROUNDS}`; renderQuizzes(); }
 
     // 🏆 모의고사
-    let currentExamIndex = 0;
     let examScore = 0;
     let examWrongData = [];
-    const totalVerses = verses.length; // 10
     let hardMode4 = false;
+
+    const examGroups = [
+        { title: "1. 계 3:12~13",  indices: [0, 1] },
+        { title: "2. 계 12:10~11", indices: [2, 3] },
+        { title: "3. 계 15:4~5",   indices: [4, 5] },
+        { title: "4. 계 18:7~8",   indices: [6, 7] },
+        { title: "5. 계 22:15~16", indices: [8, 9] },
+    ];
 
     function toggleHardMode() {
         hardMode4 = !hardMode4;
@@ -373,67 +380,79 @@
     }
 
     function startExam() {
-        currentExamIndex = 0; examScore = 0; examWrongData = [];
         const toggleRow = document.getElementById('hardModeToggleRow');
         if (toggleRow) toggleRow.style.display = activeLevel === 4 ? 'block' : 'none';
         document.getElementById('exam-play-area').style.display = 'block';
         document.getElementById('exam-result-area').style.display = 'none';
-        renderExamVerse();
+        document.getElementById('examProgressText').innerHTML =
+            `[${activeLevel}단계] 모의고사 &nbsp;<span style="font-size:.7em;font-weight:normal;opacity:.8">입력한 절만 채점됩니다</span>`;
+        renderAllExamVerses();
     }
     function retryCurrentExam() { setMode('exam', activeLevel); }
 
-    function renderExamVerse() {
-        document.getElementById('examProgressText').innerHTML = `[${activeLevel}단계] ${currentExamIndex + 1} / ${totalVerses} 절 &nbsp;<span style="font-size:.75em;font-weight:normal;opacity:.85">(${verseRefs[currentExamIndex]})</span>`;
-        const verseStr = verses[currentExamIndex];
-        let htmlStr = "";
+    function buildVerseInputHtml(verseStr) {
         if (activeLevel === 1) {
-            htmlStr = verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
+            return verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
                 let width = (ans.length * 1.5) + 1;
-                return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+                return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${ans}" autocomplete="off">`;
             });
-        } else if (activeLevel === 3) {
-            let words = verseStr.replace(/\{|\}/g, '').split(' ');
-            let wordIdx = 0;
-            htmlStr = words.map(word => {
-                if (!word) return '';
-                if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`; }
-                const isBlank = (wordIdx % TOTAL_ROUNDS) === 0;
-                wordIdx++;
-                if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width:${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
-                return word;
-            }).join(' ');
         } else if (activeLevel === 4 && hardMode4) {
             let verseClean = verseStr.replace(/\{|\}/g, '');
             let words = verseClean.split(' ');
             let verseNum = words[0] && !isNaN(words[0]) ? words[0] : null;
             let verseContent = verseNum ? words.slice(1).join(' ') : verseClean;
-            let numHtml = verseNum ? `<span style="font-weight:bold;color:var(--primary-color);font-size:1.15em;margin-right:6px;flex-shrink:0;">${verseNum}</span>` : '';
-            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${verseContent}" rows="4" style="flex:1;font-size:1rem;padding:10px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.8;" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
+            let numHtml = verseNum ? `<span style="font-weight:bold;color:var(--primary-color);font-size:1.1em;margin-right:6px;">${verseNum}</span>` : '';
+            return `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${verseContent}" rows="3" style="flex:1;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
         } else {
             let words = verseStr.replace(/\{|\}/g, '').split(' ');
-            htmlStr = words.map((word, i) => {
-                if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`;
-                let width = (word.length * 1.2) + 1;
-                let placeholder = activeLevel === 2 ? getChosung(word) : "";
-                return `<input type="text" class="exam-input" style="width:${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+            let wordIdx = 0;
+            return words.map(word => {
+                if (!word) return '';
+                if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold;color:var(--primary-color);margin-right:5px;">${word}</span>`; }
+                let isBlank = false;
+                if (activeLevel === 2) isBlank = true;
+                else if (activeLevel === 3) isBlank = (wordIdx % TOTAL_ROUNDS) === 0;
+                else if (activeLevel === 4) isBlank = true;
+                wordIdx++;
+                if (isBlank) {
+                    let width = (word.length * 1.2) + 1;
+                    let placeholder = activeLevel === 2 ? getChosung(word) : '';
+                    return `<input type="text" class="exam-input" style="width:${width}em;" placeholder="${placeholder}" data-answer="${word}" autocomplete="off">`;
+                }
+                return word;
             }).join(' ');
         }
-        document.getElementById('examVerseText').innerHTML = htmlStr;
-        setTimeout(() => { const fi = document.querySelector('.exam-input'); if (fi) fi.focus(); }, 100);
     }
 
-    function handleExamInput(e, currentInput) {
-        if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
-            e.preventDefault();
-            const inputs = document.querySelectorAll('.exam-input');
-            const idx = Array.from(inputs).indexOf(currentInput);
-            if (idx > -1 && idx < inputs.length - 1) {
-                setTimeout(() => { inputs[idx + 1].focus(); inputs[idx + 1].scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
-            } else if (idx === inputs.length - 1) {
-                submitExamVerse();
-            }
-        }
+    function renderAllExamVerses() {
+        const area = document.getElementById('exam-verses-area');
+        area.innerHTML = '';
+        examGroups.forEach(group => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.style.marginBottom = '16px';
+            let inner = `<div class="question-title">${group.title}</div>`;
+            group.indices.forEach(vi => {
+                inner += `<div class="exam-verse-block" data-verse-idx="${vi}" style="margin-bottom:14px;line-height:2.2;font-size:1.1rem;">${buildVerseInputHtml(verses[vi])}</div>`;
+            });
+            card.innerHTML = inner;
+            area.appendChild(card);
+        });
+        setTimeout(() => { const fi = area.querySelector('.exam-input'); if (fi) fi.focus(); }, 100);
     }
+
+    // Enter: 같은 절 안에서만 다음 칸으로 이동
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const t = e.target;
+        if (!t.matches('.exam-input') || t.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        const block = t.closest('[data-verse-idx]');
+        if (!block) return;
+        const inputs = [...block.querySelectorAll('.exam-input')];
+        const idx = inputs.indexOf(t);
+        if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
+    });
 
     function normGrade(s, ignoreSpace) {
         let r = (s || '').replace(/,/g, '');
@@ -442,35 +461,53 @@
         return r;
     }
 
-    function submitExamVerse() {
-        const inputs = document.querySelectorAll('.exam-input');
+    function gradeAll() {
+        examScore = 0; examWrongData = [];
+        let gradedCount = 0;
         const spaceIgnore = activeLevel === 4 && hardMode4;
-        let isVerseAllCorrect = true;
-        let verseLog = [];
-        inputs.forEach(input => {
-            const cleanUser = normGrade(input.value, spaceIgnore);
-            const cleanCorrect = normGrade(input.dataset.answer, spaceIgnore);
-            if (cleanUser !== cleanCorrect) {
-                isVerseAllCorrect = false;
-                verseLog.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
-            }
+
+        verses.forEach((verseStr, vi) => {
+            const block = document.querySelector(`[data-verse-idx="${vi}"]`);
+            if (!block) return;
+            const inputs = [...block.querySelectorAll('.exam-input')];
+            if (inputs.every(inp => !inp.value.trim())) return; // 미입력 스킵
+            gradedCount++;
+            let isCorrect = true;
+            let errors = [];
+            inputs.forEach(inp => {
+                const cleanUser = normGrade(inp.value, spaceIgnore);
+                const cleanCorrect = normGrade(inp.dataset.answer, spaceIgnore);
+                if (cleanUser !== cleanCorrect) {
+                    isCorrect = false;
+                    errors.push({ correct: inp.dataset.answer, wrong: inp.value || '(빈칸)' });
+                }
+            });
+            if (isCorrect) examScore++;
+            else examWrongData.push({ vi, fullVerse: verseStr, errors });
         });
-        if (isVerseAllCorrect) examScore++;
-        else examWrongData.push({ verseNum: currentExamIndex + 1, fullVerse: verses[currentExamIndex], errors: verseLog });
-        currentExamIndex++;
-        if (currentExamIndex >= totalVerses) showExamResult();
-        else renderExamVerse();
+
+        showExamResult(gradedCount);
     }
 
-    function showExamResult() {
+    function showExamResult(gradedCount) {
         document.getElementById('exam-play-area').style.display = 'none';
         document.getElementById('exam-result-area').style.display = 'block';
         scrollToTop();
         const scoreBox = document.getElementById('finalScore');
-        scoreBox.innerText = `${examScore} / ${totalVerses}`;
-        scoreBox.style.color = examScore === totalVerses ? '#198754' : 'var(--exam-color)';
-        document.getElementById('examResultMessage').innerText =
-            examScore === totalVerses ? "🎉 완벽합니다! 5구절 완전 정복!" : "한 절에 하나라도 틀리면 오답 처리되었습니다.";
+        const skipped = verses.length - gradedCount;
+        if (gradedCount === 0) {
+            scoreBox.innerText = '—';
+            scoreBox.style.color = '#888';
+            document.getElementById('examResultMessage').innerText = '입력된 절이 없어 채점되지 않았습니다.';
+        } else {
+            scoreBox.innerText = `${examScore} / ${gradedCount}`;
+            scoreBox.style.color = examScore === gradedCount ? '#198754' : 'var(--exam-color)';
+            document.getElementById('examResultMessage').innerText =
+                (examScore === gradedCount
+                    ? '🎉 완벽합니다!'
+                    : '한 단어라도 틀리면 오답 처리됩니다.')
+                + (skipped > 0 ? ` (${skipped}절 미응답 제외)` : '');
+        }
         const wl = document.getElementById('wrongListContainer');
         wl.innerHTML = '';
         if (examWrongData.length > 0) {
@@ -481,15 +518,14 @@
                     : item.fullVerse.replace(/\{|\}/g, '');
                 let errorDetails;
                 if (activeLevel === 4 && hardMode4) {
-                    const err = item.errors[0];
-                    const userTxt = err ? (err.wrong || '(빈칸)') : '(빈칸)';
-                    errorDetails = `<div style="margin-top:6px;font-size:.88em;color:#666;">내가 쓴 것: <span class="wrong-ans" style="text-decoration:none;">${userTxt.replace(/\n/g,'↵')}</span></div>`;
+                    const userTxt = item.errors[0] ? (item.errors[0].wrong || '(빈칸)') : '(빈칸)';
+                    errorDetails = `<div style="margin-top:6px;font-size:.88em;color:#666;">내가 쓴 것: <span style="color:#d9534f;">${userTxt.replace(/\n/g,'↵')}</span></div>`;
                 } else {
-                    errorDetails = `<span style="display:inline-block;margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${item.errors.map(err =>
+                    errorDetails = `<div style="margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${item.errors.map(err =>
                         `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`
-                    ).join(', ')}</span>`;
+                    ).join(', ')}</div>`;
                 }
-                html += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${verseDisplay}${errorDetails}</div>`;
+                html += `<div class="wrong-item"><strong>${verseRefs[item.vi]}</strong><br>${verseDisplay}${errorDetails}</div>`;
             });
             wl.innerHTML = html;
         }

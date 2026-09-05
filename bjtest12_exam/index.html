@@ -179,7 +179,7 @@
                 <div class="exam-progress-text" id="examProgressText"></div>
                 <div class="exam-notice">
                     💡 <strong>빈칸(1~7번)</strong> 자동 채점 · <strong>내용(8~10번)</strong> 채점 후 모범답안 공개<br>
-                    <span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span>
+                    <span style="color:var(--primary-color);">* 쉼표(,)와 띄어쓰기 오류는 정답으로 인정됩니다!</span>
                 </div>
             </div>
             <div id="exam-verses-area"></div>
@@ -504,7 +504,7 @@
         if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
     });
 
-    function normGrade(s) { return (s || '').trim().replace(/,/g, ''); }
+    function normGrade(s) { return (s || '').replace(/[\s,]/g, ''); }
 
     function gradeAll() {
         examScore = 0; examWrongData = [];

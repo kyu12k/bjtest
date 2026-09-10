@@ -522,7 +522,7 @@
                     errorDetails = `<div style="margin-top:6px;font-size:.88em;color:#666;">내가 쓴 것: <span style="color:#d9534f;">${userTxt.replace(/\n/g,'↵')}</span></div>`;
                 } else {
                     errorDetails = `<div style="margin-top:8px;font-size:.9em;color:#666;">❌ 틀린 부분: ${item.errors.map(err =>
-                        `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`
+                        `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(err.wrong)}</span>]`
                     ).join(', ')}</div>`;
                 }
                 html += `<div class="wrong-item"><strong>${verseRefs[item.vi]}</strong><br>${verseDisplay}${errorDetails}</div>`;

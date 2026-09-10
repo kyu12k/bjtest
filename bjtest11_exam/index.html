@@ -523,6 +523,9 @@ function handleExamInput(e, cur) {
         } else submitExamVerse();
     }
 }
+    function escapeHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
 function submitExamVerse() {
     const inputs = document.querySelectorAll('.exam-input');
@@ -556,7 +559,7 @@ function showExamResult() {
             const vd = activeLevel === 1
                 ? item.fullVerse.replace(/\{([^}]+)\}/g, '<span class="correct-ans">$1</span>')
                 : item.fullVerse.replace(/\{([^}]+)\}/g, '$1');
-            const ed = item.errors.map(e => `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${e.wrong}</span>]`).join(', ');
+            const ed = item.errors.map(e => `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`).join(', ');
             h += `<div class="wrong-item"><strong>[${item.verseNum}절]</strong><br>${vd}<br><span style="font-size:0.9em;color:#666;">❌ 틀린 부분: ${ed}</span></div>`;
         });
         wc.innerHTML = h;

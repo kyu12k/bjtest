@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -731,6 +731,9 @@
             else if (idx === inputs.length - 1) submitExamVerse();
         }
     }
+    function escapeHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     function submitExamVerse() {
         const inputs = document.querySelectorAll('.exam-input');
@@ -765,7 +768,7 @@
             let html = '<h3>📝 오답 노트</h3>';
             examWrongData.forEach(item => {
                 const vd = item.fullVerse.replace(/\{([^}]+)\}/g, '<span class="correct-ans">$1</span>');
-                const ed = item.errors.map(e => '[정답: <span class="correct-ans">' + e.correct + '</span> / 내 입력: <span class="wrong-ans">' + e.wrong + '</span>]').join(', ');
+                const ed = item.errors.map(e => '[정답: <span class="correct-ans">' + e.correct + '</span> / 내 입력: <span class="wrong-ans">' + escapeHtml(e.wrong) + '</span>]').join(', ');
                 html += '<div class="wrong-item"><strong>[' + item.verseLabel + ']</strong><br>' + vd + '<br><span style="display:inline-block; margin-top:8px; font-size:0.9em; color:#666;">❌ 틀린 부분: ' + ed + '</span></div>';
             });
             wl.innerHTML = html;

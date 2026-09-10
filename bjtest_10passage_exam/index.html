@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -653,7 +653,7 @@
                     html += `<div style="margin:3px 0;"><span class="verse-num">${v.n}</span> ${display}</div>`;
                 });
                 const errDetail = item.errors.map(e =>
-                    `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${e.wrong}</span>]`
+                    `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
                 ).join(' ');
                 html += `<div style="margin-top:6px;font-size:0.88em;color:#666;">❌ 틀린 단어: ${errDetail}</div></div>`;
             });

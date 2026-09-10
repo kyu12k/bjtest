@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -482,6 +482,9 @@
             }
         }
     }
+    function escapeHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     function submitExamVerse() {
         const inputs = document.querySelectorAll('.exam-input');
@@ -538,7 +541,7 @@
                     ? item.fullVerse.replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`) 
                     : item.fullVerse.replace(/\{|\}/g, ''); 
                 
-                let errorDetails = item.errors.map(err => `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${err.wrong}</span>]`).join(', ');
+                let errorDetails = item.errors.map(err => `[정답: <span class="correct-ans">${err.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(err.wrong)}</span>]`).join(', ');
 
                 html += `
                     <div class="wrong-item">

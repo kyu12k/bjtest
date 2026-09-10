@@ -460,41 +460,14 @@
         stageList.appendChild(card);
     });
 
-    async function checkUpdate() {
+    function checkUpdate() {
         const btn = document.getElementById('updateBtn');
         btn.disabled = true;
-        btn.textContent = '⏳ 확인 중…';
-        if ('serviceWorker' in navigator) {
-            try {
-                const reg = await navigator.serviceWorker.getRegistration();
-                if (reg) {
-                    let foundUpdate = false;
-                    const onFound = () => { foundUpdate = true; };
-                    reg.addEventListener('updatefound', onFound);
-                    await reg.update();
-                    await new Promise(r => setTimeout(r, 1200));
-                    reg.removeEventListener('updatefound', onFound);
-                    if (foundUpdate || reg.waiting) {
-                        btn.textContent = '🆕 새 버전 발견! 새로고침합니다…';
-                        setTimeout(() => location.reload(true), 700);
-                        return;
-                    } else {
-                        showUpToDate(btn);
-                        return;
-                    }
-                }
-            } catch(e) {}
-        }
-        location.reload(true);
-    }
-    function showUpToDate(btn) {
-        btn.textContent = '✅ 이미 최신버전입니다';
-        btn.style.backgroundColor = '#198754';
-        setTimeout(() => {
-            btn.textContent = '🔄 최신버전 불러오기';
-            btn.style.backgroundColor = '#0077cc';
-            btn.disabled = false;
-        }, 3000);
+        btn.textContent = '⏳ 새로고침 중…';
+        // 캐시를 확실히 우회하기 위해 URL에 타임스탬프를 붙여 새 주소로 이동
+        const u = new URL(location.href);
+        u.searchParams.set('v', Date.now());
+        location.replace(u.toString());
     }
 
     // 🌙 다크 모드 로직

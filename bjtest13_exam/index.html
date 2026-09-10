@@ -506,6 +506,10 @@
 
     function normGrade(s) { return (s || '').replace(/[\s,]/g, ''); }
 
+    function escapeHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     function gradeAll() {
         examScore = 0; examWrongData = [];
         let gradedCount = 0;
@@ -562,7 +566,7 @@
                     ? item.lines.join('<br>').replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
                     : item.lines.join('<br>').replace(/\{|\}/g, '');
                 const errHtml = item.errors.map(e =>
-                    `[정답: <span class="correct-ans">${e.correct}</span> / 내 입력: <span class="wrong-ans">${e.wrong}</span>]`
+                    `[정답: <span class="correct-ans">${e.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
                 ).join(', ');
                 html += `<div class="wrong-item"><strong>${item.label}</strong><br><span style="font-size:.95rem;line-height:2;">${verseDisplay}</span><div style="margin-top:8px;font-size:.9em;color:#666;">❌ ${errHtml}</div></div>`;
             });

@@ -188,6 +188,10 @@
         <div id="exam-play-area">
             <div class="exam-header">
                 <div class="exam-progress-text" id="examProgressText">1 / 5</div>
+                <div id="hardModeToggleRow" style="display:none;margin:8px 0;">
+                    <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
+                    <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 절 전체를 통으로 입력 (띄어쓰기 오류 허용)</span>
+                </div>
                 <div class="exam-ref-text" id="examRefText"></div>
                 <div class="exam-notice">💡 PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈</code>으로 다음 칸 이동<br><span style="color:var(--primary-color);">쉼표(,) 입력 여부와 관계없이 정답 처리됩니다!</span></div>
             </div>
@@ -348,6 +352,9 @@
             document.getElementById('exam-arena').style.display = 'block';
             document.getElementById('globalControls').style.display = 'none';
             document.getElementById('shuffleInfo').style.display = 'none';
+            hardMode4 = false;
+            const _hb = document.getElementById('hardModeBtn');
+            if (_hb) { _hb.style.background = 'transparent'; _hb.style.color = '#e67e00'; _hb.textContent = '🔒 심화 모드 OFF'; }
             startExam();
         }
     }
@@ -499,7 +506,19 @@
 
     function retryExam() { setMode('exam', activeLevel); }
 
+    let hardMode4 = false;
+    function toggleHardMode() {
+        hardMode4 = !hardMode4;
+        const btn = document.getElementById('hardModeBtn');
+        btn.style.background = hardMode4 ? '#e67e00' : 'transparent';
+        btn.style.color = hardMode4 ? '#fff' : '#e67e00';
+        btn.textContent = hardMode4 ? '🔓 심화 모드 ON' : '🔒 심화 모드 OFF';
+        startExam();
+    }
+
     function renderExamPassage() {
+        const _hmRow = document.getElementById('hardModeToggleRow');
+        if (_hmRow) _hmRow.style.display = activeLevel === 4 ? 'block' : 'none';
         const p = selectedPassages[currentExamIndex];
         document.getElementById('examProgressText').innerText = `[${activeLevel}단계] ${currentExamIndex + 1} / ${EXAM_COUNT}`;
         document.getElementById('examRefText').innerText = `${p.label} — ${p.ref}`;
@@ -535,6 +554,19 @@
                 if (activeVerse) {
                     activeVerse.text.replace(/\{([^}]+)\}/g, (_, w) => blankSet.add(w));
                 }
+            }
+
+            if (activeLevel === 4 && hardMode4) {
+                const vBody = (words[0] && !isNaN(words[0])) ? words.slice(1).join(' ') : rawText;
+                const ta = document.createElement('textarea');
+                ta.className = 'exam-input';
+                ta.dataset.answer = vBody;
+                ta.rows = 4;
+                ta.placeholder = '절 전체를 입력하세요 (띄어쓰기 오류 허용)';
+                ta.style.cssText = 'width:100%;box-sizing:border-box;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;margin-top:4px;';
+                block.appendChild(ta);
+                container.appendChild(block);
+                return;
             }
 
             words.forEach((word, idx) => {
@@ -612,8 +644,9 @@
         let errors = [];
 
         inputs.forEach(input => {
-            const userVal = input.value.trim().replace(/,/g, '');
-            const correctVal = input.dataset.answer.trim().replace(/,/g, '');
+            const _sp = (activeLevel === 4 && hardMode4) ? (x => x.replace(/\s+/g, '')) : (x => x);
+            const userVal = _sp(input.value.trim().replace(/,/g, ''));
+            const correctVal = _sp(input.dataset.answer.trim().replace(/,/g, ''));
             if (userVal !== correctVal) {
                 allCorrect = false;
                 errors.push({ correct: input.dataset.answer, wrong: input.value || '(빈칸)' });
@@ -652,10 +685,19 @@
                     const display = v.text.replace(/\{([^}]+)\}/g, '<span class="correct-ans">$1</span>');
                     html += `<div style="margin:3px 0;"><span class="verse-num">${v.n}</span> ${display}</div>`;
                 });
-                const errDetail = item.errors.map(e =>
-                    `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
-                ).join(' ');
-                html += `<div style="margin-top:6px;font-size:0.88em;color:#666;">❌ 틀린 단어: ${errDetail}</div></div>`;
+                let errDetail, errLabel;
+                if (activeLevel === 4 && hardMode4) {
+                    errLabel = '내가 쓴 것';
+                    errDetail = item.errors.map(e =>
+                        `<div style="color:#d9534f;margin:2px 0;">${escapeHtml(e.wrong).replace(/\n/g, '↵')}</div>`
+                    ).join('');
+                } else {
+                    errLabel = '틀린 단어';
+                    errDetail = item.errors.map(e =>
+                        `[정답: <span class="correct-ans">${e.correct}</span> / 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
+                    ).join(' ');
+                }
+                html += `<div style="margin-top:6px;font-size:0.88em;color:#666;">❌ ${errLabel}: ${errDetail}</div></div>`;
             });
             wrongContainer.innerHTML = html;
         }

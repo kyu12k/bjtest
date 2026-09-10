@@ -177,7 +177,10 @@
         <div id="exam-play-area">
             <div class="exam-header">
                 <div class="exam-progress-text" id="examProgressText"></div>
-                <div class="exam-notice">
+                <div id="hardModeToggleRow" style="display:none;margin:8px 0;">
+                    <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
+                    <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 구절 전체를 통으로 입력</span>
+                </div>                <div class="exam-notice">
                     💡 <strong>빈칸(1~7번)</strong> 자동 채점 · <strong>내용(8~10번)</strong> 채점 후 모범답안 공개<br>
                     <span style="color:var(--primary-color);">* 쉼표(,)와 띄어쓰기 오류는 정답으로 인정됩니다!</span>
                 </div>
@@ -327,6 +330,9 @@
             document.getElementById('study-area').style.display = 'none';
             document.getElementById('exam-arena').style.display = 'block';
             document.getElementById('globalControls').style.display = 'none';
+            hardMode4 = false;
+            const _hb = document.getElementById('hardModeBtn');
+            if (_hb) { _hb.style.background = 'transparent'; _hb.style.color = '#e67e00'; _hb.textContent = '🔒 심화 모드 OFF'; }
             startExam();
         }
     }
@@ -432,7 +438,19 @@
     // ===== 모의고사 =====
     let examScore = 0, examWrongData = [];
 
+    let hardMode4 = false;
+    function toggleHardMode() {
+        hardMode4 = !hardMode4;
+        const btn = document.getElementById('hardModeBtn');
+        btn.style.background = hardMode4 ? '#e67e00' : 'transparent';
+        btn.style.color = hardMode4 ? '#fff' : '#e67e00';
+        btn.textContent = hardMode4 ? '🔓 심화 모드 ON' : '🔒 심화 모드 OFF';
+        startExam();
+    }
+
     function startExam() {
+        const _hmRow = document.getElementById('hardModeToggleRow');
+        if (_hmRow) _hmRow.style.display = activeLevel === 4 ? 'block' : 'none';
         examScore = 0; examWrongData = [];
         document.getElementById('exam-play-area').style.display = 'block';
         document.getElementById('exam-result-area').style.display = 'none';
@@ -443,6 +461,10 @@
     function retryCurrentExam() { setMode('exam', activeLevel); }
 
     function buildExamLine(line) {
+        if (activeLevel === 4 && hardMode4) {
+            const clean = line.replace(/\{|\}/g, '');
+            return `<textarea class="exam-input" data-answer="${clean}" rows="4" style="width:100%;box-sizing:border-box;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;margin:4px 0;" placeholder="구절 전체를 입력하세요"></textarea>`;
+        }
         if (activeLevel === 1) {
             return line.replace(/\{([^}]+)\}/g, (m, ans) => {
                 const w = (ans.length * 1.5) + 1;
@@ -566,9 +588,11 @@
                 const verseDisplay = activeLevel === 1
                     ? item.lines.join('<br>').replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
                     : item.lines.join('<br>').replace(/\{|\}/g, '');
-                const errHtml = item.errors.map(e =>
-                    `[정답: <span class="correct-ans">${e.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
-                ).join(', ');
+                const errHtml = (activeLevel === 4 && hardMode4)
+                    ? item.errors.map(e => `<div style="color:#d9534f;margin:2px 0;">${escapeHtml(e.wrong).replace(/\n/g, '↵')}</div>`).join('')
+                    : item.errors.map(e =>
+                        `[정답: <span class="correct-ans">${e.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
+                    ).join(', ');
                 html += `<div class="wrong-item"><strong>${item.label}</strong><br><span style="font-size:.95rem;line-height:2;">${verseDisplay}</span><div style="margin-top:8px;font-size:.9em;color:#666;">❌ ${errHtml}</div></div>`;
             });
             wl.innerHTML = html;

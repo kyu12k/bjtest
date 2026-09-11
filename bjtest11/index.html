@@ -476,7 +476,7 @@
             let vNum = ws[0] && !isNaN(ws[0]) ? ws[0] : null;
             let vBody = vNum ? ws.slice(1).join(' ') : verseClean;
             let numHtml = vNum ? `<span style="font-weight:bold;color:var(--primary-color);font-size:1.1em;margin-right:6px;">${vNum}</span>` : '';
-            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${vBody}" rows="4" style="flex:1;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
+            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${vBody}" rows="4" style="flex:1;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitExamVerse();}" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
         } else {
             let rawText = verseStr.replace(/\{|\}/g, '');
             let words = rawText.split(' ');

@@ -517,7 +517,8 @@
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         const t = e.target;
-        if (!t.matches('.exam-input') || t.tagName === 'TEXTAREA') return;
+        if (!t.matches('.exam-input')) return;
+        if (t.tagName === 'TEXTAREA' && e.shiftKey) return;
         e.preventDefault();
         const block = t.closest('[data-qidx]');
         if (!block) return;

@@ -563,6 +563,7 @@
                 ta.dataset.answer = vBody;
                 ta.rows = 4;
                 ta.placeholder = '절 전체를 입력하세요 (띄어쓰기 오류 허용)';
+                ta.addEventListener('keydown', e => { if (!e.shiftKey) handleExamKey(e, ta); });
                 ta.style.cssText = 'width:100%;box-sizing:border-box;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;margin-top:4px;';
                 block.appendChild(ta);
                 container.appendChild(block);

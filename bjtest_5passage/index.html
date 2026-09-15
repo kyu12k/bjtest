@@ -472,6 +472,9 @@
         return r;
     }
 
+    function escapeHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
     function correctBody(verseStr) {
         return verseStr.replace(/\{|\}/g, '').replace(/^\s*\d+\s+/, '');
     }
@@ -480,7 +483,7 @@
         let out = '';
         const walk = n => {
             if (n.nodeType === 3) { out += n.textContent; return; }
-            if (n.classList && n.classList.contains('exam-input')) { out += n.value; return; }
+            if (n.classList && n.classList.contains('exam-input')) { out += ' ' + n.value + ' '; return; }
             n.childNodes.forEach(walk);
         };
         walk(block);

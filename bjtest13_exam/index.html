@@ -117,6 +117,15 @@
         #topBtn:hover { transform:scale(1.1); }
 
         @media (pointer:coarse) { .quiz-card,.content-card { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; } }
+        .diff-wrong { color: #d9534f; font-weight: bold; text-decoration: underline wavy #d9534f; }
+        .diff-missing { color: #e67e00; font-weight: bold; background: rgba(230,126,0,.15); border-radius: 2px; padding: 0 1px; }
+        .diff-legend { font-size: .85rem; color: #888; margin: -6px 0 12px; }
+        .diff-row { display: flex; gap: 10px; margin-top: 6px; align-items: flex-start; line-height: 1.8; }
+        .diff-lbl { flex: 0 0 52px; font-size: .82rem; font-weight: bold; color: #888; padding-top: 3px; }
+        .verse-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .vs-item { padding: 4px 10px; border-radius: 14px; font-size: .9rem; background: var(--card-bg); }
+        .vs-ok { color: #198754; } .vs-wrong { color: #d9534f; } .vs-skip { color: #999; }
+
     </style>
 </head>
 <body>
@@ -455,7 +464,7 @@
     function startExam() {
         const _hmRow = document.getElementById('hardModeToggleRow');
         if (_hmRow) _hmRow.style.display = activeLevel === 4 ? 'block' : 'none';
-        examScore = 0; examWrongData = [];
+        examScore = 0; examWrongData = []; examResults = [];
         document.getElementById('exam-play-area').style.display = 'block';
         document.getElementById('exam-result-area').style.display = 'none';
         document.getElementById('examProgressText').innerHTML =
@@ -515,9 +524,10 @@
     }
 
     document.addEventListener('keydown', e => {
-        if (e.key !== 'Enter') return;
         const t = e.target;
         if (!t.matches('.exam-input')) return;
+        const isSpaceNav = e.key === ' ' && t.tagName === 'INPUT' && activeLevel !== 1;
+        if (e.key !== 'Enter' && !isSpaceNav) return;
         if (t.tagName === 'TEXTAREA' && e.shiftKey) return;
         e.preventDefault();
         const block = t.closest('[data-qidx]');
@@ -534,14 +544,14 @@
     }
 
     function gradeAll() {
-        examScore = 0; examWrongData = [];
+        examScore = 0; examWrongData = []; examResults = [];
         let gradedCount = 0;
 
         blankQuestions.forEach((q, qi) => {
             const block = document.querySelector(`[data-qidx="${qi}"]`);
             if (!block) return;
             const inputs = [...block.querySelectorAll('.exam-input')];
-            if (inputs.every(inp => !inp.value.trim())) return;
+            if (inputs.every(inp => !inp.value.trim())) { examResults.push({ label: q.label, status: 'skip' }); return; }
             gradedCount++;
             let isCorrect = true, errors = [];
             inputs.forEach(inp => {
@@ -550,6 +560,8 @@
                     errors.push({ correct: inp.dataset.answer, wrong: inp.value || '(빈칸)' });
                 }
             });
+            const _t = collectExamTexts(block);
+            examResults.push({ label: q.label, status: isCorrect ? 'ok' : 'wrong', user: _t.user, correct: _t.correct, correctHtml: _t.correctHtml });
             if (isCorrect) examScore++;
             else examWrongData.push({ label: q.label, lines: q.lines, errors });
         });
@@ -560,6 +572,79 @@
         });
 
         showExamResult(gradedCount);
+    }
+
+    let examResults = [];
+    // 입력 블록을 문서 순서로 훑어 사용자 입력·정답을 절 단위로 재조립 (빈칸 아닌 단어는 정답 그대로)
+    function collectExamTexts(block) {
+        let user = '', correct = '', correctHtml = '';
+        const hl = activeLevel === 1 || activeLevel === 3;
+        const walk = n => {
+            if (n.nodeType === 3) { user += n.textContent; correct += n.textContent; correctHtml += escapeHtml(n.textContent); return; }
+            if (n.tagName === 'BR') { user += ' '; correct += ' '; correctHtml += '<br>'; return; }
+            if (n.classList && n.classList.contains('exam-input')) {
+                const a = n.dataset.answer || '';
+                const pad = n.tagName === 'TEXTAREA' ? ' ' : '';
+                user += pad + n.value + pad; correct += pad + a + pad;
+                correctHtml += pad + (hl ? '<span class="correct-ans">' + escapeHtml(a) + '</span>' : escapeHtml(a)) + pad;
+                return;
+            }
+            n.childNodes.forEach(walk);
+        };
+        walk(block);
+        const tidy = s => s.replace(/[ \t\r\n]+/g, ' ').trim();
+        user = tidy(user); correct = tidy(correct); correctHtml = tidy(correctHtml);
+        const m = correct.match(/^(\d+)\s+/);
+        const num = m ? m[1] : '';
+        if (m) { correct = correct.slice(m[0].length); correctHtml = correctHtml.replace(/^\d+\s+/, ''); user = user.replace(/^\d+\s+/, ''); }
+        return { num, user, correct, correctHtml };
+    }
+    // 글자 단위 LCS 정렬: 틀린 글자(빨강)·빠뜨린 글자(주황). 쉼표·공백은 정렬에서 제외하고 공백은 정답 기준으로 복원
+    function diffHtml(u, c) {
+        const nu = (u || '').replace(/[\s,]/g, '');
+        if (!nu) return '<span class="diff-wrong">(미입력)</span>';
+        const nc = [], spaceBefore = [];
+        let pend = false;
+        for (const ch of (c || '').replace(/,/g, '')) {
+            if (/\s/.test(ch)) { pend = true; continue; }
+            nc.push(ch); spaceBefore.push(pend); pend = false;
+        }
+        const m = nu.length, n = nc.length;
+        const dp = Array.from({ length: m + 1 }, () => new Int32Array(n + 1));
+        for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+            dp[i][j] = nu[i - 1] === nc[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        const align = []; let i = m, j = n;
+        while (i > 0 || j > 0) {
+            if (i > 0 && j > 0 && nu[i - 1] === nc[j - 1]) { align.push([i - 1, j - 1]); i--; j--; }
+            else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) { align.push([-1, j - 1]); j--; }
+            else { align.push([i - 1, -1]); i--; }
+        }
+        align.reverse();
+        return align.map(([ui, ci]) => {
+            const sp = ci >= 0 && spaceBefore[ci] ? ' ' : '';
+            if (ui >= 0 && ci >= 0) return sp + escapeHtml(nu[ui]);
+            if (ui >= 0) return `<span class="diff-wrong">${escapeHtml(nu[ui])}</span>`;
+            return sp + `<span class="diff-missing">${escapeHtml(nc[ci])}</span>`;
+        }).join('');
+    }
+    function renderExamReview(container, results) {
+        let html = `<h3 style="margin-top:0;">📋 절별 결과</h3><div class="verse-summary">`;
+        results.forEach(r => {
+            const st = r.status || (r.ok ? 'ok' : 'wrong');
+            const icon = st === 'ok' ? '✅' : st === 'wrong' ? '❌' : '⬜';
+            html += `<span class="vs-item vs-${st}">${icon} ${r.label}${st === 'skip' ? ' (미응답)' : ''}</span>`;
+        });
+        html += `</div>`;
+        const wrong = results.filter(r => (r.status || (r.ok ? 'ok' : 'wrong')) === 'wrong');
+        if (wrong.length) {
+            html += `<h3>📝 오답 노트</h3><div class="diff-legend"><span class="diff-wrong">틀린 글자</span> · <span class="diff-missing">빠뜨린 글자</span> · 쉼표·띄어쓰기는 채점 제외</div>`;
+            wrong.forEach(r => {
+                html += `<div class="wrong-item"><strong>${r.label}</strong>`
+                    + `<div class="diff-row"><span class="diff-lbl">정답</span><span>${r.correctHtml}</span></div>`
+                    + `<div class="diff-row"><span class="diff-lbl">내 입력</span><span>${diffHtml(r.user, r.correct)}</span></div></div>`;
+            });
+        }
+        container.innerHTML = html;
     }
 
     function showExamResult(gradedCount) {
@@ -581,22 +666,7 @@
         }
 
         const wl = document.getElementById('wrongListContainer');
-        wl.innerHTML = '';
-        if (examWrongData.length > 0) {
-            let html = `<h3>📝 빈칸 오답 노트</h3>`;
-            examWrongData.forEach(item => {
-                const verseDisplay = activeLevel === 1
-                    ? item.lines.join('<br>').replace(/\{([^}]+)\}/g, `<span class="correct-ans">$1</span>`)
-                    : item.lines.join('<br>').replace(/\{|\}/g, '');
-                const errHtml = (activeLevel === 4 && hardMode4)
-                    ? item.errors.map(e => `<div style="color:#d9534f;margin:2px 0;">${escapeHtml(e.wrong).replace(/\n/g, '↵')}</div>`).join('')
-                    : item.errors.map(e =>
-                        `[정답: <span class="correct-ans">${e.correct}</span> / 내 입력: <span class="wrong-ans">${escapeHtml(e.wrong)}</span>]`
-                    ).join(', ');
-                html += `<div class="wrong-item"><strong>${item.label}</strong><br><span style="font-size:.95rem;line-height:2;">${verseDisplay}</span><div style="margin-top:8px;font-size:.9em;color:#666;">❌ ${errHtml}</div></div>`;
-            });
-            wl.innerHTML = html;
-        }
+        renderExamReview(wl, examResults);
 
         let cHtml = `<h3 style="margin-top:24px;">✏️ 내용 시험 모범 답안</h3>`;
         contentQuestions.forEach(q => {

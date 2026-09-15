@@ -173,7 +173,7 @@
                     <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
                     <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 절 전체를 통으로 입력 (띄어쓰기 오류 허용)</span>
                 </div>
-                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+                <div class="exam-notice">💡 <strong>안내:</strong> <code>엔터</code>(2~4단계는 <code>스페이스바</code>도 가능)를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
             </div>
             <div id="exam-verses-area"></div>
             <button class="btn-next-exam" onclick="gradeAll()">채점하기 ✅</button>
@@ -451,9 +451,11 @@
 
     // Enter: 같은 절 안에서만 다음 칸으로 이동
     document.addEventListener('keydown', e => {
-        if (e.key !== 'Enter') return;
         const t = e.target;
         if (!t.matches('.exam-input')) return;
+        // 1단계는 빈칸이 구(句) 단위라 띄어쓰기가 필요하고, 심화 모드 textarea도 마찬가지 → 스페이스 이동은 단어 단위 input에서만
+        const isSpaceNav = e.key === ' ' && t.tagName === 'INPUT' && activeLevel !== 1;
+        if (e.key !== 'Enter' && !isSpaceNav) return;
         if (t.tagName === 'TEXTAREA' && e.shiftKey) return;
         e.preventDefault();
         const block = t.closest('[data-verse-idx]');

@@ -582,6 +582,7 @@
     }
 
     function handleExamInput(e, currentInput) {
+        if (e.isComposing || e.keyCode === 229) return; // 한글 조합 중에는 개입하지 않음 (글자 유실 방지)
         if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
             e.preventDefault();
             const inputs = document.querySelectorAll('.exam-input');
@@ -741,6 +742,19 @@
         if (body.getAttribute('data-theme') === 'dark') { body.setAttribute('data-theme', 'light'); btn.innerText = "🌙 다크 모드"; }
         else { body.setAttribute('data-theme', 'dark'); btn.innerText = "☀️ 라이트 모드"; }
     }
+
+    // 한글 IME가 스페이스를 '조합 확정'으로 처리해 keydown이 오지 않는 경우(주로 모바일) 대비:
+    // 값에 공백이 들어오면 지우고 다음 칸으로 이동
+    document.addEventListener('input', e => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement) || !t.classList.contains('exam-input') || activeLevel === 1) return;
+        if (!/\s/.test(t.value)) return;
+        t.value = t.value.replace(/\s+/g, '');
+        const scope = t.closest('[data-verse-idx],[data-qidx]') || document;
+        const all = [...scope.querySelectorAll('input.exam-input')];
+        const i = all.indexOf(t);
+        if (i > -1 && i < all.length - 1) setTimeout(() => all[i + 1].focus(), 0);
+    });
 </script>
 
 <script src="/nav.js"></script>

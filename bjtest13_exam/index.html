@@ -525,6 +525,7 @@
 
     document.addEventListener('keydown', e => {
         const t = e.target;
+        if (e.isComposing || e.keyCode === 229) return; // 한글 조합 중에는 개입하지 않음 (글자 유실 방지)
         if (!t.matches('.exam-input')) return;
         const isSpaceNav = e.key === ' ' && t.tagName === 'INPUT' && activeLevel !== 1;
         if (e.key !== 'Enter' && !isSpaceNav) return;
@@ -534,7 +535,7 @@
         if (!block) return;
         const inputs = [...block.querySelectorAll('.exam-input')];
         const idx = inputs.indexOf(t);
-        if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
+        if (idx >= 0 && idx < inputs.length - 1) setTimeout(() => inputs[idx + 1].focus(), 0);
     });
 
     function normGrade(s) { return (s || '').replace(/[\s,]/g, ''); }
@@ -685,6 +686,19 @@
         document.body.setAttribute('data-theme','dark');
         document.querySelector('.btn-dark').innerText = '☀️ 라이트 모드';
     }
+
+    // 한글 IME가 스페이스를 '조합 확정'으로 처리해 keydown이 오지 않는 경우(주로 모바일) 대비:
+    // 값에 공백이 들어오면 지우고 다음 칸으로 이동
+    document.addEventListener('input', e => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement) || !t.classList.contains('exam-input') || activeLevel === 1) return;
+        if (!/\s/.test(t.value)) return;
+        t.value = t.value.replace(/\s+/g, '');
+        const scope = t.closest('[data-verse-idx],[data-qidx]') || document;
+        const all = [...scope.querySelectorAll('input.exam-input')];
+        const i = all.indexOf(t);
+        if (i > -1 && i < all.length - 1) setTimeout(() => all[i + 1].focus(), 0);
+    });
 </script>
 
 <script src="/nav.js"></script>

@@ -154,6 +154,8 @@
         .vs-item { padding: 4px 10px; border-radius: 14px; font-size: .9rem; background: var(--card-bg); }
         .vs-ok { color: #198754; } .vs-wrong { color: #d9534f; } .vs-skip { color: #999; }
 
+        .exam-input.exam-empty { background: rgba(255,193,7,.28); border-bottom-color: #e6a700; box-shadow: 0 0 0 2px rgba(230,167,0,.35); }
+
     </style>
 </head>
 <body>
@@ -533,6 +535,7 @@
 
     function submitExamVerse() {
         const inputs = document.querySelectorAll('.exam-input');
+        if (!confirmEmptyBlanks([...inputs])) return;
         let isVerseAllCorrect = true;
         let verseLog = []; 
 
@@ -565,6 +568,17 @@
         else renderExamVerse();
     }
 
+    // 일부 빈칸만 비어 있으면 표시하고 확인을 받음 (전부 비었거나 전부 채웠으면 그냥 통과). true = 계속 제출
+    function confirmEmptyBlanks(inputs) {
+        inputs.forEach(i => i.classList.remove('exam-empty'));
+        const empty = inputs.filter(i => !i.value.trim());
+        if (!empty.length || empty.length === inputs.length) return true;
+        empty.forEach(i => i.classList.add('exam-empty'));
+        if (confirm(`빈칸 ${empty.length}개가 비어 있습니다.\n그대로 제출할까요?`)) return true;
+        empty[0].focus();
+        if (empty[0].scrollIntoView) empty[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
     let examResults = [];
     // 입력 블록을 문서 순서로 훑어 사용자 입력·정답을 절 단위로 재조립 (빈칸 아닌 단어는 정답 그대로)
     function collectExamTexts(block) {

@@ -552,9 +552,7 @@
             const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
             const cleanCorrect = correctAnswer.trim().replace(/[,()]/g, '');
 
-            const _spNorm = (activeLevel === 4 && hardMode4) ? (x => x.replace(/\s+/g, '')) : (x => x);
-
-            if (_spNorm(cleanUser) !== _spNorm(cleanCorrect)) {
+if (normCmp(cleanUser) !== normCmp(cleanCorrect)) {
                 isVerseAllCorrect = false;
                 verseLog.push({ correct: correctAnswer, wrong: userAnswer || '(빈칸)' });
             }
@@ -609,13 +607,17 @@
         if (m) { correct = correct.slice(m[0].length); correctHtml = correctHtml.replace(/^\d+\s+/, ''); user = user.replace(/^\d+\s+/, ''); }
         return { num, user, correct, correctHtml };
     }
+    // 채점·오답표시 공통 정규화: 띄어쓰기·쉼표·보이지 않는 문자 무시, 한글 NFC 통일
+    function normCmp(s) {
+        return (s || '').normalize('NFC').replace(/[\s\u200B-\u200D\uFEFF,]/g, '');
+    }
     // 글자 단위 LCS 정렬: 틀린 글자(빨강)·빠뜨린 글자(주황). 쉼표·공백은 정렬에서 제외하고 공백은 정답 기준으로 복원
     function diffHtml(u, c) {
-        const nu = (u || '').replace(/[\s,]/g, '');
+        const nu = normCmp(u);
         if (!nu) return '<span class="diff-wrong">(미입력)</span>';
         const nc = [], spaceBefore = [];
         let pend = false;
-        for (const ch of (c || '').replace(/,/g, '')) {
+        for (const ch of (c || '').normalize('NFC').replace(/[\u200B-\u200D\uFEFF,]/g, '')) {
             if (/\s/.test(ch)) { pend = true; continue; }
             nc.push(ch); spaceBefore.push(pend); pend = false;
         }

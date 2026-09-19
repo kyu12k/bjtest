@@ -221,7 +221,7 @@
                 <div id="hardModeToggleRow" style="display:none;margin:8px 0;">
                     <button id="hardModeBtn" onclick="toggleHardMode()" style="padding:6px 16px;border:2px solid #e67e00;border-radius:20px;background:transparent;color:#e67e00;font-weight:bold;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s;">🔒 심화 모드 OFF</button>
                     <span style="font-size:.8rem;color:#888;margin-left:8px;">켜면 절 전체를 통으로 입력 (띄어쓰기 오류 허용)</span>
-                </div>                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)는 입력해도, 안 해도 정답 처리됩니다!</span></div>
+                </div>                <div class="exam-notice">💡 <strong>안내:</strong> PC는 <code>엔터키</code>, 모바일은 <code>줄바꿈(엔터) 키</code>를 누르면 다음 칸으로 이동합니다.<br><span style="color:var(--primary-color);">* 쉼표(,)와 띄어쓰기는 채점에서 제외됩니다!</span></div>
             </div>
             <div class="question-text" id="examVerseText" style="font-size: 1.25rem; line-height: 2.2;"></div>
             <button class="btn-next-exam" onclick="submitExamVerse()">이 절 제출하고 다음으로 👉</button>
@@ -535,9 +535,7 @@
             const cleanUser = userAnswer.trim().replace(/,/g, '');
             const cleanCorrect = correctAnswer.trim().replace(/,/g, '');
 
-            const _spNorm = (activeLevel === 4 && hardMode4) ? (x => x.replace(/\s+/g, '')) : (x => x);
-
-            if (_spNorm(cleanUser) !== _spNorm(cleanCorrect)) {
+if (normCmp(cleanUser) !== normCmp(cleanCorrect)) {
                 isVerseAllCorrect = false;
                 verseLog.push({ correct: correctAnswer, wrong: userAnswer || '(빈칸)' });
             }
@@ -592,13 +590,17 @@
         if (m) { correct = correct.slice(m[0].length); correctHtml = correctHtml.replace(/^\d+\s+/, ''); user = user.replace(/^\d+\s+/, ''); }
         return { num, user, correct, correctHtml };
     }
+    // 채점·오답표시 공통 정규화: 띄어쓰기·쉼표·보이지 않는 문자 무시, 한글 NFC 통일
+    function normCmp(s) {
+        return (s || '').normalize('NFC').replace(/[\s\u200B-\u200D\uFEFF,]/g, '');
+    }
     // 글자 단위 LCS 정렬: 틀린 글자(빨강)·빠뜨린 글자(주황). 쉼표·공백은 정렬에서 제외하고 공백은 정답 기준으로 복원
     function diffHtml(u, c) {
-        const nu = (u || '').replace(/[\s,]/g, '');
+        const nu = normCmp(u);
         if (!nu) return '<span class="diff-wrong">(미입력)</span>';
         const nc = [], spaceBefore = [];
         let pend = false;
-        for (const ch of (c || '').replace(/,/g, '')) {
+        for (const ch of (c || '').normalize('NFC').replace(/[\u200B-\u200D\uFEFF,]/g, '')) {
             if (/\s/.test(ch)) { pend = true; continue; }
             nc.push(ch); spaceBefore.push(pend); pend = false;
         }

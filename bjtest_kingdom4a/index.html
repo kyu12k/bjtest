@@ -344,7 +344,8 @@
     // ─── 채점 ────────────────────────────────────────────────────────────────
 
     function normalize(str) {
-        return (str || '').trim().replace(/,/g, '').replace(/\s+/g, ' ');
+        // 채점 정규화 — 다른 페이지와 같은 규칙 (공백·쉼표·마침표 등 무시)
+        return (str || '').normalize('NFC').replace(/[\s\u200B-\u200D\u2060\uFEFF,.\u00B7\u22C5\u3001\u3002]/g, '');
     }
 
     function submitExam() {

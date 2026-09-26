@@ -609,7 +609,7 @@ if (normCmp(cleanUser) !== normCmp(cleanCorrect)) {
     }
     // 채점·오답표시 공통 정규화: 띄어쓰기·쉼표·보이지 않는 문자 무시, 한글 NFC 통일
     function normCmp(s) {
-        return (s || '').normalize('NFC').replace(/[\s\u200B-\u200D\uFEFF,]/g, '');
+        return (s || '').normalize('NFC').replace(/[\s​-‍⁠﻿,.·⋅、。]/g, '');
     }
     // 글자 단위 LCS 정렬: 틀린 글자(빨강)·빠뜨린 글자(주황). 쉼표·공백은 정렬에서 제외하고 공백은 정답 기준으로 복원
     function diffHtml(u, c) {

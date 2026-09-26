@@ -1,0 +1,152 @@
+/* engine.css — 계시록 장별 학습 페이지 공통 스타일
+   ⚠️ 고치면 index.html 들의 ?v= 값을 함께 올릴 것 */
+:root {
+            --primary-color: #3b5998;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --blank-bg: #e9ecef;
+            --blank-text: transparent;
+            --hint-bg: #fff3cd;
+            --hint-color: #888;
+            --answer-bg: #d1e7dd;
+            --answer-color: #0f5132;
+            --marker-color: #e83e8c;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+            --exam-color: #e53e3e;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --bg-color: #202124;
+            --card-bg: #303134;
+            --text-color: #e8eaed;
+            --blank-bg: #5f6368;
+            --hint-bg: #423805;
+            --hint-color: #e2b838;
+            --answer-bg: #0c3b28;
+            --answer-color: #8ab4f8;
+            --marker-color: #f783ac;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --exam-color: #fc8181;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 🚨 경고 모달 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); transition: opacity 0.3s; }
+        .modal-content { background-color: var(--card-bg); padding: 30px 25px; border-radius: 16px; text-align: center; max-width: 420px; width: 85%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #d9534f; margin-top: 0; font-size: 1.4rem; }
+        .modal-content p { font-size: 1.05rem; margin-bottom: 25px; word-break: keep-all; line-height: 1.5; }
+        .btn-amen { padding: 12px 30px; font-size: 1.2rem; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-amen:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .btn-amen:not(:disabled):hover { transform: scale(1.03); }
+
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); font-size: 1.6rem; margin-bottom: 10px; }
+
+        /* 🎮 대시보드 UI */
+        .dashboard { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stage-column { display: flex; flex-direction: column; gap: 8px; align-items: center; flex: 1; min-width: 140px; }
+        .btn-stage { padding: 10px 15px; width: 100%; font-size: 0.95rem; border: 2px solid var(--blank-bg); border-radius: 8px; background-color: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-stage:hover { background-color: var(--blank-bg); }
+        .btn-stage.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); transform: scale(1.05); z-index: 2; }
+        
+        .btn-exam { padding: 8px 10px; width: 100%; font-size: 0.85rem; border: 2px dashed var(--exam-color); border-radius: 8px; background-color: transparent; color: var(--exam-color); cursor: pointer; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
+        .btn-exam:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .btn-exam.active { background-color: var(--exam-color); color: white; border-style: solid; transform: scale(1.05); z-index: 2; }
+
+        .global-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* 🎧 플레이어 */
+        .audio-player-box { display: flex; align-items: center; gap: 15px; background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 25px; width: 100%; box-sizing: border-box; position: sticky; top: 15px; z-index: 100; }
+        .player-btn, .loop-btn { cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .player-btn { background: var(--primary-color); color: white; border: none; width: 45px; height: 45px; font-size: 1.4rem; transition: transform 0.2s; }
+        .loop-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); width: 38px; height: 38px; font-size: 1.1rem; transition: 0.2s; }
+        .loop-btn.active { background: var(--primary-color); color: white; }
+        .collapse-btn { background: transparent; border: none; color: var(--primary-color); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; flex-shrink: 0; border-radius: 6px; transition: 0.2s; line-height: 1; }
+        .collapse-btn:hover { background: var(--blank-bg); }
+        .audio-player-box.collapsed { padding: 8px 20px; margin-bottom: 10px; }
+        .audio-player-box.collapsed #playBtn,
+        .audio-player-box.collapsed .player-controls > div:not(.audio-title),
+        .audio-player-box.collapsed #loopBtn,
+        .audio-player-box.collapsed .audio-buttons-row { display: none; }
+        .audio-player-box.collapsed .audio-title { margin-bottom: 0; }
+        .player-controls { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .audio-title { font-size: 0.95rem; font-weight: bold; color: var(--primary-color); margin-bottom: 5px; }
+        .progress-container { position: relative; width: 100%; margin: 5px 0; display: flex; align-items: center; height: 10px; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--primary-color); height: 5px; margin: 0; background: transparent; }
+        .time-display { font-size: 0.8rem; color: #888; text-align: right; }
+
+        /* 📝 퀴즈 카드 */
+        .quiz-card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .question-title { font-weight: bold; font-size: 1.15rem; margin-bottom: 15px; color: var(--primary-color); border-bottom: 2px solid var(--blank-bg); padding-bottom: 10px; }
+        .question-text { font-size: 1.05rem; margin-bottom: 20px; word-break: keep-all; line-height: 1.8; }
+
+        .blank { display: inline-block; min-width: 40px; padding: 2px 6px; margin: 2px; border-bottom: 2px solid var(--primary-color); color: var(--blank-text); background-color: var(--blank-bg); border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; user-select: none; touch-action: manipulation; }
+        .blank.hint-mode { color: var(--hint-color); background-color: var(--hint-bg); }
+        .blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+        .blank.stage2-blank { min-width: 20px; color: var(--hint-color); background-color: var(--hint-bg); border-bottom: 2px solid var(--hint-color); }
+        .blank.stage2-blank.answer-mode { color: var(--answer-color); background-color: var(--answer-bg); border-bottom-color: transparent; }
+
+        .controls { display: flex; gap: 8px; justify-content: flex-end; }
+        button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .btn-hint { background-color: #ffc107; color: #333; }
+        .btn-answer { background-color: #198754; color: white; }
+        .btn-toggle { background-color: #6c757d; color: white; }
+        .btn-dark { background-color: #343a40; color: white; }
+        
+        [data-theme="dark"] .btn-hint { background-color: #9c7b17; color: #eee; }
+        [data-theme="dark"] .btn-answer { background-color: #125838; color: #eee; }
+
+        /* 🏆 모의고사 전용 UI */
+        #exam-arena { display: none; }
+        .exam-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: var(--blank-bg); padding: 15px; border-radius: 12px; }
+        .exam-progress-text { font-weight: bold; color: var(--exam-color); font-size: 1.3rem; margin-bottom: 5px; }
+        .exam-notice { font-size: 0.9rem; color: #666; text-align: center; }
+        [data-theme="dark"] .exam-notice { color: #aaa; }
+        
+        .exam-input { border: none; border-bottom: 2px solid var(--exam-color); background: transparent; color: var(--exam-color); font-size: 1.1rem; font-weight: bold; text-align: center; outline: none; transition: 0.2s; margin: 4px 2px; padding: 2px; font-family: inherit; }
+        .exam-input:focus { border-bottom: 3px solid var(--primary-color); background-color: var(--hint-bg); }
+        .exam-input::placeholder { color: #ccc; font-weight: normal; }
+        [data-theme="dark"] .exam-input::placeholder { color: #666; }
+
+        .btn-next-exam { background-color: var(--exam-color); color: white; font-size: 1.1rem; width: 100%; padding: 15px; margin-top: 25px; border-radius: 12px; }
+        
+        .result-screen { text-align: center; padding: 30px 10px; }
+        .score-display { font-size: 4rem; font-weight: bold; color: var(--exam-color); margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .wrong-list { text-align: left; background: var(--blank-bg); padding: 20px; border-radius: 12px; margin-top: 20px; font-size: 1rem; }
+        .wrong-item { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; line-height: 1.7; }
+        .wrong-item:last-child { border-bottom: none; }
+        .correct-ans { color: #198754; font-weight: bold; background: rgba(25,135,84,0.1); padding: 0 4px; border-radius: 4px; }
+        .wrong-ans { color: #d9534f; text-decoration: line-through; font-size: 0.9em; margin-right: 4px; }
+
+        /* 🚀 TOP 버튼 (좌측 배치) */
+        #topBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background-color: var(--primary-color); color: white; border: none; outline: none; cursor: pointer; padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        #topBtn:hover { transform: scale(1.1); }
+
+        /* 모바일: 텍스트 탭 시 구글 검색 토스트 방지 */
+        @media (pointer: coarse) {
+            .quiz-card, .passage-card { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        }
+        .diff-wrong { color: #d9534f; font-weight: bold; text-decoration: underline wavy #d9534f; }
+        .diff-missing { color: #e67e00; font-weight: bold; background: rgba(230,126,0,.15); border-radius: 2px; padding: 0 1px; }
+        .diff-legend { font-size: .85rem; color: #888; margin: -6px 0 12px; }
+        .diff-row { display: flex; gap: 10px; margin-top: 6px; align-items: flex-start; line-height: 1.8; }
+        .diff-lbl { flex: 0 0 52px; font-size: .82rem; font-weight: bold; color: #888; padding-top: 3px; }
+        .verse-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .vs-item { padding: 4px 10px; border-radius: 14px; font-size: .9rem; background: var(--card-bg); }
+        .vs-ok { color: #198754; } .vs-wrong { color: #d9534f; } .vs-skip { color: #999; }
+
+        .exam-input.exam-empty { background: rgba(255,193,7,.28); border-bottom-color: #e6a700; box-shadow: 0 0 0 2px rgba(230,167,0,.35); }

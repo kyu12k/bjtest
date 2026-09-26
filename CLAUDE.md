@@ -16,8 +16,12 @@ PWA 지원 (manifest.json + sw.js).
   sw.js                    ← Service Worker (no-op, 캐싱 없음)
   manifest.json            ← PWA 메타
 
+  engine.js                ← ★ 22개 장 페이지 공통 엔진 (학습·모의고사 로직 전부)
+  engine.css               ← ★ 22개 장 페이지 공통 스타일
+  build_engine.js          ← 엔진을 뽑아낼 때 쓴 도구 (기록용)
+
   bjtest{N}/               ← 계시록 N장 개별 학습 페이지 (N = 1~22)
-    index.html
+    index.html             ← 설정 4줄 + 본문 + 문제묶음만 (약 7KB). 로직은 engine.js
     mp3/{N}.mp3            ← 해당 장 낭독 오디오 (일부 장만 존재)
 
   bjtest{N}_exam/          ← 특정 장 모의고사 단독 페이지 (일부 장)
@@ -137,9 +141,37 @@ const chapterData = [
 
 ---
 
-## ★ 유지보수의 핵심 — 38개 페이지를 한꺼번에 고친다
+## ★ 유지보수의 핵심
 
-이 사이트는 **거의 같은 HTML 38장**으로 되어 있다 (장별 22 + 시험별 16). 공통 기능을 고치려면 한 장만 고쳐서는 안 되고 **전부 고쳐야 한다.** 커밋 이력에 「(36개 페이지)」「(35개 페이지)」가 붙어 있는 것이 그 흔적이다.
+### 22개 장 페이지 — engine.js 한 곳만 고친다 (2026-09-27 이후)
+
+계시록 1~22장 페이지는 **로직과 스타일을 `/engine.js` · `/engine.css`로 뽑아냈다.**
+각 페이지에는 그 장에만 해당하는 것만 남아 있다.
+
+```html
+<link rel="stylesheet" href="/engine.css?v=20260927">
+…
+<script>
+    const CH = 3;                    // 장 번호
+    const AUDIO = "mp3/3.mp3";       // 낭독 파일. 없으면 null
+    const verses = [ "1 {이기는 자}는 …", … ];
+    const quizData = [ { title: "…", content: verses[0] + "<br>" + verses[1] }, … ];
+</script>
+<script src="/engine.js?v=20260927"></script>
+```
+
+- **학습·모의고사 동작을 고칠 때는 `engine.js` 하나만** 고친다. 22개를 돌 필요가 없다
+- 본문·문제묶음을 고칠 때는 그 장의 `index.html`만 고친다
+- **⚠️ engine.js·engine.css를 고치면 22개 페이지의 `?v=` 값을 함께 올려야 한다.** 안 그러면 브라우저 캐시가 옛 파일을 계속 쓴다
+
+```bash
+node -e "const fs=require('fs');for(let c=1;c<=22;c++){const f='bjtest'+c+'/index.html';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace(/[?]v=\d+/g,'?v=20260928'))}"
+```
+
+### 시험 페이지 16장 — 아직 복붙이다
+
+`bjtest{N}_exam` · `bjtest_mock` · `bjtest_kingdom*` · `bjtest_5passage` 등은 구조가 제각각이라 엔진을 쓰지 않는다.
+이쪽 공통 기능을 고치려면 **여전히 전부 고쳐야 한다.** 커밋 이력의 「(36개 페이지)」가 그 흔적이다.
 
 **방법: 일괄 적용 스크립트를 쓴다.**
 
@@ -155,7 +187,8 @@ node apply_stage4.js          # 예시 — 옛 문자열을 찾아 새 문자열
 4. 개수가 예상과 다르면 멈춘다 — 어떤 장은 문자열이 조금 다를 수 있다
 5. 커밋 메시지에 **몇 개 페이지에 적용했는지 적는다** (`… (36개 페이지)`)
 
-> 한 장만 고치고 넘어가면 나머지 37장에서 그 버그가 계속 살아 있게 된다. 실제로 여러 번 겪은 일이다.
+> 한 장만 고치고 넘어가면 나머지에서 그 버그가 계속 살아 있게 된다. 실제로 여러 번 겪었고,
+> 2026-09 점검에서 20~22장만 괄호를 무시하고 있었고, 21개 장의 「마스터」 축하가 아직 3단계 기준인 것이 발견됐다.
 
 **공통 파일은 예외** — `nav.js`(플로팅 홈 버튼)·`sw.js`·`manifest.json`은 루트에 하나뿐이라 한 번만 고치면 된다.
 
@@ -164,12 +197,15 @@ node apply_stage4.js          # 예시 — 옛 문자열을 찾아 새 문자열
 ## 채점 규칙 (모든 페이지 공통)
 
 ```javascript
+// 정규화 — 공백 · 보이지 않는 문자 · 쉼표 · 마침표 · 가운뎃점 · 한중일 문장부호를 무시
 function normCmp(s) {
-    return (s || '').normalize('NFC').replace(/[\s\u200B-\u200D\uFEFF,]/g, '');
+    return (s || '').normalize('NFC').replace(/[\s\u200B-\u200D\u2060\uFEFF,.\u00B7\u22C5\u3001\u3002]/g, '');
 }
+// 비교 직전에 괄호도 떼어낸다
+const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 ```
 
-- **띄어쓰기와 쉼표는 채점에서 무시**한다. 보이지 않는 문자(zero-width)도 제거하고 한글은 NFC로 통일
+- **띄어쓰기·쉼표·마침표·괄호는 채점에서 무시**한다. 보이지 않는 문자(zero-width)도 제거하고 한글은 NFC로 통일
 - **채점과 오답 표시가 같은 정규화를 써야 한다.** 둘이 어긋나면 "맞았다는데 빨갛게 표시"가 난다 (2026 커밋에서 실제로 통일한 이력)
 - 오답 노트는 글자 단위 LCS로 **틀린 글자(빨강)·빠뜨린 글자(주황)**를 구분한다
 
@@ -190,7 +226,7 @@ git push   # → GitHub(kyu12k/bjtest) → Cloudflare Pages 자동 빌드/배포
 
 ## 작업할 때
 
-- 페이지 하나가 50KB 안팎, `bjtest_mock/index.html`은 119KB다. 수정 전에 어느 장에 해당하는지 먼저 확인
+- 장 페이지는 7KB 안팎(엔진 분리 후), 시험 페이지는 40~119KB다. 수정 전에 어느 쪽인지 먼저 확인
 - 본문 데이터는 **개역한글**이다. 다른 번역 표현을 섞지 않는다
 - `{중괄호}`는 1단계 빈칸 대상 표시다. 본문을 고칠 때 중괄호를 잃지 않도록 주의
 - 시험 폴더(`bjtest{N}_exam`, `bjtest_mock` 등)는 학습 페이지와 구조가 조금씩 다르다. 일괄 스크립트를 돌리기 전에 대상 목록을 확인

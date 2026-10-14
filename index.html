@@ -6,6 +6,7 @@
     <title>천국 인 — 요한계시록 암송 대비</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b5998">
+    <script src="/nav.js"></script>
     <style>
         :root {
             --primary-color: #3b5998;
@@ -495,27 +496,15 @@
         document.querySelector('.btn-dark').innerText = "☀️ 라이트 모드";
     }
 
-    // 방문자 수 — 기기마다 랜덤 ID를 저장해 하루 한 번만 집계 (functions/api/visit.js)
-    async function loadVisitCount() {
+    // 방문자 수 — 기록·중복 방지는 nav.js의 bjVisit()이 처리 (모든 페이지 공통)
+    function loadVisitCount() {
         const el = document.getElementById('visitCount');
-        let vid = null;
-        try {
-            vid = localStorage.getItem('bj_vid');
-            if (!vid) {
-                vid = crypto.randomUUID ? crypto.randomUUID()
-                    : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-                localStorage.setItem('bj_vid', vid);
-            }
-        } catch (e) { vid = null; }
-        try {
-            const res = vid
-                ? await fetch('/api/visit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vid }) })
-                : await fetch('/api/visit');
-            if (!res.ok) return;
-            const c = await res.json();
+        if (!window.bjVisit) return;
+        window.bjVisit(true).then(c => {
+            if (!c) return;
             el.innerHTML = `👥 오늘 <b>${Number(c.today)}</b> · 이번 주 <b>${Number(c.week)}</b> · 이번 달 <b>${Number(c.month)}</b>`;
             el.hidden = false;
-        } catch (e) { /* 집계 실패 시 표시하지 않음 */ }
+        }).catch(() => { /* 집계 실패 시 표시하지 않음 */ });
     }
     loadVisitCount();
 

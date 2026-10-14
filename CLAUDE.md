@@ -212,6 +212,19 @@ const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 
 ---
 
+## 방문자 수 (서버 기능 — 이 사이트의 유일한 백엔드)
+
+메인 페이지 상단 `👥 오늘 · 이번 주 · 이번 달` 표시.
+
+- `functions/api/visit.js` — Cloudflare Pages Functions. `POST {vid}` = 오늘 방문 기록 후 집계, `GET` = 집계만
+- 기기마다 `localStorage.bj_vid`에 랜덤 UUID를 저장, 같은 기기는 하루 한 번만 기록. 주·월은 기간 내 고유 ID 수. 날짜는 KST, 주는 월요일 시작
+- 저장소: D1 `bjtest-visits` (테이블 `visits(day, vid)`), 70일 지난 기록은 자동 삭제. 개인정보 없음
+- `wrangler.toml`이 Pages 프로젝트 설정의 기준이 된다(바인딩 `DB`). 대시보드에서 바인딩을 바꾸지 말고 이 파일을 고칠 것
+- 스키마 변경: `migrations/`에 새 파일 추가 → `wrangler d1 migrations apply bjtest-visits --remote`
+- 로컬 테스트: `wrangler d1 migrations apply bjtest-visits --local` 후 `wrangler pages dev .` (`.wrangler/`는 gitignore)
+
+---
+
 ## 배포
 
 ```bash
@@ -220,7 +233,7 @@ git commit -m "커밋 메시지 (N개 페이지)"
 git push   # → GitHub(kyu12k/bjtest) → Cloudflare Pages 자동 빌드/배포
 ```
 
-- 캐싱이 없다 (`sw.js`는 아무것도 가로채지 않는 no-op). 푸시하면 바로 반영된다
+- 캐싱이 없다 (`sw.js`는 아무것도 가로채지 않는 no-op). 푸시하면 바로 반영된다 (`functions/`도 함께 배포됨)
 - `.nojekyll`이 있어야 `_`로 시작하는 폴더도 서빙된다
 
 ---

@@ -129,6 +129,8 @@
             letter-spacing: 1px;
         }
         [data-theme="dark"] p.subtitle { color: #c8a070; }
+        .visit-count { text-align: center; font-size: .85rem; color: #888; margin: 0 0 14px; letter-spacing: .3px; }
+        .visit-count b { color: var(--primary-color); font-weight: bold; }
 
         .gwageo-stamp {
             position: absolute;
@@ -368,6 +370,7 @@
             <h1>천국 인</h1>
             <div class="gwageo-stamp">天國<br>印</div>
         </div>
+        <p class="visit-count" id="visitCount" hidden></p>
         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button id="updateBtn" class="btn-dark" onclick="checkUpdate()" style="background-color:#0077cc;">🔄 최신버전 불러오기</button>
@@ -491,6 +494,30 @@
         document.body.setAttribute('data-theme', 'dark');
         document.querySelector('.btn-dark').innerText = "☀️ 라이트 모드";
     }
+
+    // 방문자 수 — 기기마다 랜덤 ID를 저장해 하루 한 번만 집계 (functions/api/visit.js)
+    async function loadVisitCount() {
+        const el = document.getElementById('visitCount');
+        let vid = null;
+        try {
+            vid = localStorage.getItem('bj_vid');
+            if (!vid) {
+                vid = crypto.randomUUID ? crypto.randomUUID()
+                    : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+                localStorage.setItem('bj_vid', vid);
+            }
+        } catch (e) { vid = null; }
+        try {
+            const res = vid
+                ? await fetch('/api/visit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vid }) })
+                : await fetch('/api/visit');
+            if (!res.ok) return;
+            const c = await res.json();
+            el.innerHTML = `👥 오늘 <b>${Number(c.today)}</b> · 이번 주 <b>${Number(c.week)}</b> · 이번 달 <b>${Number(c.month)}</b>`;
+            el.hidden = false;
+        } catch (e) { /* 집계 실패 시 표시하지 않음 */ }
+    }
+    loadVisitCount();
 
     // 서비스 워커 등록
     if ('serviceWorker' in navigator) {

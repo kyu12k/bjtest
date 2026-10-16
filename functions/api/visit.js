@@ -1,5 +1,5 @@
 // 방문자 수 카운터 — POST: 오늘 방문 기록 후 집계 반환 / GET: 집계만 반환
-// 같은 기기(vid)는 하루 한 번만 저장되고, 주·월은 기간 내 서로 다른 vid 수를 센다. 날짜는 KST, 주는 월요일 시작.
+// 같은 기기(vid)는 하루 한 번만 저장되고, 주·월·지난 달은 기간 내 서로 다른 vid 수를 센다. 날짜는 KST, 주는 월요일 시작.
 const KST_MS = 9 * 60 * 60 * 1000;
 const VID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KEEP_DAYS = 70;
@@ -12,7 +12,9 @@ function ranges(now) {
     const sinceMonday = (k.getUTCDay() + 6) % 7;
     const week = ymd(new Date(k.getTime() - sinceMonday * 86400000));
     const month = today.slice(0, 8) + '01';
-    return { today, week, month };
+    const y = +today.slice(0, 4), m = +today.slice(5, 7);
+    const lastMonth = m === 1 ? `${y - 1}-12-01` : `${y}-${String(m - 1).padStart(2, '0')}-01`;
+    return { today, week, month, lastMonth };
 }
 
 async function counts(db, now) {
@@ -21,9 +23,10 @@ async function counts(db, now) {
         `SELECT
            (SELECT COUNT(*) FROM visits WHERE day = ?1) AS today,
            (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?2) AS week,
-           (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?3) AS month`
-    ).bind(r.today, r.week, r.month).first();
-    return { today: row.today, week: row.week, month: row.month };
+           (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?3) AS month,
+           (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?4 AND day < ?3) AS lastMonth`
+    ).bind(r.today, r.week, r.month, r.lastMonth).first();
+    return { today: row.today, week: row.week, month: row.month, lastMonth: row.lastMonth };
 }
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {

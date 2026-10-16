@@ -218,7 +218,8 @@ const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 
 - `functions/api/visit.js` — Cloudflare Pages Functions. `POST {vid}` = 오늘 방문 기록 후 집계, `GET` = 집계만
 - 기록은 `nav.js`의 `bjVisit()`이 **모든 페이지에서** 한다(메인은 `<head>`에서 nav.js를 불러 표시용으로 호출). 기기마다 `localStorage.bj_vid`에 랜덤 UUID, 오늘 기록했으면 `bj_vday`에 날짜를 남겨 같은 날엔 요청 자체를 보내지 않는다
-- 주·월은 기간 내 고유 ID 수. 날짜는 KST, 주는 월요일 시작
+- 주·월·지난 달은 기간 내 고유 ID 수(같은 기기는 기간 안에서 한 번만). 날짜는 KST, 주는 월요일 시작. 지난 달은 0이면 숨김
+- 기록은 2026-10-14부터. 10월은 14일 이후만 있으므로 11월에 보이는 '지난 달'은 10/14~31 기준
 - 저장소: D1 `bjtest-visits` (테이블 `visits(day, vid)`), 70일 지난 기록은 자동 삭제. 개인정보 없음
 - `wrangler.toml`이 Pages 프로젝트 설정의 기준이 된다(바인딩 `DB`). 대시보드에서 바인딩을 바꾸지 말고 이 파일을 고칠 것
 - 스키마 변경: `migrations/`에 새 파일 추가 → `wrangler d1 migrations apply bjtest-visits --remote`

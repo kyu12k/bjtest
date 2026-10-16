@@ -218,9 +218,21 @@ const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 
 - `functions/api/visit.js` — Cloudflare Pages Functions. `POST {vid}` = 오늘 방문 기록 후 집계, `GET` = 집계만
 - 기록은 `nav.js`의 `bjVisit()`이 **모든 페이지에서** 한다(메인은 `<head>`에서 nav.js를 불러 표시용으로 호출). 기기마다 `localStorage.bj_vid`에 랜덤 UUID, 오늘 기록했으면 `bj_vday`에 날짜를 남겨 같은 날엔 요청 자체를 보내지 않는다
-- 주·월·지난 달은 기간 내 고유 ID 수(같은 기기는 기간 안에서 한 번만). 날짜는 KST, 주는 월요일 시작. 지난 달은 0이면 숨김
+- 주·월·지난 달은 기간 내 고유 ID 수(같은 기기는 기간 안에서 한 번만). 아래 `counters` 방식으로 센다. 날짜는 KST, 주는 월요일 시작. 지난 달은 0이면 숨김
 - 기록은 2026-10-14부터(`TRACKING_START`). 집계 시작 전 달이 지난 달로 보이면 `지난 달(10/14~10/31)`처럼 기간을 붙이고, 꽉 찬 달은 `지난 달(11월)`로 표시
-- 저장소: D1 `bjtest-visits` (테이블 `visits(day, vid)`), 70일 지난 기록은 자동 삭제. 개인정보 없음
+- 저장소: D1 `bjtest-visits`. `visits(day, vid)` = 기기별 하루 한 줄(70일 지나면 자동 삭제), `counters(k, n)` = 미리 올려 둔 집계 칸. 개인정보 없음
+
+### ⚠️ 집계는 읽을 때 세지 않는다 — `counters`에 올려 둔다 (2026-10-17 결정)
+- **이유**: D1 무료 한도는 하루 읽기 500만 행. 처음엔 조회마다 `COUNT(DISTINCT vid)`를 기간별로 돌려 1회 약 3,100행을 읽었고, 모든 페이지에서 부르게 된 뒤 하루 474만 행(10/16 대시보드 3.98M/5M)까지 올라갔다. 행이 쌓일수록 커져 곧 매일 한도를 넘는 구조였다. 한도를 넘으면 그날 D1 요청이 오류가 나고 UTC 0시(KST 9시)에 풀린다
+- **방식**: POST에서 `INSERT OR IGNORE INTO visits`의 `meta.changes`가 1일 때(그 기기의 오늘 첫 방문)만 칸을 올린다
+  - `d:YYYY-MM-DD` +1
+  - `w:월요일날짜`·`m:YYYY-MM`은 그 기기의 기간 시작일~어제 기록이 없을 때만 +1 (`idx_visits_vid_day` 색인으로 1~2행만 읽음) → 기간 내 서로 다른 기기 수와 같다
+  - 읽기는 `counters`에서 키 4개(오늘·이번 주·이번 달·지난 달 `m:`)만
+- **측정(실제 Cloudflare)**: 조회 1회 3,108행 → GET 8행, POST 8~13행
+- **하지 말 것**: 화면·API에서 `visits`를 `COUNT`로 세는 코드를 다시 넣지 말 것. 새 집계가 필요하면 `counters`에 키를 추가하는 방식으로
+- **`counters`는 지우지 않는다**(한 달에 키 30여 개). `visits` 정리(70일)는 주·월 확인 범위(최대 한 달)보다 길어 영향 없음
+- **숫자가 어긋났을 때**: `wrangler d1 execute bjtest-visits --remote --file scripts/recount_counters.sql` — visits에서 네 칸을 다시 세어 덮어쓴다(1회 약 3천 행, 여러 번 돌려도 안전)
+- **사용량 확인**: `wrangler d1 info bjtest-visits`의 `rows_read_24h` (또는 대시보드 → D1 → bjtest-visits → Metrics)
 - `wrangler.toml`이 Pages 프로젝트 설정의 기준이 된다(바인딩 `DB`). 대시보드에서 바인딩을 바꾸지 말고 이 파일을 고칠 것
 - 스키마 변경: `migrations/`에 새 파일 추가 → `wrangler d1 migrations apply bjtest-visits --remote`
 - 로컬 테스트: `wrangler d1 migrations apply bjtest-visits --local` 후 `wrangler pages dev .` (`.wrangler/`는 gitignore)

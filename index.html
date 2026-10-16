@@ -502,7 +502,14 @@
         if (!window.bjVisit) return;
         window.bjVisit(true).then(c => {
             if (!c) return;
-            const last = Number(c.lastMonth) > 0 ? ` · 지난 달 <b>${Number(c.lastMonth)}</b>` : '';
+            let last = '';
+            if (Number(c.lastMonth) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(c.lastMonthStart || '')) {
+                const [y, m] = c.lastMonthStart.split('-').map(Number);
+                const endDay = new Date(y, m, 0).getDate();
+                const first = /^\d{4}-\d{2}-\d{2}$/.test(c.lastMonthFirst || '') ? Number(c.lastMonthFirst.slice(8)) : 1;
+                const span = first > 1 ? `${m}/${first}~${m}/${endDay}` : `${m}월`;
+                last = ` · 지난 달(${span}) <b>${Number(c.lastMonth)}</b>`;
+            }
             el.innerHTML = `👥 오늘 <b>${Number(c.today)}</b> · 이번 주 <b>${Number(c.week)}</b> · 이번 달 <b>${Number(c.month)}</b>${last}`;
             el.hidden = false;
         }).catch(() => { /* 집계 실패 시 표시하지 않음 */ });

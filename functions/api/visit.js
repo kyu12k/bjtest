@@ -3,6 +3,7 @@
 const KST_MS = 9 * 60 * 60 * 1000;
 const VID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KEEP_DAYS = 70;
+const TRACKING_START = '2026-10-14'; // 집계를 시작한 날. 이전 달은 이날부터만 기록이 있다
 
 const ymd = d => d.toISOString().slice(0, 10);
 
@@ -26,7 +27,9 @@ async function counts(db, now) {
            (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?3) AS month,
            (SELECT COUNT(DISTINCT vid) FROM visits WHERE day >= ?4 AND day < ?3) AS lastMonth`
     ).bind(r.today, r.week, r.month, r.lastMonth).first();
-    return { today: row.today, week: row.week, month: row.month, lastMonth: row.lastMonth };
+    // lastMonthFirst: 지난 달 중 실제 집계가 된 첫날. 집계 시작 전 달이면 TRACKING_START, 아니면 그 달 1일
+    return { today: row.today, week: row.week, month: row.month, lastMonth: row.lastMonth,
+             lastMonthStart: r.lastMonth, lastMonthFirst: r.lastMonth < TRACKING_START ? TRACKING_START : r.lastMonth };
 }
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {

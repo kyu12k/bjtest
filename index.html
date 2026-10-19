@@ -130,8 +130,13 @@
             letter-spacing: 1px;
         }
         [data-theme="dark"] p.subtitle { color: #c8a070; }
-        .visit-count { text-align: center; font-size: .85rem; color: #888; margin: 0 0 14px; letter-spacing: .3px; }
-        .visit-count b { color: var(--primary-color); font-weight: bold; }
+        .visit-count { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; max-width: 420px; margin: 0 auto 14px; text-align: center; font-size: .78rem; color: #888; }
+        .visit-count[hidden] { display: none; }
+        .visit-count .vc-title { grid-column: 1 / -1; font-size: .78rem; }
+        .visit-count .vc { line-height: 1.3; }
+        .visit-count .vc b { display: block; font-size: 1.05rem; color: var(--primary-color); }
+        .visit-count .vc.prev b { font-size: .95rem; color: var(--text-color); opacity: .7; }
+        .visit-count .vc small { display: block; font-size: .68rem; color: #aaa; }
 
         .gwageo-stamp {
             position: absolute;
@@ -371,7 +376,7 @@
             <h1>천국 인</h1>
             <div class="gwageo-stamp">天國<br>印</div>
         </div>
-        <p class="visit-count" id="visitCount" hidden></p>
+        <div class="visit-count" id="visitCount" hidden></div>
         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button id="updateBtn" class="btn-dark" onclick="checkUpdate()" style="background-color:#0077cc;">🔄 최신버전 불러오기</button>
@@ -500,17 +505,30 @@
     function loadVisitCount() {
         const el = document.getElementById('visitCount');
         if (!window.bjVisit) return;
+        const DATE = /^\d{4}-\d{2}-\d{2}$/;
+        const md = d => `${Number(d.slice(5, 7))}/${Number(d.slice(8))}`;
+        const num = v => Number(v || 0).toLocaleString('ko-KR');
+        const cell = (label, v, cls = '', note = '') =>
+            `<div class="vc ${cls}">${label}<b>${num(v)}</b>${note ? `<small>${note}</small>` : ''}</div>`;
         window.bjVisit(true).then(c => {
             if (!c) return;
-            let last = '';
-            if (Number(c.lastMonth) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(c.lastMonthStart || '')) {
+            // 지난 주·지난 달: 집계 시작(10/14) 전부터 걸친 기간이면 실제로 센 기간을 붙인다
+            let lastWeek = '<div></div>';
+            if (Number(c.lastWeek) > 0 && DATE.test(c.lastWeekStart || '') && DATE.test(c.lastWeekFirst || '')) {
+                const end = new Date(Date.parse(c.lastWeekStart) + 6 * 86400000).toISOString().slice(0, 10);
+                lastWeek = cell('지난 주', c.lastWeek, 'prev', c.lastWeekFirst > c.lastWeekStart ? `${md(c.lastWeekFirst)}~${md(end)}` : '');
+            }
+            let lastMonth = '<div></div>';
+            if (Number(c.lastMonth) > 0 && DATE.test(c.lastMonthStart || '')) {
                 const [y, m] = c.lastMonthStart.split('-').map(Number);
                 const endDay = new Date(y, m, 0).getDate();
-                const first = /^\d{4}-\d{2}-\d{2}$/.test(c.lastMonthFirst || '') ? Number(c.lastMonthFirst.slice(8)) : 1;
-                const span = first > 1 ? `${m}/${first}~${m}/${endDay}` : `${m}월`;
-                last = ` · 지난 달(${span}) <b>${Number(c.lastMonth)}</b>`;
+                const first = DATE.test(c.lastMonthFirst || '') ? Number(c.lastMonthFirst.slice(8)) : 1;
+                lastMonth = cell('지난 달', c.lastMonth, 'prev', first > 1 ? `${m}/${first}~${m}/${endDay}` : `${m}월`);
             }
-            el.innerHTML = `👥 오늘 <b>${Number(c.today)}</b> · 이번 주 <b>${Number(c.week)}</b> · 이번 달 <b>${Number(c.month)}</b>${last}`;
+            const yesterday = Number(c.yesterday) > 0 ? cell('어제', c.yesterday, 'prev') : '<div></div>';
+            el.innerHTML = '<div class="vc-title">👥 방문자 (기기 수)</div>'
+                + cell('오늘', c.today) + cell('이번 주', c.week) + cell('이번 달', c.month)
+                + yesterday + lastWeek + lastMonth;
             el.hidden = false;
         }).catch(() => { /* 집계 실패 시 표시하지 않음 */ });
     }

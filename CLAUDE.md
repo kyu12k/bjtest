@@ -214,7 +214,7 @@ const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 
 ## 방문자 수 (서버 기능 — 이 사이트의 유일한 백엔드)
 
-메인 페이지 상단 3칸×2줄 표: 위 `오늘 · 이번 주 · 이번 달`, 아래 `어제 · 지난 주 · 지난 달`(0이면 빈칸).
+메인 페이지 상단. 평소엔 한 줄 요약(`👥 오늘 · 이번 주 · 이번 달 ▾`), 누르면 3칸×2줄 표가 펼쳐진다: 위 `오늘 · 이번 주 · 이번 달`, 아래 `어제 · 지난 주 · 지난 달`(0이면 빈칸). `<details>` 요소, 펼침 상태는 `localStorage.bj_vc_open`에 기억.
 
 - `functions/api/visit.js` — Cloudflare Pages Functions. `POST {vid}` = 오늘 방문 기록 후 집계, `GET` = 집계만
 - 기록은 `nav.js`의 `bjVisit()`이 **모든 페이지에서** 한다(메인은 `<head>`에서 nav.js를 불러 표시용으로 호출). 기기마다 `localStorage.bj_vid`에 랜덤 UUID, 오늘 기록했으면 `bj_vday`에 날짜를 남겨 같은 날엔 요청 자체를 보내지 않는다

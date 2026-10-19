@@ -130,9 +130,17 @@
             letter-spacing: 1px;
         }
         [data-theme="dark"] p.subtitle { color: #c8a070; }
-        .visit-count { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; max-width: 420px; margin: 0 auto 14px; text-align: center; font-size: .78rem; color: #888; }
+        .visit-count { max-width: 420px; margin: 0 auto 12px; text-align: center; font-size: .78rem; color: #888; }
         .visit-count[hidden] { display: none; }
-        .visit-count .vc-title { grid-column: 1 / -1; font-size: .78rem; }
+        .visit-count summary { cursor: pointer; list-style: none; display: inline-block; padding: 2px 8px; border-radius: 10px; user-select: none; }
+        .visit-count summary::-webkit-details-marker { display: none; }
+        .visit-count summary:hover { background: var(--hover-bg); }
+        .visit-count summary b { color: var(--primary-color); }
+        .visit-count summary .vc-arrow { display: inline-block; margin-left: 4px; font-size: .7rem; transition: transform .2s; }
+        .visit-count[open] summary .vc-arrow { transform: rotate(180deg); }
+        .visit-count .vc-head, .visit-count[open] .vc-sum { display: none; }
+        .visit-count[open] .vc-head { display: inline; }
+        .visit-count .vc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; margin-top: 8px; }
         .visit-count .vc { line-height: 1.3; }
         .visit-count .vc b { display: block; font-size: 1.05rem; color: var(--primary-color); }
         .visit-count .vc.prev b { font-size: .95rem; color: var(--text-color); opacity: .7; }
@@ -376,7 +384,7 @@
             <h1>천국 인</h1>
             <div class="gwageo-stamp">天國<br>印</div>
         </div>
-        <div class="visit-count" id="visitCount" hidden></div>
+        <details class="visit-count" id="visitCount" hidden></details>
         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
             <button class="btn-dark" onclick="toggleTheme()">🌙 다크 모드</button>
             <button id="updateBtn" class="btn-dark" onclick="checkUpdate()" style="background-color:#0077cc;">🔄 최신버전 불러오기</button>
@@ -526,9 +534,14 @@
                 lastMonth = cell('지난 달', c.lastMonth, 'prev', first > 1 ? `${m}/${first}~${m}/${endDay}` : `${m}월`);
             }
             const yesterday = Number(c.yesterday) > 0 ? cell('어제', c.yesterday, 'prev') : '<div></div>';
-            el.innerHTML = '<div class="vc-title">👥 방문자 (기기 수)</div>'
+            // 평소엔 한 줄 요약, 누르면 어제·지난 주·지난 달까지 펼침. 펼침 상태는 기기에 기억
+            el.innerHTML = `<summary>👥 <span class="vc-sum">오늘 <b>${num(c.today)}</b> · 이번 주 <b>${num(c.week)}</b> · 이번 달 <b>${num(c.month)}</b></span><span class="vc-head">방문자 (기기 수)</span><span class="vc-arrow">▾</span></summary>`
+                + '<div class="vc-grid">'
                 + cell('오늘', c.today) + cell('이번 주', c.week) + cell('이번 달', c.month)
-                + yesterday + lastWeek + lastMonth;
+                + yesterday + lastWeek + lastMonth
+                + '</div>';
+            try { el.open = localStorage.getItem('bj_vc_open') === '1'; } catch (e) {}
+            el.addEventListener('toggle', () => { try { localStorage.setItem('bj_vc_open', el.open ? '1' : '0'); } catch (e) {} });
             el.hidden = false;
         }).catch(() => { /* 집계 실패 시 표시하지 않음 */ });
     }

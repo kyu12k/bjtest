@@ -31,7 +31,7 @@ PWA 지원 (manifest.json + sw.js).
   bjtest_10passage_exam/   ← 10구절 특별 시험
   bjtest_1_2_exam/         ← 1~2장 통합 시험
   bjtest_5passage/         ← 5구절 핵심 시험 (계 3·12·15·18·22장)
-  bjtest_gosi1031/         ← 10/31 천국고시 대비 (1단계 계3~4 · 2단계 6~8 · 3단계 10~12 · 4단계 15~18, 모든 절). build_gosi1031.js로 생성
+  bjtest_gosi1031/         ← 10/31 천국고시 대비 (1단계 계3~4 · 2단계 6~8 · 3단계 10~12 · 4단계 15~18, 모든 절). build_gosi1031.js로 생성. 4단계 자문회용 문답지(25문항)는 별도 문제지 4A, ?exam=4A로 연다
   bjtest14_exam19/         ← 10/25 19차 인 맞음 확인 시험 (계 14장 빈칸 7 + 내용 3). bjtest13_exam 형식
 ```
 

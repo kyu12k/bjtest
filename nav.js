@@ -10,6 +10,10 @@
     }
     return v;
   }
+  // 홈 화면에 설치한 앱(PWA)으로 열렸는지 — 안드로이드/PC는 display-mode, 아이폰은 navigator.standalone
+  function isApp(){
+    try{ return !!((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true); }catch(e){ return false; }
+  }
   // needCounts=true면 집계를 받아 온다(메인 표시용). 오늘 이미 기록했고 집계도 필요 없으면 요청하지 않는다.
   window.bjVisit=function(needCounts){
     var day=kstDay(), vid=null, recorded=false;
@@ -17,7 +21,7 @@
     var record=!!vid&&!recorded;
     if(!record&&!needCounts) return Promise.resolve(null);
     var req=record
-      ?fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vid:vid})})
+      ?fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vid:vid,pwa:isApp()})})
       :fetch('/api/visit');
     return req.then(function(r){
       if(!r.ok) throw new Error('visit '+r.status);

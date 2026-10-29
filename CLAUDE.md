@@ -233,6 +233,7 @@ const cleanUser = userAnswer.trim().replace(/[,()]/g, '');
 - **하지 말 것**: 화면·API에서 `visits`를 `COUNT`로 세는 코드를 다시 넣지 말 것. 새 집계가 필요하면 `counters`에 키를 추가하는 방식으로
 - **`counters`는 지우지 않는다**(한 달에 키 30여 개). `visits` 정리(70일)는 주·월 확인 범위(최대 한 달)보다 길어 영향 없음
 - **숫자가 어긋났을 때**: `wrangler d1 execute bjtest-visits --remote --file scripts/recount_counters.sql` — visits에서 날짜 칸 전부(최근 70일)와 이번·지난 주, 이번·지난 달 칸을 다시 세어 덮어쓴다(여러 번 돌려도 안전, visits 크기만큼 읽음)
+- **앱(PWA)으로 연 기기 (화면엔 없음, 운영자 확인용)**: `nav.js`가 POST에 `pwa`(display-mode: standalone 또는 iOS navigator.standalone)를 실어 보내고, `visits.pwa`에 그날 첫 방문의 모드를 남긴다. 칸: `ad:날짜`(그날 앱으로 연 기기), `am:YYYY-MM`(그 달 한 번이라도 앱으로 연 기기). **https://bjtest.pages.dev/api/visit 를 열면 `app` 항목**으로 보인다. 2026-10-29부터 집계(`APP_TRACKING_START`), 그 이전 기록은 pwa=0
 - **사용량 확인**: `wrangler d1 info bjtest-visits`의 `rows_read_24h` (또는 대시보드 → D1 → bjtest-visits → Metrics)
 - `wrangler.toml`이 Pages 프로젝트 설정의 기준이 된다(바인딩 `DB`). 대시보드에서 바인딩을 바꾸지 말고 이 파일을 고칠 것
 - 스키마 변경: `migrations/`에 새 파일 추가 → `wrangler d1 migrations apply bjtest-visits --remote`

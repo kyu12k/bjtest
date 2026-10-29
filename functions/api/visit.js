@@ -7,6 +7,7 @@ const DAY_MS = 86400000;
 const VID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KEEP_DAYS = 70;
 const TRACKING_START = '2026-10-14'; // 집계를 시작한 날. 이전 기간은 이날부터만 기록이 있다
+const APP_TRACKING_START = '2026-10-29'; // 앱(PWA)으로 연 기기를 세기 시작한 날. 이전 visits.pwa는 0(모름)
 
 const ymd = d => d.toISOString().slice(0, 10);
 
@@ -27,10 +28,12 @@ const keys = r => ({
     d: `d:${r.today}`, yd: `d:${r.yesterday}`,
     w: `w:${r.week}`, lw: `w:${r.lastWeek}`,
     m: `m:${r.month.slice(0, 7)}`, lm: `m:${r.lastMonth.slice(0, 7)}`,
+    // 앱(PWA)으로 연 기기 — 화면에는 안 보이고 API 응답으로만 확인한다
+    ad: `ad:${r.today}`, ayd: `ad:${r.yesterday}`, am: `am:${r.month.slice(0, 7)}`, alm: `am:${r.lastMonth.slice(0, 7)}`,
 });
 
-const readCounters = (db, K) => db.prepare('SELECT k, n FROM counters WHERE k IN (?1, ?2, ?3, ?4, ?5, ?6)')
-    .bind(K.d, K.yd, K.w, K.lw, K.m, K.lm);
+const readCounters = (db, K) => db.prepare('SELECT k, n FROM counters WHERE k IN (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)')
+    .bind(K.d, K.yd, K.w, K.lw, K.m, K.lm, K.ad, K.ayd, K.am, K.alm);
 
 // 집계 시작 전부터 걸친 기간이면 실제 집계 첫날(TRACKING_START)을, 아니면 기간 시작일을 준다 (화면의 기간 표시용)
 const firstCounted = start => start < TRACKING_START ? TRACKING_START : start;
@@ -42,6 +45,7 @@ function shape(results, r) {
         today: n(K.d), yesterday: n(K.yd),
         week: n(K.w), lastWeek: n(K.lw), lastWeekStart: r.lastWeek, lastWeekFirst: firstCounted(r.lastWeek),
         month: n(K.m), lastMonth: n(K.lm), lastMonthStart: r.lastMonth, lastMonthFirst: firstCounted(r.lastMonth),
+        app: { since: APP_TRACKING_START, today: n(K.ad), yesterday: n(K.ayd), month: n(K.am), lastMonth: n(K.alm) },
     };
 }
 
@@ -50,6 +54,13 @@ function shape(results, r) {
 const bumpIfFirstIn = (db, k, vid, since, today) => db.prepare(
     `INSERT INTO counters (k, n)
        SELECT ?1, 1 WHERE NOT EXISTS (SELECT 1 FROM visits WHERE vid = ?2 AND day >= ?3 AND day <= ?4)
+     ON CONFLICT(k) DO UPDATE SET n = n + 1`
+).bind(k, vid, since, today);
+
+// 이번 달에 이 기기가 앱으로 연 기록이 아직 없으면 +1 (월 단위 앱 기기 수)
+const bumpIfFirstAppIn = (db, k, vid, since, today) => db.prepare(
+    `INSERT INTO counters (k, n)
+       SELECT ?1, 1 WHERE NOT EXISTS (SELECT 1 FROM visits WHERE vid = ?2 AND day >= ?3 AND day <= ?4 AND pwa = 1)
      ON CONFLICT(k) DO UPDATE SET n = n + 1`
 ).bind(k, vid, since, today);
 
@@ -65,8 +76,8 @@ export async function onRequestGet({ env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-    let vid = '';
-    try { vid = String((await request.json()).vid || '').toLowerCase(); } catch { /* 본문 없음 */ }
+    let vid = '', pwa = 0;
+    try { const b = await request.json(); vid = String(b.vid || '').toLowerCase(); pwa = b.pwa === true ? 1 : 0; } catch { /* 본문 없음 */ }
     if (!VID_RE.test(vid)) return json({ error: 'invalid vid' }, 400);
 
     const now = new Date();
@@ -74,11 +85,17 @@ export async function onRequestPost({ request, env }) {
     const K = keys(r);
     // 칸 올리기 → 방문 기록 → 집계 읽기를 한 batch(= 한 트랜잭션)로. 중간에 실패하면 전부 되돌아가므로
     // "기록은 됐는데 칸은 안 올라간" 상태가 생기지 않는다. 같은 기기의 동시 요청도 하나만 센다.
+    // 앱 칸: 그날 첫 방문을 앱으로 열었으면 하루 칸 +1, 이번 달 앱 기록이 처음이면 월 칸 +1
+    const appBumps = pwa ? [
+        bumpIfFirstIn(env.DB, K.ad, vid, r.today, r.today),
+        bumpIfFirstAppIn(env.DB, K.am, vid, r.month, r.today),
+    ] : [];
     const out = await env.DB.batch([
         bumpIfFirstIn(env.DB, K.d, vid, r.today, r.today),
         bumpIfFirstIn(env.DB, K.w, vid, r.week, r.today),
         bumpIfFirstIn(env.DB, K.m, vid, r.month, r.today),
-        env.DB.prepare('INSERT OR IGNORE INTO visits (day, vid) VALUES (?1, ?2)').bind(r.today, vid),
+        ...appBumps,
+        env.DB.prepare('INSERT OR IGNORE INTO visits (day, vid, pwa) VALUES (?1, ?2, ?3)').bind(r.today, vid, pwa),
         readCounters(env.DB, K),
     ]);
 

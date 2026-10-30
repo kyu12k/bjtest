@@ -138,6 +138,71 @@ rep(`  const minW=parseFloat(getComputedStyle(inp).fontSize)*4;
   inp.style.width=w0+'px';
   if(inp.scrollWidth>inp.clientWidth) inp.style.width=(inp.scrollWidth+2)+'px';`);
 
+// ── 채점 결과 가독성 (2026-10-30) ──
+// 내 답의 띄어쓰기를 정답 기준으로 되살리고, 틀린/빠뜨린 글자는 이어진 덩어리째 한 번에 칠한다.
+// 정답·내 답을 같은 글씨 크기의 두 줄로 나란히 둔다. 사용자 입력은 이스케이프(원래 엔진엔 없었음).
+{
+    const s0 = html.indexOf('function diffHtml(u, c){');
+    const e0 = html.indexOf("}).join('');\n}", s0) + "}).join('');\n}".length;
+    if (s0 < 0 || e0 < s0) throw new Error('diffHtml 경계 못 찾음');
+    html = html.slice(0, s0) + `function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// 글자 단위 LCS 정렬. 채점과 같은 norm 기준으로 비교하고, 화면엔 정답의 띄어쓰기를 되살려 보여준다.
+function diffHtml(u, c){
+  const nu=[...norm(u)];
+  if(!nu.length) return '<span class="diff-wrong">(미입력)</span>';
+  const nc=[], sp=[]; let pend=false;
+  for(const ch of (c||'').normalize('NFC')){
+    if(norm(ch)===''){ if(/\\s/.test(ch)) pend=true; continue; }
+    nc.push(ch); sp.push(pend); pend=false;
+  }
+  const m=nu.length, n=nc.length;
+  const dp=Array.from({length:m+1},()=>new Int32Array(n+1));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=nu[i-1]===nc[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  const al=[]; let i=m,j=n;
+  while(i>0||j>0){
+    if(i>0&&j>0&&nu[i-1]===nc[j-1]){al.push(['ok',nu[i-1],sp[j-1]]);i--;j--;}
+    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){al.push(['miss',nc[j-1],sp[j-1]]);j--;}
+    else{al.push(['wrong',nu[i-1],false]);i--;}
+  }
+  al.reverse();
+  // 같은 종류가 이어지면 한 덩어리로 (띄어쓰기도 덩어리 안에 포함)
+  let out='', cur=null, buf='';
+  const flush=()=>{ if(!buf) return; out+= cur==='ok'?escH(buf):'<span class="diff-'+(cur==='miss'?'missing':'wrong')+'">'+escH(buf)+'</span>'; buf=''; };
+  for(const [t,ch,space] of al){
+    if(t!==cur){ flush(); if(space){ out+=' '; } cur=t; buf=ch; }
+    else buf+=(space?' ':'')+ch;
+  }
+  flush();
+  return out.trim();
+}` + html.slice(e0);
+}
+rep(`        inner=\`<div class="wlabel">\${skip?'⬜':'❌'} \${w.label}</div>
+          <div style="font-size:.88em">내 답: \${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</div>
+          <div>정답: <span class="corr">\${w.correct}</span></div>\`;`,
+`        inner=\`<div class="wlabel">\${skip?'⬜':'❌'} \${w.label}</div>
+          <div class="drow ans"><span class="dlbl">정답</span><span class="dtxt">\${w.correct}</span></div>
+          <div class="drow"><span class="dlbl">내 답</span><span class="dtxt">\${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</span></div>\`;`);
+rep(`        inner=\`<div class="wlabel">\${skip?'⬜':'❌'} \${w.label}</div>
+          <div style="margin-bottom:4px;font-size:.88em;line-height:1.7">내 답: \${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</div>
+          <div class="ans-box">\${w.correct}</div>\`;`,
+`        inner=\`<div class="wlabel">\${skip?'⬜':'❌'} \${w.label}</div>
+          <div class="drow ans"><span class="dlbl">정답</span><span class="dtxt">\${w.correct}</span></div>
+          <div class="drow"><span class="dlbl">내 답</span><span class="dtxt">\${skip?'<em style="color:#aaa">(미응답)</em>':diffHtml(w.user,w.correct)}</span></div>\`;`);
+// 오답 목록 맨 위에 색 설명 한 줄
+rep(`    wrongs.forEach(w=>{
+      let inner='';`,
+`    wl.innerHTML='<div class="diff-legend"><span class="diff-wrong">잘못 쓴 글자</span> · <span class="diff-missing">빠뜨린 글자</span> · 띄어쓰기·쉼표는 채점에서 제외</div>';
+    wrongs.forEach(w=>{
+      let inner='';`);
+rep('.ans-box{', `.drow{display:flex;gap:8px;align-items:flex-start;margin-top:5px;line-height:1.8}
+.dlbl{flex:0 0 3em;font-size:.78rem;font-weight:bold;color:var(--sub);padding-top:3px;text-align:right}
+.dtxt{flex:1;font-size:.93rem;word-break:keep-all;overflow-wrap:anywhere}
+.drow.ans .dtxt{color:var(--ans-c);background:var(--ans-bg);border-radius:6px;padding:3px 8px}
+.drow:not(.ans) .dtxt{padding:3px 8px}
+.diff-legend{font-size:.8rem;color:var(--sub);margin:4px 2px 10px}
+.ans-box{`);
+
 // 빈칸 너비엔 애니메이션을 걸지 않는다 — 애니메이션 중 너비를 재면 2px씩 쌓여 칸이 계속 늘어났다(포커스 색 변화만 유지)
 rep('outline:none;padding:1px 4px;margin:1px;vertical-align:middle;transition:.2s}',
     'outline:none;padding:1px 4px;margin:1px;vertical-align:middle;transition:border-color .2s,background-color .2s}');

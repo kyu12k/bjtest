@@ -138,6 +138,24 @@ rep(`  const minW=parseFloat(getComputedStyle(inp).fontSize)*4;
   inp.style.width=w0+'px';
   if(inp.scrollWidth>inp.clientWidth) inp.style.width=(inp.scrollWidth+2)+'px';`);
 
+// 칸을 마우스·터치로 누르면 누른 자리에 커서를 둔다 (2026-10-30)
+// 원래는 포커스될 때마다 커서를 끝으로 옮겨서, 중간을 눌러도 끝으로 끌려갔다.
+// 끝으로 보내는 건 엔터로 넘어왔을 때와, 성구 칸에 미리 채워진 앞부분만 있을 때(value===defaultValue)만.
+rep(`document.addEventListener('focusin', e=>{
+  const t=e.target;`,
+`let lastPtr=null, lastPtrAt=0;
+document.addEventListener('pointerdown', e=>{ lastPtr=e.target; lastPtrAt=Date.now(); }, true);
+document.addEventListener('focusin', e=>{
+  const t=e.target;`);
+rep(`    setTimeout(()=>{ const l=t.value.length; try{t.setSelectionRange(l,l);}catch(_){} }, 0);
+  }
+});`,
+`    const byPointer = lastPtr===t && Date.now()-lastPtrAt<1500;
+    if(!byPointer || t.value===t.defaultValue)
+      setTimeout(()=>{ const l=t.value.length; try{t.setSelectionRange(l,l);}catch(_){} }, 0);
+  }
+});`);
+
 // ── 채점 결과 가독성 (2026-10-30) ──
 // 내 답의 띄어쓰기를 정답 기준으로 되살리고, 틀린/빠뜨린 글자는 이어진 덩어리째 한 번에 칠한다.
 // 정답·내 답을 같은 글씨 크기의 두 줄로 나란히 둔다. 사용자 입력은 이스케이프(원래 엔진엔 없었음).

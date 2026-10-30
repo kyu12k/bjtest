@@ -202,7 +202,7 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
         if (activeLevel === 1) {
             htmlStr = verseStr.replace(/\{([^}]+)\}/g, (match, ans) => {
                 let width = (ans.length * 1.5) + 1;
-                return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+                return `<input type="text" class="exam-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: ${width}em;" data-answer="${ans}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
             });
         } else if (activeLevel === 3) {
             let rawText = verseStr.replace(/\{|\}/g, '');
@@ -213,7 +213,7 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
                 if (wordIdx === 0 && !isNaN(word)) { wordIdx++; return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`; }
                 const isBlank = (wordIdx % TOTAL_ROUNDS) === 0;
                 wordIdx++;
-                if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" style="width: ${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
+                if (isBlank) { let width = (word.length * 1.2) + 1; return `<input type="text" class="exam-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: ${width}em;" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`; }
                 return word;
             }).join(' ');
         } else if (activeLevel === 4 && hardMode4) {
@@ -222,7 +222,7 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
             let vNum = ws[0] && !isNaN(ws[0]) ? ws[0] : null;
             let vBody = vNum ? ws.slice(1).join(' ') : verseClean;
             let numHtml = vNum ? `<span style="font-weight:bold;color:var(--primary-color);font-size:1.1em;margin-right:6px;">${vNum}</span>` : '';
-            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" data-answer="${vBody}" rows="4" style="flex:1;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitExamVerse();}" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
+            htmlStr = `<div style="display:flex;align-items:flex-start;gap:6px;">${numHtml}<textarea class="exam-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-answer="${vBody}" rows="4" style="flex:1;font-size:1rem;padding:8px;border:2px solid var(--exam-color);border-radius:8px;background:transparent;color:var(--text-color);font-family:inherit;resize:vertical;line-height:1.7;text-align:left;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitExamVerse();}" placeholder="절 전체를 입력하세요 (띄어쓰기 오류 허용)"></textarea></div>`;
         } else {
             let rawText = verseStr.replace(/\{|\}/g, '');
             let words = rawText.split(' ');
@@ -230,7 +230,7 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
                 if (i === 0 && !isNaN(word)) return `<span style="font-weight:bold; color:var(--primary-color); margin-right:5px;">${word}</span>`;
                 let width = (word.length * 1.2) + 1;
                 let placeholder = activeLevel === 2 ? getChosung(word) : "";
-                return `<input type="text" class="exam-input" style="width: ${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
+                return `<input type="text" class="exam-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: ${width}em;" placeholder="${placeholder}" data-answer="${word}" onclick="this.value=''" onkeydown="handleExamInput(event, this)">`;
             }).join(' ');
         }
 
@@ -242,6 +242,15 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
         }, 100);
     }
 
+    // 다음 칸으로 이동. 안드로이드 키보드(특히 삼성)는 조합 중이던 글자를 기억했다가 새 칸에 다시 넣는 일이 있어,
+    // 앞 칸을 먼저 blur해 조합을 확정·초기화시킨 뒤 같은 순간에 다음 칸으로 포커스를 옮긴다(키보드는 내려가지 않음).
+    function moveToInput(from, to) {
+        setTimeout(() => {
+            if (from && document.activeElement === from) from.blur();
+            to.focus();
+            to.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 0);
+    }
     function handleExamInput(e, currentInput) {
         if (e.isComposing || e.keyCode === 229) return; // 한글 조합 중에는 개입하지 않음 (글자 유실 방지)
         if (e.key === 'Enter' || (e.key === ' ' && activeLevel !== 1)) {
@@ -250,11 +259,7 @@ const audioPath = (typeof AUDIO !== 'undefined' && AUDIO) ? AUDIO : null;
             const currentIndex = Array.from(inputs).indexOf(currentInput);
 
             if (currentIndex > -1 && currentIndex < inputs.length - 1) {
-                const nextInput = inputs[currentIndex + 1];
-                setTimeout(() => {
-                    nextInput.focus();
-                    nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
-                }, 0);
+                moveToInput(currentInput, inputs[currentIndex + 1]);
             } else if (currentIndex === inputs.length - 1) {
                 submitExamVerse();
             }
@@ -426,13 +431,15 @@ if (normCmp(cleanUser) !== normCmp(cleanCorrect)) {
 
     // 한글 IME가 스페이스를 '조합 확정'으로 처리해 keydown이 오지 않는 경우(주로 모바일) 대비:
     // 값에 공백이 들어오면 지우고 다음 칸으로 이동
-    document.addEventListener('input', e => {
-        const t = e.target;
+    function spaceToNext(t) {
         if (!(t instanceof HTMLInputElement) || !t.classList.contains('exam-input') || activeLevel === 1) return;
         if (!/\s/.test(t.value)) return;
         t.value = t.value.replace(/\s+/g, '');
         const scope = t.closest('[data-verse-idx],[data-qidx]') || document;
         const all = [...scope.querySelectorAll('input.exam-input')];
         const i = all.indexOf(t);
-        if (i > -1 && i < all.length - 1) setTimeout(() => all[i + 1].focus(), 0);
-    });
+        if (i > -1 && i < all.length - 1) moveToInput(t, all[i + 1]);
+    }
+    // 조합 중(isComposing)에 값을 고치면 키보드가 붙들고 있던 글자를 다음 칸에 다시 넣으므로, 조합이 끝난 뒤에만 처리
+    document.addEventListener('input', e => { if (!e.isComposing) spaceToNext(e.target); });
+    document.addEventListener('compositionend', e => { setTimeout(() => spaceToNext(e.target), 0); });

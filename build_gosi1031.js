@@ -128,6 +128,16 @@ rep(`const s=new URLSearchParams(location.search).get('stage');\n  if(s) selectS
     `const q=new URLSearchParams(location.search), s=q.get('stage'), x=q.get('exam');\n  if(x&&EXAMS[x]) selectExam(x); else if(s) selectStage(s);`);
 rep("const HKEY='bj_history';", "const HKEY='bj_history_gosi1031';"); // 같은 도메인 mock 기록과 분리
 
+// 빈칸 너비: 처음 너비(정답 길이 기준)는 유지하고 입력이 칸보다 길어질 때만 늘린다 (2026-10-30)
+// 원래 코드는 글자마다 4글자 폭으로 줄였다 다시 늘려서, 타이핑할 때마다 줄이 출렁였다.
+rep(`  const minW=parseFloat(getComputedStyle(inp).fontSize)*4;
+  inp.style.width=minW+'px';
+  inp.style.width=Math.max(inp.scrollWidth+2, minW)+'px';`,
+`  if(!inp.dataset.w0) inp.dataset.w0=parseFloat(getComputedStyle(inp).width);
+  const w0=+inp.dataset.w0;
+  inp.style.width=w0+'px';
+  if(inp.scrollWidth>inp.clientWidth) inp.style.width=(inp.scrollWidth+2)+'px';`);
+
 // 한글 입력 보호 (engine.js와 같은 처리, 2026-10-30)
 // 조합 중 즉시 포커스를 옮기면 안드로이드 키보드가 마지막 글자를 잃거나 앞 칸 글자를 다음 칸에 다시 넣는다.
 const IME_ATTR = ' autocorrect="off" autocapitalize="off" spellcheck="false"'; // 제목·빈칸 칸은 원래 autocomplete="off"가 있음

@@ -417,9 +417,10 @@ document.addEventListener('focusout', e=>{
 document.addEventListener('input', e=>{
   const inp=e.target;
   if(!inp.matches('.binp')) return;
-  const minW=parseFloat(getComputedStyle(inp).fontSize)*4;
-  inp.style.width=minW+'px';
-  inp.style.width=Math.max(inp.scrollWidth+2, minW)+'px';
+  if(!inp.dataset.w0) inp.dataset.w0=parseFloat(getComputedStyle(inp).width);
+  const w0=+inp.dataset.w0;
+  inp.style.width=w0+'px';
+  if(inp.scrollWidth>inp.clientWidth) inp.style.width=(inp.scrollWidth+2)+'px';
 });
 // Enter 키 → 다음 입력 칸으로 이동
 document.addEventListener('keydown', e=>{

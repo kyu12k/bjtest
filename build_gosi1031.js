@@ -138,6 +138,10 @@ rep(`  const minW=parseFloat(getComputedStyle(inp).fontSize)*4;
   inp.style.width=w0+'px';
   if(inp.scrollWidth>inp.clientWidth) inp.style.width=(inp.scrollWidth+2)+'px';`);
 
+// 빈칸 너비엔 애니메이션을 걸지 않는다 — 애니메이션 중 너비를 재면 2px씩 쌓여 칸이 계속 늘어났다(포커스 색 변화만 유지)
+rep('outline:none;padding:1px 4px;margin:1px;vertical-align:middle;transition:.2s}',
+    'outline:none;padding:1px 4px;margin:1px;vertical-align:middle;transition:border-color .2s,background-color .2s}');
+
 // 한글 입력 보호 (engine.js와 같은 처리, 2026-10-30)
 // 조합 중 즉시 포커스를 옮기면 안드로이드 키보드가 마지막 글자를 잃거나 앞 칸 글자를 다음 칸에 다시 넣는다.
 const IME_ATTR = ' autocorrect="off" autocapitalize="off" spellcheck="false"'; // 제목·빈칸 칸은 원래 autocomplete="off"가 있음

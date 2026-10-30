@@ -128,6 +128,29 @@ rep(`const s=new URLSearchParams(location.search).get('stage');\n  if(s) selectS
     `const q=new URLSearchParams(location.search), s=q.get('stage'), x=q.get('exam');\n  if(x&&EXAMS[x]) selectExam(x); else if(s) selectStage(s);`);
 rep("const HKEY='bj_history';", "const HKEY='bj_history_gosi1031';"); // 같은 도메인 mock 기록과 분리
 
+// 한글 입력 보호 (engine.js와 같은 처리, 2026-10-30)
+// 조합 중 즉시 포커스를 옮기면 안드로이드 키보드가 마지막 글자를 잃거나 앞 칸 글자를 다음 칸에 다시 넣는다.
+const IME_ATTR = ' autocorrect="off" autocapitalize="off" spellcheck="false"'; // 제목·빈칸 칸은 원래 autocomplete="off"가 있음
+rep('<input type="text" class="line-inp"', '<input type="text" class="line-inp"' + IME_ATTR);
+rep('<input type="text" class="binp"', '<input type="text" class="binp"' + IME_ATTR);
+rep('<textarea class="vtarea"', '<textarea class="vtarea" autocomplete="off"' + IME_ATTR);
+rep(`document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  const t=e.target;`,
+`document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  if(e.isComposing||e.keyCode===229) return; // 한글 조합 중엔 개입하지 않음
+  const t=e.target;`);
+rep(`    const nx=all[i+1]; nx.focus();
+    const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}`,
+`    // 앞 칸을 blur해 키보드 조합을 확정·초기화한 뒤 한 박자 늦게 다음 칸으로
+    const nx=all[i+1];
+    setTimeout(()=>{
+      if(document.activeElement===t) t.blur();
+      nx.focus();
+      const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}
+    },0);`);
+
 // 틀린 부분 찾기 탭 제거 (오답 데이터가 없음)
 // (버튼을 지우면 setMode가 #tabP를 참조하다 죽으므로 숨기기만 한다)
 const spotBtn = html.match(/<button([^>]*onclick="setMode\('spot'\)")/);

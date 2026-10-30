@@ -424,6 +424,7 @@ document.addEventListener('input', e=>{
 // Enter 키 → 다음 입력 칸으로 이동
 document.addEventListener('keydown', e=>{
   if(e.key!=='Enter') return;
+  if(e.isComposing||e.keyCode===229) return; // 한글 조합 중엔 개입하지 않음
   const t=e.target;
   if(!t.matches('.line-inp,.vtarea,.binp')) return;
   e.preventDefault();
@@ -432,8 +433,13 @@ document.addEventListener('keydown', e=>{
   const all=[...body.querySelectorAll('.line-inp,.vtarea,.binp')];
   const i=all.indexOf(t);
   if(i>=0&&i<all.length-1){
-    const nx=all[i+1]; nx.focus();
-    const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}
+    // 앞 칸을 blur해 키보드 조합을 확정·초기화한 뒤 한 박자 늦게 다음 칸으로
+    const nx=all[i+1];
+    setTimeout(()=>{
+      if(document.activeElement===t) t.blur();
+      nx.focus();
+      const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}
+    },0);
   }
 });
 if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
@@ -3243,20 +3249,20 @@ function renderExamMulti(keys){
 function buildExamHtml(ex, ti, vi, qi, pfx='e'){
   let html='';
   ex.titleData.forEach(d=>{
-    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" id="${pfx}t-${ti.v++}" data-a="${d.a||''}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
+    html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.q}</div><input type="text" class="line-inp" autocorrect="off" autocapitalize="off" spellcheck="false" id="${pfx}t-${ti.v++}" data-a="${d.a||''}" placeholder="장 제목을 입력하세요" autocomplete="off"></div>`;
   });
   if(ex.verseData.length){
     html+=`<div class="pdf-divider">* 다음 성구를 기록하시오.</div>`;
     ex.verseData.forEach(d=>{
       const hint=d.hint?`<div class="vhint">📌 <strong>${d.hint}···</strong></div>`:'';
-      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" id="${pfx}v-${vi.v++}" data-a="${d.full||''}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
+      html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div>${hint}<textarea class="vtarea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="${pfx}v-${vi.v++}" data-a="${d.full||''}" rows="4" placeholder="여기에 성구를 기록하세요">${d.hint||''}</textarea></div>`;
     });
   }
   if(ex.blankData.length){
     html+=`<div class="pdf-divider">* 다음 성구의 괄호 속에 들어갈 말을 성경대로 쓰시오. (부분점수 없음)</div>`;
     ex.blankData.forEach(d=>{
       let bi=0; const myQi=qi.v++;
-      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`${pfx}b-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" id="${id}" data-a="${w}" style="width:${Math.max(4,w.length+0.5)}em" autocomplete="off">`;});
+      const body=d.raw.replace(/\{([^}]+)\}/g,(_,w)=>{const id=`${pfx}b-${myQi}-${bi}`;bi++;return `<input type="text" class="binp" autocorrect="off" autocapitalize="off" spellcheck="false" id="${id}" data-a="${w}" style="width:${Math.max(4,w.length+0.5)}em" autocomplete="off">`;});
       html+=`<div class="ecard"><div class="eqlabel">${d.num}. ${d.ref}</div><div class="ev-body">${body}</div></div>`;
     });
   }

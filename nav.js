@@ -40,6 +40,26 @@
   btn.onmouseover=function(){this.style.opacity='.82';};
   btn.onmouseout=function(){this.style.opacity='1';};
   btn.onclick=function(){location.href='/';};
-  document.addEventListener('DOMContentLoaded',function(){document.body.appendChild(btn);});
-  if(document.readyState!=='loading')document.body.appendChild(btn);
+  function mount(){
+    document.body.appendChild(btn);
+    // 마지막 칸도 버튼 위로 올릴 수 있게 바닥 여백 확보
+    if(parseFloat(getComputedStyle(document.body).paddingBottom)<100) document.body.style.paddingBottom='100px';
+  }
+  document.addEventListener('DOMContentLoaded',mount);
+  if(document.readyState!=='loading')mount();
+
+  // 입력 중인 칸이 화면 바닥(=처음으로 버튼 자리)에 붙으면 페이지를 밀어 올린다
+  var CLEAR=90;
+  function isField(el){ return el&&(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&/^(text|search|)$/.test(el.type))); }
+  function keepClear(){
+    var el=document.activeElement;
+    if(!isField(el)) return;
+    var vv=window.visualViewport, bottom=vv?vv.offsetTop+vv.height:innerHeight;
+    var r=el.getBoundingClientRect();
+    var need=Math.min(r.bottom-(bottom-CLEAR), r.top-60); // 칸이 화면보다 크면 윗부분은 보이게
+    if(need>0) window.scrollBy(0,need);
+  }
+  document.addEventListener('focusin',function(e){ if(isField(e.target)){ setTimeout(keepClear,0); setTimeout(keepClear,350); } }); // 350ms: 모바일 키보드가 올라온 뒤
+  document.addEventListener('input',function(e){ if(isField(e.target)) keepClear(); });
+  if(window.visualViewport) visualViewport.addEventListener('resize',keepClear);
 })();

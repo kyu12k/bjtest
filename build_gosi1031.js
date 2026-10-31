@@ -234,7 +234,25 @@ rep('<textarea class="vtarea"', '<textarea class="vtarea" autocomplete="off"' + 
 rep(`document.addEventListener('keydown', e=>{
   if(e.key!=='Enter') return;
   const t=e.target;`,
-`document.addEventListener('keydown', e=>{
+`// 아이패드 외장 키보드: 앞 칸에서 조합 중이던 마지막 글자가 다음 칸 첫 타건에 다시 붙어 나온다 (예: 노래→다음 칸 "래깅")
+// 빈 칸의 첫 타건은 자모 하나뿐이므로, 첫 입력이 앞 칸 끝 글자로 시작하는 완성 음절이면 끌려온 것 → 지우고 다시 포커스
+function guardCarry(from,to){
+  const tail=from.value.slice(-1), before=to.value;
+  if(!/[가-힣]/.test(tail)) return;
+  const T=tail.charCodeAt(0)-0xAC00;
+  const off=()=>{ to.removeEventListener('input',h); to.removeEventListener('blur',off); };
+  const h=()=>{
+    off();
+    if(!to.value.startsWith(before)) return;
+    const c=to.value.charCodeAt(before.length)-0xAC00;
+    if(!(c>=0&&c<11172)) return;
+    if(!(c===T||(T%28===0&&c-c%28===T))) return;
+    to.blur(); to.value=before;
+    setTimeout(()=>{ to.value=before; to.focus(); try{to.setSelectionRange(before.length,before.length);}catch(_){} },60);
+  };
+  to.addEventListener('input',h); to.addEventListener('blur',off);
+}
+document.addEventListener('keydown', e=>{
   if(e.key!=='Enter') return;
   if(e.isComposing||e.keyCode===229) return; // 한글 조합 중엔 개입하지 않음
   const t=e.target;`);
@@ -244,6 +262,7 @@ rep(`    const nx=all[i+1]; nx.focus();
     const nx=all[i+1];
     setTimeout(()=>{
       if(document.activeElement===t) t.blur();
+      guardCarry(t,nx);
       nx.focus();
       const l=nx.value.length; try{nx.setSelectionRange(l,l);}catch(_){}
     },0);`);
